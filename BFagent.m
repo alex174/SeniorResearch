@@ -1527,7 +1527,7 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
   
   top = -1;
   //pj: why not just start at 1 so we never worry about putting forecast 0 into the mix?
-  for ( i=1; i < getInt(privateParams,"npool" ); i++ )
+  for ( i=1; i <= privateParams->npool ; i++ )
     {
       aForecast=[list atOffset: i];
       for ( j=top;  j >= 0 && (aReject=[rejects atOffset:j])&& ([aForecast getStrength] < [aReject  getStrength] ); j--)
@@ -1538,7 +1538,7 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
       top++;
     }
 	  
-  for ( ; i < getInt(privateParams,"numfcasts"); i++)
+  for ( ; i < privateParams->numfcasts; i++)
     {
       aForecast=[list atOffset: i];
       if ( [aForecast  getStrength]  < [[ rejects atOffset: top] getStrength ] ) 
@@ -1842,17 +1842,36 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
   id ind;
   BFCast * aForecast;
   BFCast * toDieForecast;
+  int newcount = 0 , rejectcount = 0;
 
-      //nnew = pp->nnew;
- 
-  ind = [newlist begin: [self getZone]];
-  for ( aForecast = [ind next]; [ind getLoc]==Member; aForecast=[ind next] )
+  if ( (newcount = [newlist getCount]) < (rejectcount= [rejects getCount]))
     {
-      //toDieForecast = GetMort(aForecast, rejects);
-      toDieForecast = [self GetMort: aForecast Rejects: rejects];
-      toDieForecast = [self CopyRule: toDieForecast From: aForecast];
+      ind = [newlist begin: [self getZone]];
+      for ( aForecast = [ind next]; [ind getLoc]==Member; aForecast=[ind next] )
+	{
+	  toDieForecast = [self GetMort: aForecast Rejects: rejects];
+	  toDieForecast = [self CopyRule: toDieForecast From: aForecast];
+	}
+      [ind drop];
     }
-  [ind drop];
+  else if ( newcount == rejectcount)
+    {
+      //copy all newforecasts to replace rejects
+      int i;
+      for ( i = 0; i < newcount; i++)
+	{
+	  toDieForecast = [rejects atOffset: i];
+	  [rejects atOffset: i put:  nil];
+	  aForecast = [newlist atOffset: i];
+	  toDieForecast = [self CopyRule: toDieForecast From: aForecast];
+	}
+    }
+  else
+    {
+      raiseEvent(InvalidArgument,"npool smaller than nnew, can't do it");
+    }
+
+
 }
 
 
@@ -1887,20 +1906,20 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
       r1 = irand(numrejects);
     }
   while ( [rejects atOffset: r1] == nil );
-  
-
+      
+      
   do
     {
       r2 = irand(numrejects);
     }
   while (r1 == r2 || [rejects atOffset: r2] == nil);
-      
+   
 
   cond1 = [[rejects atOffset: r1] getConditions];
   cond2 = [[rejects atOffset: r2] getConditions];
-
+      
   newcond = [new getConditions];
-
+      
   different1 = 0;
   different2 = 0;
   bitmax = 16;

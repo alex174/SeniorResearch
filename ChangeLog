@@ -1,3 +1,8 @@
+2003-03-26    <pauljohn@ku.edu>
+
+	* BFagent.m ([BFagent -MakePool:From:]): fix bug where only
+	npool-1 rules were created. iterate from 1 to n, not 1 to n-1.
+
 2003-03-26    Thomas Badegruber <thomas.badegruber@uni-graz.at>
 
 	* ASMModelParams.m ([ASMModelParams +createBegin:aZone]): removed
