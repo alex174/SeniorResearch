@@ -328,14 +328,14 @@ getConditionsbit: x].  "*/
 
   //If you want to customize privateParams, this is the spot!
  
-  numfcasts = getInt(privateParams,"numfcasts");
+  numfcasts = privateParams->numfcasts;
 
   fcastList=[Array create: [self getZone] setCount: numfcasts];
 
   avspecificity = 0.0;
   gacount = 0;
 
-  variance = getDouble(privateParams, "initvar");
+  variance = privateParams->initvar;
   [self getPriceFromWorld];
   [self getDividendFromWorld];
   global_mean = price + dividend;
