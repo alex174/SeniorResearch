@@ -354,7 +354,7 @@ BFParams.m, where 0-5 are fundamental, 6-9 are technical,
 {
   int i;
   static int *(*countpointer)[4];
-  BOOL cum;
+  BOOL cum,first;
   id index, agent; 
   long t = getCurrentTime();
   int condbits = 12;
@@ -363,6 +363,7 @@ BFParams.m, where 0-5 are fundamental, 6-9 are technical,
   int numFcasts = 0;
 
   cum = NO;
+  first = YES;
   numagents = [agentList getCount];
   countpointer = calloc(4,sizeof(int*));
   
@@ -380,12 +381,18 @@ BFParams.m, where 0-5 are fundamental, 6-9 are technical,
   while ((agent = [index next]))
     {
       [agent bitDistribution: countpointer cumulative:cum];
-      [agent fMoments: moments cumulative:cum];
+      if (first) 
+	{
+	  [agent fMoments: moments cumulative:NO];
+	  first = NO;
+	}
+      else
+	[agent fMoments: moments cumulative:YES];
+
       for (i = 0; i < [agent nbits];i++ ) 
 	{
 	  bs[i]=bs[i]+(*countpointer)[1][i]+(*countpointer)[2][i]; 
 	}
-     
     }
  
   [index drop];
@@ -408,7 +415,10 @@ BFParams.m, where 0-5 are fundamental, 6-9 are technical,
   csfreq[2] = (double)cs[2]/(2.0*numagents*numFcasts);
   csfreq[3] = (double)cs[3]/(condbits*numagents*numFcasts);
 
-  free (countpointer);
+  for (i=0;i<8;i++)
+    moments[i] /= numagents;
+
+ free (countpointer);
   return self;
 }
 
