@@ -14,16 +14,18 @@
   double c;		/*" constant term"*/
   double specfactor;	/*" specificty=(condbits - nnulls - specificity)* bitcost. "*/
   double bitcost; /*" cost of using bits in forecasts"*/
-
-  BitVector *conditions; /*" a BitVector object that holds records on which conditions in the world are being monitored by this forecast object"*/
   int lastactive;  /*" last time period in which this forecast was active"*/
   int specificity; /*" specificity "*/
   int count; /*" number of times this forecast has been active"*/
   int condwords; /*"number of words of memory needed to hold the conditions"*/
   int condbits; /*"number of bits of information monitored by this forecast"*/
   int nnulls; /*"number of 'unused' bits that remain in the allocated vector after the 'condbits' bits have been used"*/
+  BitVector *conditions; /*" a BitVector object that holds records on which conditions in the world are being monitored by this forecast object"*/
 };
 
++ init;
+
+- init;
 
 - createEnd;
 

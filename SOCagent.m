@@ -48,7 +48,7 @@
 	  [self CopyRule: aNewForecast From: parent1];
 	  if(!aNewForecast)raiseEvent(WarningMessage,"got nil back from CopyRule");
 	  
-	  changed = [self Mutate: aNewForecast Status: changed];
+	  changed = [self Mutate: aNewForecast  Status: changed];
 	}
     }
   else
@@ -60,11 +60,20 @@
       strForecast= [agent getStrongestBFCast];	  
 
       [self CopyRule: aNewForecast From: strForecast];
+
     }
   return changed;
 }
 
 
+- (void)lispOutDeep: stream
+{
+
+ [stream catStartMakeInstance: "SOCagent"];
+ [super bareLispOutDeep: stream];
+ [stream catEndMakeInstance];
+
+}
 
 @end
 

@@ -324,6 +324,7 @@ getConditionsbit: x].  "*/
   [aForecast setNNulls: privateParams->nnulls];
   [aForecast setBitcost: privateParams->bitcost];
   aForecast = [aForecast createEnd];
+  [aForecast init];
   [aForecast setForecast: 0.0];
   [aForecast setLforecast: global_mean];
   //note aForecast has the forecast conditions=0 by its own createEnd.
@@ -513,7 +514,8 @@ same bitlist."*/
   [world setCondwords: params->condwords];
   [world setCondbits: params->condbits];
   world=[world createEnd];
-    
+  [world init];
+  
   bitlist = [params getBitListPtr];
   nworldbits = [worldForAgent getNumWorldBits];
 
@@ -1171,10 +1173,13 @@ _{plinear    -- linear combination "crossover" prob.}
   double varvalue, altvarvalue = 999999999;
  
   BFCast * aNewForecast = [ self createNewForecast ];
+  [aNewForecast init];
   [aNewForecast updateSpecfactor];
   [aNewForecast setStrength: avstrength];
  
   [aNewForecast setLastactive: currentTime];
+  
+
   varvalue =  privateParams->maxdev-avstrength+[aNewForecast getSpecfactor];
  
   [aNewForecast setVariance: varvalue];
@@ -1356,7 +1361,7 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
   BOOL bitchanged = NO;
   int * bitlist= NULL;
   
-  bitlist= [privateParams getBitListPtr];
+  bitlist = [privateParams getBitListPtr];
   //pj: dont know why BFagents introduced bitchanged.??
   bitchanged = changed;
   if (privateParams->pmutation > 0) 
@@ -1755,6 +1760,61 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
     }
   [index drop];
   return self;
+}
+
+
+/*"Save state of BFagent"*/
+- (void)lispOutDeep: stream
+{
+  //If modelType == 0, you need  this
+  [stream catStartMakeInstance: "BFagent"];
+  [self bareLispOutDeep: stream];
+  [stream catEndMakeInstance];
+}
+
+/*"Subclasses need to archive variables in here,
+  but we dont want to create an BFagent class."*/
+
+- (void)bareLispOutDeep: stream
+{
+  [super bareLispOutDeep: stream];
+  [self lispSaveStream: stream Integer: "currentTime" Value: currentTime ];
+  [self lispSaveStream: stream Double: "forecast" Value: forecast ];
+  [self lispSaveStream: stream Double: "lforecast" Value: lforecast ];
+
+  [self lispSaveStream: stream Double: "global_mean" Value: global_mean ];
+  [self lispSaveStream: stream Double: "realDeviation" Value: realDeviation ];
+  
+  [self lispSaveStream: stream Double: "variance" Value: variance ];
+  [self lispSaveStream: stream Double: "pdcoeff" Value: pdcoeff ];
+  [self lispSaveStream: stream Double: "offset" Value: offset ];
+  [self lispSaveStream: stream Double: "divisor" Value: divisor ];
+  [self lispSaveStream: stream Integer: "gacount" Value: gacount ];
+
+
+  [stream catSeparator];
+  [stream catKeyword: "privateParams"];
+  [stream catSeparator];
+  [privateParams lispOutDeep: stream];
+
+  
+
+  [stream catSeparator];
+  [stream catKeyword: "fcastList"];
+  [stream catSeparator];
+  [fcastList lispOutDeep: stream];
+
+
+  [stream catSeparator];
+  [stream catKeyword: "activeList"];
+  [stream catSeparator];
+  [activeList lispOutDeep: stream];
+
+  [stream catSeparator];
+  [stream catKeyword: "oldActiveList"];
+  [stream catSeparator];
+  [oldActiveList lispOutDeep: stream];
+ 
 }
 
 

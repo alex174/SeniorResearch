@@ -99,10 +99,10 @@ to users:
 
 /*"Allocate dynamic memory to hold the bit vector.  There are "condwords"*sizeof(unsigned int) words of memory allocated."*/
 
-- createEnd
+- init
 {
   int i;
- if (!condwords ){fprintf(stderr,"Must have condwords to create BFCast."); exit(1);}
+  if (!condwords ){fprintf(stderr,"BitVector: Must have condwords to create BFCast."); exit(1);}
 
  conditions=[[self getZone] allocBlock: condwords*sizeof(unsigned int)];
   for(i=0;i<condwords;i++)
@@ -116,6 +116,9 @@ to users:
   makebittables();
   return self;
 }
+
+
+
 
 /*"Sets the number of words-worth of memory will be used"*/       
 - (void)setCondwords: (int)x
@@ -278,6 +281,20 @@ static void makebittables()
       NMASK[bit] = ~MASK[bit];
     }
 }
+
+
+
+- (void)lispOutDeep: stream
+{
+  [stream catStartMakeInstance: "BitVector"];
+  [super lispOutVars: stream deep: YES];//Important to note this!!
+
+  [super lispStoreIntegerArray: conditions Keyword: "conditions" Rank: 1 Dims: &condwords Stream: stream];
+
+  [stream catEndMakeInstance];
+}
+
+
 
 
 @end

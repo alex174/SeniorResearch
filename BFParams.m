@@ -333,6 +333,23 @@ int ReadBitname(const char *variable, const struct keytable *table)
 }
 
 
+
+- (void)lispOutDeep: stream
+{
+  [stream catStartMakeInstance: "BFParams"];
+  [super lispOutVars: stream deep: YES];//Important to note this!!
+
+  [super lispStoreIntegerArray: bitlist Keyword: "bitlist" Rank: 1 Dims: &condbits Stream: stream];
+
+  [super lispStoreDoubleArray: problist Keyword: "problist" Rank: 1 Dims: &condbits Stream: stream];
+
+  [stream catEndMakeInstance];
+}
+
+
+
+
+
 @end
 
 

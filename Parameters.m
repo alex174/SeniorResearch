@@ -27,13 +27,18 @@ This class also takes responsibility for making sure that objects to manager par
 + createBegin: aZone
 {
   static struct argp_option options[] = {
-     {"run",            'R',"RunNumber",0,"Run is...",7},
+     {"run",            'R',"RunNumber",0,"Run is...",6},
+     {"inputfile",          'I',"filename",0,"set fn",7},
      { 0 }
   };
 
   Parameters *obj = [super createBegin: aZone];
     
   [obj addOptions: options];
+ 
+  obj->run=-1;
+
+  obj->filename= NULL;
 
   return obj;
 }
@@ -53,6 +58,11 @@ This class also takes responsibility for making sure that objects to manager par
       run = atoi(arg);
       return 0;
     }
+ else if (key == 'I')
+    {
+      filename = strdup(arg);
+      return 0;
+    }
 
   else
     return [super parseKey: key arg: arg];
@@ -64,21 +74,41 @@ This class also takes responsibility for making sure that objects to manager par
   then creating the parameter objects--asmModelParms and
   bfParams--that hold those values and make them avalable to the
   various objects in the model "*/
-- init {
+- init 
 
-  if ((asmModelParams =
-       [lispAppArchiver getWithZone: [self getZone] key: "asmModelParams"]) == nil)
+{
+  if (!filename)
+    {
+      asmModelParams =
+	[lispAppArchiver getWithZone: [self getZone] key: "asmModelParams"];
+      bfParams =
+	[lispAppArchiver getWithZone: [self getZone] key: "bfParams"];
+      
+    }
+     
+  else
+    {
+      id archiver = [LispArchiver create: [self getZone] setPath: filename];
+      asmModelParams = [archiver getObject: "asmModelParams"];
+      bfParams = [archiver getObject: "bfParams"];
+      [archiver drop];
+    } 
+  if (asmModelParams == nil)
     raiseEvent(InvalidOperation,
-               "Can't find the modelSwarm parameters");
-  
-  if ((bfParams =
-       [lispAppArchiver getWithZone: [self getZone] key: "bfParams"]) == nil)
+	       "Can't find the modelSwarm parameters");
+
+  if (bfParams == nil)
     raiseEvent(InvalidOperation,
                "Can't find the BFParam's parameters");
   [bfParams init];
 
   return self;
 }
+
+
+
+
+
 
 /*"Returns an instance of ASMModelParams, the object which holds the model-level input parameters"*/
 - (ASMModelParams*) getModelParams
@@ -111,6 +141,18 @@ This class also takes responsibility for making sure that objects to manager par
   printf("You are a dirty scoundrel");
   return self;
 }
+
+
+
+- (char *)getFilename
+{
+
+  if (filename)
+    return strdup(filename);
+  else
+    return NULL;
+}
+
 
 
 @end

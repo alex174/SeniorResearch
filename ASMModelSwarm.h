@@ -41,6 +41,14 @@
 - setBatchRandomSeed: (int)newSeed;
 
 - buildObjects;
+
+- createAgents;
+
+
+- lispArchive: (char *)inputName;
+- lispLoadAgents: (const char *)lispfile;
+- lispLoadWorld: (const char *)lispfile;
+
 - writeParams;
 - buildActions;
 
@@ -59,6 +67,7 @@
 -(long int) getModelTime;
 
 -(void) drop;
+
 
 @end
 

@@ -1,3 +1,38 @@
+2003-03-27  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* World.m (changes): Rewrite all MA code to access Swarm
+	Arrays, not C arrays. This is for serialization.
+	(NWORLDBITS): Stop calculating NWORLDBITS, just declare
+	a number in World.h. This allows the realworld array to be
+	statically allocated.
+
+	* World.h (SwarmObject): convert priceMA, oldpriceMA and divMA and
+	olddivMA into Swarm Arrays for serialization.
+
+	* World.m (changes): Serialization: eliminate dynamic memory 
+	allocation of
+
+	* BFagent.m ([BFagent -collectWorldData:]): init for BitVector
+	need. Serialzation was the reason.
+
+	* BFCast.m ([BFCast -init]): must call init in BitVector every
+	time a BitVector is created.
+
+
+	* BitVector.h: changed createEnd to init method, for serialization.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -lispLoadAgents:]): new method
+	to restore agents from the saved scm file
+	([ASMModelSwarm -createAgents]): separate method to create
+	agents. Used only if an input scm file is not present.
+
+	* BFCast.m ([BFCast -init]): new method to initialize the BFCast.
+	Same work used to be done in createEnd, but serialization conflicts
+	with that usage.
+
+	* BFagent.m ([BFagent -createNewForecast]): call init method when
+	BFCast is created. needed for serialization.
+
 2003-03-27    <Anwender@BANK99>
 
 	* SOCagent.m ([SOCagent -PickParents:]): introduced first type of

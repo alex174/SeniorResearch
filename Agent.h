@@ -50,6 +50,11 @@
 - (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprce;
 - updatePerformance;
 
+- (void)bareLispOutDeep: stream;
+
+- (void)lispSaveStream: stream Double: (const char*) aName Value: (double)val;
+
+- (void)lispSaveStream: stream Integer: (const char*) aName Value: (int)val;
 @end
 
 

@@ -113,6 +113,20 @@
 
 
 
+
+- (void)lispOutDeep: stream
+{
+  [stream catStartMakeInstance: "MovingAverage"];
+  [super lispOutVars: stream deep: YES];//Important to note this!!
+
+  [super lispStoreDoubleArray: maInputs Keyword: "maInputs" Rank: 1 Dims: &width Stream: stream];
+
+  [stream catEndMakeInstance];
+}
+
+
+
+
 @end
 
 

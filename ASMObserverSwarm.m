@@ -44,6 +44,9 @@
   [probeMap addProbe: [probeLibrary getProbeForMessage: 
 		      "toggleDataWrite" inClass: [self class]]];
 
+  [probeMap addProbe: [probeLibrary getProbeForMessage: "lispSaveSerial:"
+                                    inClass: [self class]]];
+
   //The member functions that allow you to print a graph. 
 #if 0
   [probeMap addProbe: [probeLibrary getProbeForMessage: 
@@ -351,6 +354,18 @@
     [output writeData:agentlist];  //BaT 10.09.2002
   return self;
 }
+
+
+- lispSaveSerial: (char *)inputName
+{
+
+  char dataArchiveName[100];
+ 
+  snprintf(dataArchiveName,100,"%s-%ld",inputName,[asmModelSwarm getModelTime]);
+  [asmModelSwarm lispArchive: dataArchiveName];
+  return self;
+}
+
 
 
 /*" Create actions and schedules onto which the actions are put.

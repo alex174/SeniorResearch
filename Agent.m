@@ -243,6 +243,43 @@ return myID;
 }
 
 
+- (void)lispSaveStream: stream Double: (const char*) aName Value: (double)val
+{
+  [stream catSeparator];
+  [stream catKeyword: aName ];
+  [stream catSeparator];
+  [stream catDouble: val];
+}
+
+- (void)lispSaveStream: stream Integer: (const char*) aName Value: (int)val
+{
+  [stream catSeparator];
+  [stream catKeyword: aName ];
+  [stream catSeparator];
+  [stream catDouble: val];
+}
+
+- (void)bareLispOutDeep: stream
+{
+  [self lispSaveStream: stream Double: "demand" Value: demand];
+  [self lispSaveStream: stream Double: "profit" Value: profit];
+  [self lispSaveStream: stream Double: "wealth" Value: wealth];
+  [self lispSaveStream: stream Double: "position" Value: position];
+  [self lispSaveStream: stream Double: "cash" Value: cash];
+  [self lispSaveStream: stream Double: "initialcash" Value: initialcash];
+  [self lispSaveStream: stream Double: "minholding" Value:minholding];
+  [self lispSaveStream: stream Double: "mincash" Value: mincash];
+  [self lispSaveStream: stream Double: "intrate" Value: intrate];
+  [self lispSaveStream: stream Double: "intratep1" Value: intratep1];
+  [self lispSaveStream: stream Double: "price" Value: price];
+  [self lispSaveStream: stream Double: "dividend" Value: dividend];
+  [self lispSaveStream: stream Integer: "myID" Value: myID];
+
+}
+
+
+
+
 @end
 
 

@@ -2,7 +2,7 @@
 #import <simtools.h>
 #import "Output.h"
 #import "BFParams.h"
-//#import "BFCast.h"
+#import "Parameters.h"
 //#import "BFagent.h"
 #import "SOCagent.h"
 #import <random.h>
@@ -152,7 +152,6 @@
 /*"Build and initialize objects"*/
 - buildObjects      
 {
-  int i;
 
   if(asmModelParams->randomSeed != 0) 
     [randomGenerator setStateFromSeed: asmModelParams->randomSeed];
@@ -174,11 +173,18 @@
   [dividendProcess setDerivedParams];
   dividendProcess = [dividendProcess createEnd];
 
-  world = [World createBegin: [self getZone]];
-  [world setintrate: asmModelParams->intrate];
-  [world setExponentialMAs: asmModelParams->exponentialMAs];
-  [world initWithBaseline:asmModelParams-> baseline];
-  world = [world createEnd];
+  if (![(Parameters *)arguments getFilename])
+   {
+     world = [World createBegin: [self getZone]];
+     [world setintrate: asmModelParams->intrate];
+     [world setExponentialMAs: asmModelParams->exponentialMAs];
+     [world initWithBaseline:asmModelParams-> baseline];
+     world = [world createEnd];
+   }
+ else
+    {
+      [self lispLoadWorld: [(Parameters *)arguments getFilename]];
+    }
 
   specialist = [Specialist createBegin: [self getZone]];
   [specialist setMaxPrice: asmModelParams->maxprice];
@@ -203,8 +209,27 @@
   [SOCagent init];
   [SOCagent setBFParameterObject: bfParams];
   [SOCagent setWorld: world];
-    
-  //nowObject create the agents themselves
+
+
+  if (![(Parameters *)arguments getFilename])
+   {
+     [self createAgents];
+   }
+  
+  else
+    {
+      [self lispLoadAgents: [(Parameters *)arguments getFilename]];
+    }
+
+
+  return self;
+}
+
+/*"Create agents, when they are not loaded in serialized form"*/
+- createAgents
+{
+  int i;
+
   for (i = 0; i < asmModelParams->numBFagents; i++) 
     {
       SOCagent * agent;
@@ -220,9 +245,72 @@
       agent = [agent createEnd];
       [agentList addLast: agent];
     }
+  return self;
+}
+
+
+
+
+- lispArchive: (char *)inputName
+{
+  char dataArchiveName[100];
+  if (!inputName)
+    snprintf(dataArchiveName,100,"%s%d-%s.scm","run",getInt(arguments,"run"),"blah");
+  else
+    snprintf(dataArchiveName,100,"%s%d-%s.scm","run",getInt(arguments,"run"),inputName);
+  id dataArchiver = [LispArchiver create: [self getZone] setPath: dataArchiveName];
+
+  [dataArchiver putShallow: "asmModelParams" object: asmModelParams];
+  [dataArchiver putShallow: "bfParams" object: bfParams];
+  [dataArchiver putDeep: "world" object: world];
+  [dataArchiver putDeep: "agentList" object: agentList];
+
+  //  [dataArchiver putShallow: "parameters" object: parameters];
+
+  [dataArchiver sync];
+  [dataArchiver drop];
 
   return self;
 }
+
+
+
+
+- lispLoadAgents: (const char *)lispfile
+{
+  id <Index> index;
+  id anAgent;
+  id archiver = [LispArchiver create: [self getZone] setPath: lispfile];
+  agentList = [archiver getObject: "agentList"];
+  
+  [archiver drop];
+  
+  index = [agentList begin: self];
+  for (anAgent=[index next]; [index getLoc]==Member; anAgent= [index next])
+    {
+      [anAgent setAgentList: agentList];
+      printf ("ID IS %d", [anAgent getID]);
+    }
+
+  return self;
+}
+
+
+- lispLoadWorld: (const char *)lispfile
+{
+  id archiver = [LispArchiver create: [self getZone] setPath: lispfile];
+  world = [archiver getObject: "world"];
+  
+  [archiver drop];
+  
+  return self;
+}
+
+
+
+
+
+
 
 /*"This triggers a writing of the model parameters, for record keeping."*/
 - writeParams
@@ -275,27 +363,28 @@
 		 message: M(updateAgentPerformance)];
 
 
-  // Create the model schedule
-  startupSchedule = [Schedule create: [self getZone] setAutoDrop: YES];
+     startupSchedule = [Schedule create: [self getZone] setAutoDrop: YES];
 
- 
-  //force the system to do 501 "warmup steps" at the beginning of the
-  //startup Schedule.  Note that, since these phony steps are just
-  //handled by telling classes to do the required steps, nothing fancy
-  //is required.
-  {
-    int i;
-    for (i = 0; i < 502; i++)
-      [startupSchedule at: 0 createActionTo: self message:M(doWarmupStep)];
-  }
- 
 
-  //pj: 2001-10-30. This was in the original model, I don't know why, but
-  //taking it out changes the numerical results, so I'm leaving it in,
-  //even though it is not logically necessary.
-  [startupSchedule at: 0 createAction: periodActions];
-    
+  if (![(Parameters *)arguments getFilename])
+   {
+     //force the system to do 501 "warmup steps" at the beginning of the
+     //startup Schedule.  Note that, since these phony steps are just
+     //handled by telling classes to do the required steps, nothing fancy
+     //is required.
+     {
+       int i;
+       for (i = 0; i < 502; i++)
+	 [startupSchedule at: 0 createActionTo: self message:M(doWarmupStep)];
+     }
+   
 
+     //pj: 2001-10-30. This was in the original model, I don't know why, but
+     //taking it out changes the numerical results, so I'm leaving it in,
+     //even though it is not logically necessary.
+     [startupSchedule at: 0 createAction: periodActions];
+   } 
+  
   periodSchedule = [Schedule createBegin: [self getZone]];
   [periodSchedule setRepeatInterval: 1];
   periodSchedule = [periodSchedule createEnd];
@@ -344,7 +433,7 @@
 
 
 /*"Ask the dividend object for a draw from the dividend distribution, then tell the world about it. Tell the world to do an update of to respond to the dividend. Then calculate the price the divident implies and insert it into the world"*/
--doWarmupStep
+- doWarmupStep
 {
   double div = [dividendProcess dividend];
   [world setDividend: div];
@@ -390,6 +479,9 @@
   [output drop];
   [super drop];
 }
+
+
+
 
 @end
 

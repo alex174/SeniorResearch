@@ -56,13 +56,12 @@ getInt (id obj, const char *ivarName);
   int npool;		/*" derived: replacement pool size"*/
   int nnew;		/*" derived: number of new rules"*/
   int nnulls;            /*" unnused bits"*/
-  int *bitlist;		/*" dynamic array, length condbits"*/
-  double *problist;	/*" dynamic array, length condbits"*/
- 
   int npoolmax ;		/* size of reject array */
   int nnewmax ;		/* size of newfcast array */
   int ncondmax;		/* size of newc*/
-
+  int *bitlist;		/*" dynamic array, length condbits"*/
+  double *problist;	/*" dynamic array, length condbits"*/
+ 
 };
 
 
@@ -75,6 +74,9 @@ getInt (id obj, const char *ivarName);
 - (double *)getProbListPtr;
 - (void)copyProbList: (double *) p Length: (int) size;
 - (BFParams *) copy: (id <Zone>) aZone;
+
+
+- (void)lispOutDeep: stream;
 
 @end
 

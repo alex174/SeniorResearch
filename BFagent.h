@@ -73,6 +73,9 @@
 - (int)fMoments: (double *)moment cumulative: (BOOL)cum;
 - (const char *)descriptionOfBit:(int)bit;
 
+- (void)lispOutDeep: stream;
+- (void)bareLispOutDeep: stream;
+
 @end
 
 

@@ -14,26 +14,32 @@
 
 - createEnd
 {
- if (!condwords || !condbits ){fprintf(stderr,"Must have condwords to create BFCast."); exit(1);}
-
-  forecast= 0.0;
-  count = 0;
-  lastactive=1;
-  specificity = 0;
-  variance = 999999999;
-  conditions= [ BitVector createBegin: [self getZone] ];
-  [conditions setCondwords: condwords];
-  [conditions setCondbits: condbits];
-  conditions = [conditions createEnd];
   return self;
 }
 
-/*"The init is needed because BitVector has to be told how bit of a
+/*"The init is needed because BitVector has to be told how big of a
   bit vector it will need"*/
 + init
 {
   [BitVector init];
  return self;
+}
+
+
+- init
+{
+  forecast= 0.0;
+  count = 0;
+  lastactive=1;
+  specificity = 0;
+  variance = 999999999;
+  if (!condwords || !condbits ){fprintf(stderr,"BFCast: Must have condwords to create BFCast."); exit(1);}
+  conditions= [ BitVector createBegin: [self getZone] ];
+  [conditions setCondwords: condwords];
+  [conditions setCondbits: condbits];
+  conditions = [conditions createEnd];
+  [conditions init];
+  return self;
 }
 
 /*"Free dynamically allocated memory"*/

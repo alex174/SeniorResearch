@@ -109,6 +109,7 @@ instructed to write results"*/
 /*"tell the top level swarm to terminate the simulation"*/
 -stopRunning
 {
+  [asmModelSwarm lispArchive: "end"];		
   [getTopLevelActivity() terminate];
   return self;
 }

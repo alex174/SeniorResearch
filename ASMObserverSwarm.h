@@ -49,7 +49,7 @@
 #endif
 - createEnd;
 - _writeRawData_;
-
+- lispSaveSerial: (char *)inputName;
 - buildObjects;
 
 - _priceGraphDeath_ : caller;

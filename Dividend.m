@@ -22,7 +22,9 @@
 - initNormal
 {
   
-  normal=[NormalDist  create: [self getZone]  setGenerator: randomGenerator setMean: 0 setVariance: 1];
+  id myMTgen = [MT19937gen create: [self getZone]  setStateFromSeed: [randomGenerator getInitialSeed] + 5];
+
+  normal = [NormalDist  create: [self getZone]  setGenerator: myMTgen setMean: 0 setVariance: 1];
 
   return self;
 }
