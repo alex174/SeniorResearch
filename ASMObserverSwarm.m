@@ -44,6 +44,9 @@
   [probeMap addProbe: [probeLibrary getProbeForMessage: 
 		      "toggleDataWrite" inClass: [self class]]];
 
+  [probeMap addProbe: [probeLibrary getProbeForMessage: "lispSaveSerial:"
+                                    inClass: [self class]]];
+
   //The member functions that allow you to print a graph. 
 #if 0
   [probeMap addProbe: [probeLibrary getProbeForMessage: 
@@ -118,9 +121,11 @@
   //need to create output and parameters so they exist from beginning
   ASMModelParams * asmModelParams = [(id)arguments getModelParams];
   BFParams * bfParams = [(id)arguments getBFParams];
-  output = [[Output createBegin: self] createEnd];
   
   [super buildObjects];
+ 
+  output = [[Output createBegin: self] createEnd];
+
   asmModelSwarm = [ASMModelSwarm create: self]; 
   [asmModelSwarm setOutputObject: output];
 
@@ -136,33 +141,12 @@
   // way, any changes typed into the gui will be taken into account by
   // the model.
   [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
+
   [asmModelSwarm buildObjects];
 
+  [output createTimePlots];
+
   numagents = asmModelParams->numBFagents;
-
-  priceGraph = [EZGraph create: self setTitle: "Price v. time"
-			setAxisLabelsX: "time" Y: "price"
-			setWindowGeometryRecordName: "priceGraph"];
-  [priceGraph enableDestroyNotification: self
-	      notificationMethod: @selector (_priceGraphDeath_:)];
-  [priceGraph createSequence: "actual price" 
-	      withFeedFrom: [asmModelSwarm getWorld]
-	      andSelector: M(getPrice)];
-  [priceGraph createSequence: "risk neutral price"
-	      withFeedFrom: [asmModelSwarm getWorld]
-	      andSelector: M(getRiskNeutral)];
-  
-
-  volumeGraph = [EZGraph create: self setTitle: "Volume v. time"
-			setAxisLabelsX: "time" Y: "volume"
-			setWindowGeometryRecordName: "volumeGraph"];
-  
-  [volumeGraph createSequence: "actual volume"
-	       withFeedFrom: [asmModelSwarm getSpecialist]
-	       andSelector: M(getVolume)];
-  
-  [volumeGraph enableDestroyNotification: self
-	      notificationMethod: @selector (_volumeGraphDeath_:)];
 
   positionHisto = [Histogram createBegin: [self getZone]];
   SET_WINDOW_GEOMETRY_RECORD_NAME (positionHisto);
@@ -202,51 +186,9 @@
   
   [relativeWealthHisto enableDestroyNotification: self
 		 notificationMethod: @selector (_relativeWealthHistoDeath_:)];
-  //Only interesting to compare multiple agents.
-  //deviationGraph = [Graph createBegin: [self getZone]];
-  //SET_WINDOW_GEOMETRY_RECORD_NAME (deviationGraph);
-  //deviationGraph = [deviationGraph createEnd];
- 
-  //[deviationGraph setTitle: "Mean Abs Dev of Different Agents"];
-  //[deviationGraph setAxisLabelsX: "time" Y: "mean abs dev/actual p+d"];
-  //[deviationGraph setRangesYMin: 0.0 Max: 200.0];
-  //[deviationGraph pack];
-
-  
-  //deviationData = [deviationGraph createElement];
-  //[[deviationData setLabel: "BF"] setColor: "green"];
-
-  //deviationAverager = [Averager createBegin: [self getZone]];
-  //[deviationAverager setCollection: [asmModelSwarm getAgentList]];
-  //[deviationAverager setProbedSelector: M(getDeviation)];
-  //deviationAverager = [deviationAverager createEnd];
-      
-  //deviationGrapher = [ActiveGraph createBegin: [self getZone]];
-  //[deviationGrapher setElement: deviationData];
-  //[deviationGrapher setDataFeed: deviationAverager];
-  //[deviationGrapher setProbedSelector: M(getAverage)];
-  //deviationGrapher = [deviationGrapher createEnd];
-    
+     
   return self;
 }
-
-
-/*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
-- _priceGraphDeath_ : caller
-{
-  [priceGraph drop];
-  priceGraph = nil;
-  return self;
-}
-
-/*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
-- _volumeGraphDeath_ : caller
-{
-  [volumeGraph drop];
-  volumeGraph = nil;
-  return self;
-}
-
 
 
 - _positionHistoDeath_ : caller
@@ -264,9 +206,6 @@
   relativeWealthHisto = nil;
   return self;
 }
-
-
-
 
 
 /*" This method gathers data about the agents, puts it into arrays,
@@ -289,7 +228,6 @@
       double initcash=[(id)arguments getModelParams]->initialcash;
       position[i] = [agent getAgentPosition];
       relativeWealth[i] = [agent getWealth]/initcash;
-      //cash[i] = [agent getCash];
     }
   [index drop];
   [positionHisto drawHistogramWithDouble: position];
@@ -331,10 +269,11 @@
 /*"This toggles data writing features. It can be accessed by punching
   a button in a probe display that is shown on the screen when the simulation begins"*/
 
--(BOOL)toggleDataWrite { 
+-(BOOL)toggleDataWrite 
+{ 
   if(writeData != YES) 
     { 
-      [output  prepareOutputFile]; 
+      [output  prepareCOutputFile]; 
       writeData = YES; 
     } 
   else writeData = NO;
@@ -346,10 +285,24 @@
 /*"If data logging is turned on, this cause data to be written whenever it is called"*/
 - _writeRawData_
 {
+  id agentlist; //BaT 10.09.2002
+  agentlist = [asmModelSwarm getAgentList];//BaT 10.09.2002
   if (writeData == YES)
-    [output writeData];  
+    [output writeCData];  //BaT 10.09.2002
   return self;
 }
+
+
+- lispSaveSerial: (char *)inputName
+{
+
+  char dataArchiveName[100];
+ 
+  snprintf(dataArchiveName,100,"%s-%ld",inputName,[asmModelSwarm getModelTime]);
+  [asmModelSwarm lispArchive: dataArchiveName];
+  return self;
+}
+
 
 
 /*" Create actions and schedules onto which the actions are put.
@@ -364,16 +317,15 @@
 
   displayActions = [ActionGroup create: [self getZone]];
 
-  [displayActions createActionTo: self 
-		    message: M(_writeRawData_)];
-  [displayActions createActionTo: self             message: M(updateHistos)];
-  [displayActions createActionTo: priceGraph    message: M(step)];
-  //  [displayActions createActionTo: riskNeutralGrapher     message: M(step)];
-  [displayActions createActionTo: volumeGraph    message: M(step)];
-  //[displayActions createActionTo: deviationAverager     message: M(update)];
-  //[displayActions createActionTo: deviationGrapher     message: M(step)];
+  [displayActions createActionTo: self  message: M(updateHistos)];
+
+  [displayActions createActionTo: output     message: M(stepPlots)];
+
+  [displayActions createActionTo: self message: M(_writeRawData_)];
+
   [displayActions createActionTo: probeDisplayManager      
 		  message: M(update)];
+
   [displayActions createActionTo: actionCache message: M(doTkEvents)];
 
   displaySchedule = [Schedule createBegin: [self getZone]];
@@ -386,13 +338,14 @@
 
 
 /*"This method activates the model swarm within the context of this
-  observer, and then it activated the observer's schedules.  This
+  observer, and then it activates the observer's schedule.  This
   makes sure that the actions inserted at time t inside the model are
   placed into the overall time sequence before the observer scheduled
   actions that update graphs which describe the results"*/
 - activateIn: swarmContext 
 {
   [super activateIn: swarmContext];
+
   [asmModelSwarm activateIn: self];
 
   [displaySchedule activateIn: self];
@@ -409,8 +362,7 @@
 -(void) drop
 {
   [self expostParamWrite];
-  [priceGraph drop];
-  [volumeGraph drop];
+ 
   [positionHisto drop];
   [relativeWealthHisto drop];
   [asmModelSwarm drop];

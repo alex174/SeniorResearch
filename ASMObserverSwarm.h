@@ -20,11 +20,6 @@
   BOOL writeParams; /*"Indicator that files including parameter values should be written"*/
   BOOL writeData;/*"Indicator that files including output values should be written"*/
 
-  id <EZGraph> priceGraph; /*"Time plot of risk neutral and observed market price"*/
- 
-  id <EZGraph> volumeGraph; /*"Time plot of market trading volume"*/
- 
-
   id <Histogram> positionHisto;/*"Histogram showing amount of stock held by each individual agent"*/
   //Histo *cashHisto; //A histogram for agent cash holdings.
   id <Histogram> relativeWealthHisto;/*"Histogram showing wealth of agents"*/
@@ -49,13 +44,13 @@
 #endif
 - createEnd;
 - _writeRawData_;
-
+- lispSaveSerial: (char *)inputName;
 - buildObjects;
 
-- _priceGraphDeath_ : caller;
-- _volumeGraphDeath_ : caller;
+
 - _positionHistoDeath_ : caller;
 - _relativeWealthHistoDeath_ : caller;
+
 
 - updateHistos;
 - writeSimulationParams;

@@ -24,7 +24,7 @@
 #define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1] 
 
 /*" GETMA(x,j) is a macro that checks to see if we want an exponential MA or regular when we retrieve values from MA objects "*/
-#define GETMA(x,j) exponentialMAs ? [x[j] getEWMA]:[x[j] getMA]
+#define GETMA(x,j) exponentialMAs ? [[x atOffset: j] getEWMA]:[[x atOffset: j] getMA]
 
 /*" bitname struct holds the substantive information about various world indicators
  It is a list of bit names and descriptions
@@ -113,7 +113,7 @@ static struct bitnamestruct
 };
 
 
-#define NWORLDBITS	(sizeof(bitnamelist)/sizeof(struct bitnamestruct))
+//#define NWORLDBITS	(sizeof(bitnamelist)/sizeof(struct bitnamestruct))
 #define NULLBIT         -1
 
 // The index of the "pup" bit
@@ -129,14 +129,16 @@ static double ratios[] =
 // ------ Private methods ------
 @interface World(Private)
 
--makebitvector;
+- makebitvector;
 
 @end
 
 
 @implementation World
 
-/*" The World is a class that is mainly used to serve the information needs of BFagents.  The WOrld takes price data and converts it into a number of trends, averages, and so forth.
+/*" The World is a class that is mainly used to serve the information
+  needs of BFagents.  The World takes price data and converts it into
+  a number of trends, averages, and so forth.
 
 One instance of this object is created to manage the "world" variables
 -- the globally-visible variables that reflect the market itself,
@@ -228,6 +230,13 @@ set in ASMModelSwarm. " */
   int i;
   double initprice, initdividend;
   
+
+  priceMA = [Array create: [self getZone] setCount: NMAS];
+  oldpriceMA = [Array create: [self getZone] setCount: NMAS];
+  divMA = [Array create: [self getZone] setCount: NMAS];
+  olddivMA = [Array create: [self getZone] setCount: NMAS];
+
+
 // Check pup index
   if (strcmp([World nameOfBit:PUPDOWNBITNUM], "pup") != EQ)
     printf("PUPDOWNBITNUM is incorrect");
@@ -256,39 +265,48 @@ set in ASMModelSwarm. " */
   history_top = 0;
   updown_top = 0;
   
-  divhistory = [[self getZone] alloc: MAXHISTORY*sizeof(double)]; 
-  pricehistory = [[self getZone] alloc: MAXHISTORY*sizeof(double)]; 
+  //divhistory = [[self getZone] alloc: MAXHISTORY*sizeof(double)]; 
+  //pricehistory = [[self getZone] alloc: MAXHISTORY*sizeof(double)]; 
 
-  realworld = calloc(NWORLDBITS, sizeof(int)); 
+  //  realworld = calloc(NWORLDBITS, sizeof(int)); 
   if(!realworld)
     printf("Error allocating memory for realworld.");
 
 // Initialize arrays
   for (i = 0; i < UPDOWNLOOKBACK; i++) 
     {
-    pupdown[i] = 0;
-    dupdown[i] = 0;
+      pupdown[i] = 0;
+      dupdown[i] = 0;
     }
 
   for (i = 0; i < MAXHISTORY; i++) 
     {
-    pricehistory[i] = initprice;
-    divhistory[i] = initdividend;
+      pricehistory[i] = initprice;
+      divhistory[i] = initdividend;
     }
 
   for (i = 0; i < NMAS; i++) 
     {
-      priceMA[i] = [MovingAverage create: [self getZone]];
-      [priceMA[i] initWidth: malength[i] Value: initprice];
-      
-      divMA[i] = [MovingAverage create: [self getZone]];
-      [divMA[i] initWidth: malength[i] Value: initdividend];
-
-      oldpriceMA[i] = [MovingAverage create: [self getZone]];
-      [oldpriceMA[i] initWidth: malength[i] Value: initprice];
-
-      olddivMA[i] = [MovingAverage create: [self getZone]];
-      [olddivMA[i] initWidth: malength[i] Value: initdividend];
+      {
+	MovingAverage * prMA = [MovingAverage create: [self getZone]];
+	[prMA initWidth: malength[i] Value: initprice];
+	[priceMA atOffset: i put: prMA];
+      }
+      {
+	MovingAverage * dMA = [MovingAverage create: [self getZone]];
+	[dMA initWidth: malength[i] Value: initdividend];
+	[divMA atOffset: i put: dMA];
+      }
+      {
+	MovingAverage * oldpMA = [MovingAverage create: [self getZone]];
+	[oldpMA initWidth: malength[i] Value: initprice];
+	[oldpriceMA atOffset: i put: oldpMA];
+      }
+      {
+	MovingAverage * olddMA = [MovingAverage create: [self getZone]];
+	[olddMA initWidth: malength[i] Value: initdividend];
+	[olddivMA atOffset: i put: olddMA];
+      }
     }
 
 // Initialize bits
@@ -395,11 +413,11 @@ a global variable. "*/
     {
       int rago = (history_top-malength[i])%MAXHISTORY;
 
-      [priceMA[i] addValue: price];
-      [divMA[i] addValue: dividend];
+      [[priceMA atOffset: i] addValue: price];
+      [[divMA atOffset: i] addValue: dividend];
 
-      [oldpriceMA[i] addValue: pricehistory[rago]];
-      [olddivMA[i] addValue: divhistory[rago]];
+      [[oldpriceMA atOffset:i] addValue: pricehistory[rago]];
+      [[olddivMA atOffset: i] addValue: divhistory[rago]];
     }
 
 
@@ -416,12 +434,14 @@ a global variable. "*/
 
 
 - makebitvector
-/*"  Set all the world bits, based on the current dividend, price,
-and  their moving averages and histories.  This moves through the
-realworld array, bit by bit, setting the values to 0, 1 or 2,
-according to the data that has been observed.  Note the pointer math, such as realworld[i++], that steps the integer i through the array.   Note that "i" increases monotonically throughout this routine, always
-being the next bit to assign.  It is crucial that the order here is the
-same as in bitnamelist[]. "*/
+/*" Set all the world bits, based on the current dividend, price, and
+their moving averages and histories.  This moves through the realworld
+array, bit by bit, setting the values to 0, 1 or 2, according to the
+data that has been observed.  Note the pointer math, such as
+realworld[i++], that steps the integer i through the array.  Note that
+"i" increases monotonically throughout this routine, always being the
+next bit to assign.  It is crucial that the order here is the same as
+in bitnamelist[]. "*/
 {
   register int i, j, k, temp;
   double multiple;
@@ -451,8 +471,6 @@ same as in bitnamelist[]. "*/
   for (j = 0; j < NMAS-1; j++)
     for (k = j+1; k < NMAS; k++)
       realworld[i++] = (GETMA(divMA,j)) > (GETMA(divMA,k));
-      //  realworld[i++] = exponentialMAs ? [divMA[j] getEWMA]:[divMA[j] getMA]  > exponentialMAs ? [divMA[k] getEWMA]:[divMA[k] getMA];
-      //realworld[i++] = dmav[j] > dmav[k];
 
   /* Dividend as multiple of meandividend */
   multiple = dividend/dividendscale;
@@ -478,8 +496,6 @@ same as in bitnamelist[]. "*/
   /* Price > MA[j] */
   for (j = 0; j < NMAS; j++)
      realworld[i++] = price > (GETMA(priceMA,j));
-    //  realworld[i++] = price > exponentialMAs ? [priceMA[j] getEWMA]:[priceMA[j] getMA];
-  // realworld[i++] = price > pmav[j];
 
   /* Price MA[j] > price MA[k] */
   for (j = 0; j < NMAS-1; j++)

@@ -184,11 +184,6 @@ add or change instance variables in here.
 
   condwords = (condbits+15)/16;
 
-  //  myworld = [[self getZone] allocBlock: condwords* sizeof(unsigned int)];
-
-  //   for (i=0; i< condwords; i++)
-  //      myworld[i] = 0;
-
   // Check bitcost isn't too negative
   if (1.0+bitcost*(condbits-nnulls) <= 0.0)
     printf("The bitcost is too negative.");
@@ -206,7 +201,7 @@ add or change instance variables in here.
   if (npool > npoolmax) npoolmax = npool;
   if (nnew > nnewmax) nnewmax = nnew;
   if (condwords > ncondmax) ncondmax = condwords;
-  //  fprintf(stderr,"BFParams init complete");
+
   return [super createEnd];
 }
 
@@ -314,7 +309,9 @@ int ReadBitname(const char *variable, const struct keytable *table)
   bfParams->maxdev = maxdev;	
   bfParams->poolfrac = poolfrac;	
   bfParams->newfrac = newfrac;	
-  bfParams->pcrossover = pcrossover;	
+  bfParams->pcrossover = pcrossover;
+  bfParams->psocial = psocial;
+  bfParams->startsocial = startsocial;
   bfParams->plinear = plinear;	
   bfParams->prandom = prandom;	
   bfParams->pmutation = pmutation;	
@@ -334,6 +331,23 @@ int ReadBitname(const char *variable, const struct keytable *table)
   [bfParams copyProbList: problist Length: condbits];	
   return bfParams;
 }
+
+
+
+- (void)lispOutDeep: stream
+{
+  [stream catStartMakeInstance: "BFParams"];
+  [super lispOutVars: stream deep: YES];//Important to note this!!
+
+  [super lispStoreIntegerArray: bitlist Keyword: "bitlist" Rank: 1 Dims: &condbits Stream: stream];
+
+  [super lispStoreDoubleArray: problist Keyword: "problist" Rank: 1 Dims: &condbits Stream: stream];
+
+  [stream catEndMakeInstance];
+}
+
+
+
 
 
 @end

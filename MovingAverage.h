@@ -32,6 +32,9 @@
 
 - (void)drop;
 
+
+- (void)lispOutDeep: stream;
+
 @end
 
 

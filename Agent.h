@@ -1,11 +1,13 @@
 #import <objectbase.h>               //Agent is a SwarmObject
 #import <objectbase/SwarmObject.h>
+#import <collections.h>
 #import "World.h"
+
 
 @interface Agent:SwarmObject          
 {
   @public
-    double demand;	/*" bid or -offer"*/ 
+  double demand;	/*" bid or -offer"*/ 
   double profit;	/*" exp-weighted moving average "*/
   double wealth;	/*" total agent wealth "*/
   double position;	/*" total shares of stock "*/
@@ -18,31 +20,41 @@
   double price;         // price is maintained by World
   double dividend;      // dividend is maintained by World
   int myID;
+  @protected
+    id <List> agentList;
 }
 
 
-+setWorld: (World *)aWorld;
++ setWorld: (World *)aWorld;
 
--setID: (int)iD;
--setPosition: (double)aDouble;
--setintrate: (double)rate;
--setminHolding: (double)holding   minCash: (double)minimumcash;
--setInitialCash: (double)initcash;
--setInitialHoldings;
--getPriceFromWorld;
--getDividendFromWorld;
+- setID: (int)iD;
+- (int)getID;
+- setPosition: (double)aDouble;
+- setintrate: (double)rate;
+- setminHolding: (double)holding   minCash: (double)minimumcash;
+- setInitialCash: (double)initcash;
+- setInitialHoldings;
+- (void)setAgentList: aList;
 
--creditEarningsAndPayTaxes;
--(double)constrainDemand: (double *)slope : (double)trialprice;
--(double)getAgentPosition;
--(double)getWealth;
--(double)getCash;
+- getPriceFromWorld;
+- getDividendFromWorld;
+
+- creditEarningsAndPayTaxes;
+- (double)constrainDemand: (double *)slope : (double)trialprice;
+- (double)getAgentPosition;
+- (double)getWealth;
+- (double)getCash;
 
 //Methods specified by each agent type
--prepareForTrading;   
--(double)getDemandAndSlope: (double *)slope forPrice: (double)trialprce;
--updatePerformance;
+- prepareForTrading;   
+- (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprce;
+- updatePerformance;
 
+- (void)bareLispOutDeep: stream;
+
+- (void)lispSaveStream: stream Double: (const char*) aName Value: (double)val;
+
+- (void)lispSaveStream: stream Integer: (const char*) aName Value: (int)val;
 @end
 
 

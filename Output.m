@@ -1,38 +1,36 @@
 #import "Output.h"
 
 #include <misc.h> // stdio, time
-
-
+#import "BFagent.h" 
+#import "BFCast.h" //for bitDist
+#import <analysis.h>
+#import "Parameters.h"
 
 /*"
-To show the possible data output tools, I have 3
-different ways of saving the output time streams from the model.  All
-three should be similar/equivalent representations of the numbers.
+This class helps with data output.  The time plots will
+show on the screen--if you want--and they also write data into files.
+
+The time stream data is saved in two formats, just for 
+demonstration purposes.
 
 1) Text output of data streams.
-2) HDF5 or LISP format output of object dumps from a "putShallow"
-   call to a data archiver object. This dumps full snapshots of
-   the world and the specialist into a LISP on hdf5 archive.
-3) HDF5 output EZGraph which writes one vector per plotted line
+2) HDF5 output EZGraph which writes one vector per plotted line
    into an hdf5 file.
 
-This code has a preprocessor flag to control the behavior of data
-storage. If compile without any CPP flags, then the data files are
-saved in the .scm format, which is "scheme".  Otherwise, use the flag
-NO_LISP, and it uses hdf5 format. In Swarm, that means you type the
-make command:
+The latter requires your system have HDF5 installed. If not, 
+compile with this command:
 
- make EXTRACPPFLAGS=-DNO_LISP
+ make EXTRACPPFLAGS=-DNO_HDF5
 
+The hdf5 file is created EVERY TIME YOU RUN THE MODEL.
 
-The buttons in the ASMObserverSwarm display turn on data saving.  Look
-for "writeSimulationParams" and the other "toggleDataWrite".  These
-were in the original ASM Swarm model, but I've replaced the
-functionality with the newer storage methods.  The data is saved only
-if you turn on the writeData option. If "toggleDataWrite" is empty or
-false, hit that button and it shows "true". When the model runs,
-output will be created. If you run the program in batch mode, it
-automatically turns on the data writing.
+The text ouput file will be created only if you turn it on from the
+graphical interface or you run the model in batch model.  The buttons
+in the ASMObserverSwarm display turn on data saving in text format.
+Look for "toggleDataWrite".  If "toggleDataWrite" is empty or false,
+hit that button and it shows "true". When the model runs, output will
+be created. If you run the program in batch mode, it automatically
+turns on the data writing.
 
 Please note that if you want the simulation to save your parameter
 values to a file, you can click the GUI button
@@ -42,8 +40,7 @@ the parameter values into a file, such as
 guiSettingsThu_Jun_28_23_48_00_2001.scm
 
 
-if you did not compile with the NO_LISP flag.  Otherwise you get a
-.hdf file.  One key change from the old ASM is that you can push that
+One key change from the old ASM is that you can push that
 button at time 0, and it will save a snap at that time, and any time
 you stop the model, you can change parameters and punch the button
 again, and it will also save a snapshot at quit time.  I believe this
@@ -59,26 +56,23 @@ creates an ASCII file, for example,
 
 output.data_Thu_Jun_28_23_48_00_2001
 
-
 However, I understand the reasons others are pushing to use more
-refined formats.  Many people are digging into hdf5 format for data
-storage, and I've taken a look at that too.  I took the easy road and
-just dumped the whole world and specialist class with swarm's
-archiver. It seems to work great?!  The output file is called
-something like
+refined formats.  So I've used the Swarm EZGraph for the dual purposes
+of drawing on the screen and writing into an hdf5 file.  The hdf5 file
+has the run number appended to the basename of the file, so, for example,
+the output of run 33 would be named:
 
-swarmDataArchiveFri_Jun_29_16_29_25_2001.hdf
-or
-swarmDataArchiveFri_Jun_29_16_22_59_2001.scm
+stockData33.hdf
 
-You note here that output uses the current time and date to write the
-output file names. Today I ran an example and ended up with these
-three files of output:
+If you are running from the graphical interface and the run variable
+is not explicitly set, then run equals "-1" and the output file will 
+have a date string pasted into it:
 
-output.dataWed_Oct_24_11_30_18_2001
-swarmDataArchiveWed_Oct_24_11_30_18_2001.scm
-hdfGraphWed_Oct_24_11_30_18_2001.hdf
+ stockData-Sun_May_18_10_47_58_2003.hdf
+
+
 "*/
+
 @implementation Output
 
 
@@ -93,10 +87,9 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
  
   char paramFileName[100];
 
-  char dataArchiveName[100];
-
   if(!runTime)
     runTime = time(NULL);
+  
   dataFileExists = NO;
  
   strcpy (timeString, ctime(&runTime));
@@ -117,31 +110,16 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
     strcpy (paramFileName,"batchSettings");
 
   strcat (paramFileName, timeString);
- 
 
-  strcpy (dataArchiveName,"swarmDataArchive");
-  strcat (dataArchiveName, timeString);
-
-#ifdef NO_LISP
-  strcat (paramFileName,".hdf");
-  strcat (dataArchiveName,".hdf");
-#else
   strcat (paramFileName,".scm");
-  strcat (dataArchiveName,".scm");
-#endif
- 
-#ifdef NO_LISP
-  archiver = [HDF5Archiver create: [self getZone] setPath: paramFileName];
-  dataArchiver = [HDF5Archiver create: [self getZone] setPath: dataArchiveName];
-#else
-  //unlink ("settingsSaved.scm");
-  archiver = [LispArchiver create: [self getZone] setPath: paramFileName];
-  //unlink ("settingsSaved.scm");
-  dataArchiver = [LispArchiver create: [self getZone] setPath: dataArchiveName];
-
-#endif
   
- 
+  unlink ("settingsSaved.scm");
+  
+  archiver = [LispArchiver create: [self getZone] setPath: paramFileName];
+  unlink ("settingsSaved.scm");
+
+  for (i=0;i<16;i++) bs[i]=0;
+  for (i=0;i<3;i++) cs[i]=0;
   return self;
 }
 
@@ -159,26 +137,29 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   return self;
 }
 
+
+- (void)setAgentlist: list
+{
+  agentList = list;
+}
+
+
 /*"This flushes a snapshot of the current parameter settings from
   both the ASMModelParams and BFAgentParams into a file"*/
 - writeParams: modelParam BFAgent: bfParms Time: (long int) t
 {
   char modelKey[20];
   char paramKey[20];
- 
 
   sprintf (modelKey, "modelParams%ld",t);
   sprintf (paramKey, "bfParams%ld",t);
   
   [archiver putShallow: modelKey object: modelParam];
-#ifndef NO_LISP
   [archiver sync];
-#endif
 
   [archiver putShallow: paramKey  object: bfParms];
-#ifndef NO_LISP
   [archiver sync];
-#endif
+
   return self;
 }
 
@@ -189,7 +170,7 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   initialize the data output files. Each time this is called, it
   checks to see if the files have already been initialized. That way
   it does not initialize everything twice."*/
-- prepareOutputFile
+- prepareCOutputFile
 {
   char outputFile[256];
 
@@ -208,104 +189,248 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   return self;
 }
 
-/*"In case the Output class is told to write output data and there is
-no hdfWriter object yet, then this method will be run. I could not
-find another way to make sure that this object was not created unless
-the system actually tries to write data.  It cannot be done in the
-prepareOutputFile method, because that method can be called from the
-GUI before the Specialist and World objects exist.  Those objects are
-necessary to initialize an hdfWriter, as seen in this code.  "*/
 
--(void) initializeHDFWriter
+
+/*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
+- _priceGraphDeath_ : caller
 {
+  [priceGraph drop];
+  priceGraph = nil;
+  return self;
+}
 
+/*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
+- _volumeGraphDeath_ : caller
+{
+  [volumeGraph drop];
+  volumeGraph = nil;
+  return self;
+}
+
+
+/*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
+- _bitGraphDeath_ : caller
+{
+  [bitGraph drop];
+  bitGraph = nil;
+  return self;
+}
+
+- createTimePlots
+{
+  int i = 0;
+
+#ifndef NO_HDF5
+  int run = [(Parameters *)arguments getRunArg];
   char hdfEZGraphName[100];
+  if (run != -1)
+    sprintf (hdfEZGraphName, "stockData-%d.hdf", run);
+  else
+    sprintf (hdfEZGraphName, "stockData-%s.hdf", timeString);
 
-  strcpy (hdfEZGraphName,"hdfGraph");
-  strcat (hdfEZGraphName, timeString);
-  strcat (hdfEZGraphName, ".hdf");
 
   hdf5container = [HDF5 createBegin: [self getZone]];
   [hdf5container setWriteFlag: YES];
   [hdf5container  setName: hdfEZGraphName];
   hdf5container = [hdf5container createEnd];
-    
-  hdfWriter = [EZGraph create: [self getZone] 
-		       setHDF5Container: hdf5container
-		       setPrefix: "market"];
-  [hdfWriter createSequence: "volume"
-	     withFeedFrom: outputSpecialist
-	     andSelector: M(getVolume)];
+#endif
 
-    
-  [hdfWriter createSequence: "price"
-	     withFeedFrom: outputWorld
-	     andSelector: M(getPrice)];
+  priceGraph = [EZGraph createBegin: [self getZone]];
+#ifndef NO_HDF5
+  [priceGraph setHDF5Container: hdf5container];
+#endif  
+  [priceGraph setTitle: "Price v. time"];
+  [priceGraph setAxisLabelsX: "time" Y: "price"];
+  [priceGraph setWindowGeometryRecordName: "priceGraph"];
+  [priceGraph enableDestroyNotification: self
+ 	      notificationMethod: @selector (_priceGraphDeath_:)];
+  
+  priceGraph =  [priceGraph createEnd];
+#ifndef NO_HDF5
+  [priceGraph setFileOutput: YES];
+  [priceGraph setFileName: "prices"]; //name inside hdf5 file
+#endif  
+
+  if (swarmGUIMode == YES)
+    [priceGraph setGraphics: YES];
+  else
+    [priceGraph setGraphics: NO];
+  
+  prsequence[0] = [priceGraph createSequence: "actual price" 
+			      withFeedFrom: outputWorld
+			      andSelector: M(getPrice)];
+  prsequence[1] = [priceGraph createSequence: "risk neutral price"
+			      withFeedFrom: outputWorld
+			      andSelector: M(getRiskNeutral)];
 
 
-  [hdfWriter createSequence: "dividend"
-	     withFeedFrom: outputWorld
-	     andSelector: M(getDividend)];
 
+  volumeGraph = [EZGraph createBegin: [self getZone]];
+#ifndef NO_HDF5
+  [volumeGraph setHDF5Container: hdf5container];
+#endif
+  [volumeGraph  setTitle: "Volume v. time"];
+  [volumeGraph  setAxisLabelsX: "time" Y: "volume"];
+  [volumeGraph  setWindowGeometryRecordName: "volumeGraph"];
+  
+  volumeGraph = [volumeGraph createEnd];
+#ifndef NO_HDF5
+  [volumeGraph setFileOutput: YES]; 
+  [volumeGraph setFileName: "volume"]; //name inside hdf5 file
+#endif  
+  [volumeGraph enableDestroyNotification: self
+	       notificationMethod: @selector (_volumeGraphDeath_:)];
+  
+  volsequence = [volumeGraph createSequence: "actual volume"
+			     withFeedFrom: outputSpecialist
+			     andSelector: M(getVolume)];
+  
+  if (swarmGUIMode == YES)
+      [volumeGraph setGraphics: YES];
+  else
+      [volumeGraph setGraphics: NO];
+
+
+  bitGraph = [EZGraph createBegin: [self getZone]];
+#ifndef NO_HDF5
+  [bitGraph setHDF5Container: hdf5container];
+#endif
+  [bitGraph  setTitle: "bit usage"];
+  [bitGraph  setAxisLabelsX: "time" Y: "frequency"];
+  [bitGraph  setWindowGeometryRecordName: "bitGraph"];
+  
+  bitGraph = [bitGraph createEnd];
+#ifndef NO_HDF5
+  [bitGraph setFileOutput: YES]; 
+  [bitGraph setFileName: "bituse"]; //name inside hdf5 file
+#endif  
+  [bitGraph enableDestroyNotification: self
+	       notificationMethod: @selector (_bitGraphDeath_:)];
+  
+  for ( i = 0; i < 3; i++)
+    {
+      char name[10];
+      sprintf (name, "cs[%d]",i);
+      cssequence[i] = [bitGraph createSequence: name
+				withFeedFrom: self
+				andSelector: M(getCS:)];
+      [cssequence[i] setUnsignedArg: i];
+    }
+ 
+  if (swarmGUIMode == YES)
+      [bitGraph setGraphics: YES];
+  else
+      [bitGraph setGraphics: NO];
+
+
+  return self;
 }
 
-/*"The write data method dumps out measures of the price, dividend, and volume indicators into several formats"*/
--writeData
+
+- stepPlots
 {
+  [priceGraph step];
+  [volumeGraph step];
 
+  [self calculateBitData];
+  [bitGraph step];
+  return self;
+}
+
+
+
+
+
+- calculateBitData
+{
+  int i;
+  static int *(*countpointer)[4];
+  BOOL cum;
+  id index, agent; 
   long t = getCurrentTime();
-  char worldName[50];
-  char specName[50];
 
-  //**** I've got 3 ways to write out numerical results. *****//
-  //**** Choose what you like ****//
+  cum = NO;
+  countpointer = calloc(4,sizeof(int));
+  
+  for (i=0;i<16;i++) bs[i]=0;
+  now = time(NULL);
+  if (t%10000 == 0) printf("at time %s %7ld runs complete\n",asctime(localtime(&now)),t);
+  index = [agentList begin: [self getZone]];
+  while ((agent = [index next]))
+    {
+      //printf("Agent number %3d\n",[agent getID]);
+      [agent bitDistribution: countpointer cumulative:cum];
+      for (i = 0; i < [agent nbits];i++ ) 
+	{
+	  bs[i]=bs[i]+(*countpointer)[1][i]+(*countpointer)[2][i];
+	  
+	}
+    }
 
+  [index drop];
+         
+
+  
+  cs[0]=0; cs[1]=0; cs[2]=0;
+  
+  for (i = 0; i < 16;i++ )
+    {
+      if (i < 10) cs[0] = cs[0]+bs[i];
+      else if ( i >= 10 && i < 13) cs[1] = cs[1]+bs[i];
+      else cs[2] = cs[2]+bs[i];
+    }
+
+  free (countpointer);
+  return self;
+}
+
+- (double)getCS: (unsigned) i
+{
+  return cs[i];
+}
+
+
+
+//Modified by BaT 10.09.2002 to write additional agent-specific data on file*/
+
+- writeCData
+{
+  int i;
+  long t = getCurrentTime();
 
   // First, just dump out the raw numbers in text.
   // This is the old standby!
-
-  fprintf (dataOutputFile, "%10ld\t %5f\t %8f\t %f\n", 
+  
+  fprintf (dataOutputFile, "%10ld\t %5f\t %8f\t %f ", 
 	   t, 
            [outputWorld getPrice],
            [outputWorld getDividend], 
            [outputSpecialist getVolume]);
 
 
-  // Second, dump those same values out to an hdf5 format file.  This
-  // uses the Archiver library "put shallow" to dump all primitive
-  // types, ints and doubles mainly.
+ 
+  for (i=0;i<16;i++) fprintf(dataOutputFile,"%3d ",bs[i]);
+  //for (i=0;i<16;i++) fprintf(stderr,"%3d ",bs[i]);fprintf(stderr,"\n");
+  fprintf(dataOutputFile,"%f %f %f", (double)cs[0]/10.0,(double)cs[1]/4.0,(double)cs[2]/10.0);
+  fprintf(dataOutputFile,"\n");
+ 
 
-  sprintf (worldName, "world%ld",t);
-  sprintf (specName, "specialist%ld",t); 
-
-#ifndef NO_LISP
-  [dataArchiver putShallow: worldName object: outputWorld];
-  [dataArchiver sync];
-#else
-  [dataArchiver putDeep: worldName object: outputWorld];
-#endif
-
-  [dataArchiver putShallow: specName  object: outputSpecialist];
-#ifndef NO_LISP
-  [archiver sync];
-#endif
-  // Third, now use the EZGraph dump of its time strings.
-
-  if (!hdfWriter) [self initializeHDFWriter];
-  [hdfWriter step];
-   
-  return self;
+   return self;
 }
+
+
 
 /*"It is necessary to drop the data writing objects in order to make
 sure they finish their work.
 "*/
 -(void) drop
 {
+  [priceGraph drop];
+  [volumeGraph drop];
+
   if (dataOutputFile) fclose(dataOutputFile);
-  if (hdfWriter) [hdfWriter drop];
   [archiver drop];
-  [dataArchiver drop];
+ 
   [super drop];
 }
 

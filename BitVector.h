@@ -8,13 +8,13 @@
 }
 
 
-- createEnd;
+- init;
 
 + init;
 
 - (void)setCondwords: (int)x;
 
-- (void) setCondbits: (int)x;
+- (void)setCondbits: (int)x;
 
 - (void)setConditions: (int *)x;
 
@@ -39,5 +39,7 @@
 - (void)drop;
 
 - printcond: (int)word;
+
+- (void)lispOutDeep: stream;
 
 @end

@@ -7,18 +7,9 @@
 #import "World.h"
 
 
-//pj:   // Structure for list of individual forecasts
-//pj:  struct BF_fcast 
-//pj:  THIS STRUCT HAS MOVED INTO ITS OWN CLASS, BFCast. Go see.
-
-//pj:  struct BFparams moved to its own class, BFParams.
-//pj: I did not rename for fun, but to help make sure all code was completely updated.
-
 @interface BFagent:Agent
 {
   int currentTime; /*"The agent regularly checks with Swarm to see what time it is"*/
-  int lastgatime;	/*" last time period when the GeneticAlgorithm was run"*/
-  double avspecificity; /*'average specificity of active forecasts"*/
   double forecast;       /*"prediction of stock price: (trialprice+dividend)*pdcoeff + offset."*/
   double lforecast; /*"lagged forecast: forecast value from previous period"*/
   double global_mean; /*"price+dividend"*/
@@ -28,18 +19,20 @@
   double offset;    /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
   double divisor;   /*" a coefficient used to calculate demand for stock. It is a proportion (lambda) of forecastvar (basically, accuracy of forecasts)"*/
   int gacount;     /*" how many times has the Genetic Algorithm been used?"*/
-  // int nactive;     
+       
   BFParams * privateParams;     /*"BFParams object holds parameters of this object"*/
 
   id <Array> fcastList;        /*"A Swarm Array, holding the forecasts that the agent might use"*/
 
   id <List> activeList;       /*"A Swarm list containing a subset of all forecasts"*/
   id <List> oldActiveList;    /*"A copy of the activeList from the previous time step"*/
+  BFCast * strongestBFCast;  /*"A pointer to the strongest rule of the agent"*/
 }
 
 + (void)setBFParameterObject: x;
 + (void)init;
 
+- (BFCast *)getStrongestBFCast;
 - createEnd;
 - initForecasts;
 
@@ -50,18 +43,27 @@
 - (BitVector *) collectWorldData: aZone;
 - updateActiveList: (BitVector *)worldvalues;
 
-- getInputValues;  //does nothing, used only if their are ANNagents
-- feedForward;     //does nothing, used only if their are ANNagents
 - (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice;
 - (double)getRealForecast;
 - updatePerformance;
 - (double)getDeviation;
-- updateWeights;   //does nothing, used only if their are ANNagents
 - (int)nbits;
 - (int)nrules;
 
 - performGA;
-- (int)lastgatime;
+
+- (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
+- (void) MakePool: (id <List>)rejects From: (id <Array>) list;
+- (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed;
+- (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2;
+- (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects; 
+- (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects;
+- (void) Generalize: (id) list AvgStrength: (double) avgstrength;
+- (BFCast *) Tournament: (id <Array>) list;
+- (double) CalculateAndUseMadv;
+- (double) CalculateAvAndMinstrength;
+- (BFCast *) CreateFcastAvstrength: (double)avstrength Madv: (double)madv;
+- (BOOL) PickParents: (BFCast *) aNewForecast;
 
 - printcond: (int)word;
 
@@ -70,6 +72,9 @@
 - (int)bitDistribution:(int *(*)[4])countptr cumulative:(BOOL)cum;
 - (int)fMoments: (double *)moment cumulative: (BOOL)cum;
 - (const char *)descriptionOfBit:(int)bit;
+
+- (void)lispOutDeep: stream;
+- (void)bareLispOutDeep: stream;
 
 @end
 

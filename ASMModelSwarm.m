@@ -2,8 +2,10 @@
 #import <simtools.h>
 #import "Output.h"
 #import "BFParams.h"
-#import "BFCast.h"
+#import "Parameters.h"
+#import "BFagent.h"
 #import <random.h>
+
 
 #include <misc.h>
 
@@ -150,13 +152,14 @@
 /*"Build and initialize objects"*/
 - buildObjects      
 {
-  int i;
-
-  //  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n", asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
 
   if(asmModelParams->randomSeed != 0) 
     [randomGenerator setStateFromSeed: asmModelParams->randomSeed];
-  //pj: note I'm making this like other swarm apps. Same each time, new seeds only if precautions taken.
+  else
+    asmModelParams->randomSeed = [randomGenerator getInitialSeed];
+  
+  //pj: note I'm making this like other swarm apps. Same each time,
+  //new seeds only if precautions taken.
 
  
   /* Initialize the dividend, specialist, and world (order is crucial) */
@@ -170,11 +173,18 @@
   [dividendProcess setDerivedParams];
   dividendProcess = [dividendProcess createEnd];
 
-  world = [World createBegin: [self getZone]];
-  [world setintrate: asmModelParams->intrate];
-  [world setExponentialMAs: asmModelParams->exponentialMAs];
-  [world initWithBaseline:asmModelParams-> baseline];
-  world = [world createEnd];
+  if (![(Parameters *)arguments getFilename])
+   {
+     world = [World createBegin: [self getZone]];
+     [world setintrate: asmModelParams->intrate];
+     [world setExponentialMAs: asmModelParams->exponentialMAs];
+     [world initWithBaseline:asmModelParams-> baseline];
+     world = [world createEnd];
+   }
+ else
+    {
+      [self lispLoadWorld: [(Parameters *)arguments getFilename]];
+    }
 
   specialist = [Specialist createBegin: [self getZone]];
   [specialist setMaxPrice: asmModelParams->maxprice];
@@ -188,19 +198,40 @@
   [specialist setREB: asmModelParams->reb];
   specialist = [specialist createEnd];
  
-  [output setWorld: world];
-  [output setSpecialist: specialist];
-  
+ 
   /* Initialize the agent modules and create the agents */
   agentList = [List create: [self getZone]];  //create list for agents
 
+
+  [output setWorld: world];
+  [output setSpecialist: specialist];
+  [output setAgentlist: agentList];
 
   /* Set class variables */
   [BFagent init];
   [BFagent setBFParameterObject: bfParams];
   [BFagent setWorld: world];
-    
-  //nowObject create the agents themselves
+
+
+  if (![(Parameters *)arguments getFilename])
+   {
+     [self createAgents];
+   }
+  
+  else
+    {
+      [self lispLoadAgents: [(Parameters *)arguments getFilename]];
+    }
+
+
+  return self;
+}
+
+/*"Create agents, when they are not loaded in serialized form"*/
+- createAgents
+{
+  int i;
+
   for (i = 0; i < asmModelParams->numBFagents; i++) 
     {
       BFagent * agent;
@@ -212,12 +243,76 @@
       [agent setInitialHoldings];
       [agent setPosition: asmModelParams->initholding];
       [agent initForecasts];
+      [agent setAgentList: agentList];
       agent = [agent createEnd];
       [agentList addLast: agent];
+    }
+  return self;
+}
+
+
+
+
+- lispArchive: (char *)inputName
+{
+  char dataArchiveName[100];
+  if (!inputName)
+    snprintf(dataArchiveName,100,"%s%d-%s.scm","run",getInt(arguments,"run"),"blah");
+  else
+    snprintf(dataArchiveName,100,"%s%d-%s.scm","run",getInt(arguments,"run"),inputName);
+  id dataArchiver = [LispArchiver create: [self getZone] setPath: dataArchiveName];
+
+  [dataArchiver putShallow: "asmModelParams" object: asmModelParams];
+  [dataArchiver putShallow: "bfParams" object: bfParams];
+  [dataArchiver putDeep: "world" object: world];
+  [dataArchiver putDeep: "agentList" object: agentList];
+
+  //  [dataArchiver putShallow: "parameters" object: parameters];
+
+  [dataArchiver sync];
+  [dataArchiver drop];
+
+  return self;
+}
+
+
+
+
+- lispLoadAgents: (const char *)lispfile
+{
+  id <Index> index;
+  id anAgent;
+  id archiver = [LispArchiver create: [self getZone] setPath: lispfile];
+  agentList = [archiver getObject: "agentList"];
+  
+  [archiver drop];
+  
+  index = [agentList begin: self];
+  for (anAgent=[index next]; [index getLoc]==Member; anAgent= [index next])
+    {
+      [anAgent setAgentList: agentList];
+      printf ("ID IS %d", [anAgent getID]);
     }
 
   return self;
 }
+
+
+- lispLoadWorld: (const char *)lispfile
+{
+  id archiver = [LispArchiver create: [self getZone] setPath: lispfile];
+  world = [archiver getObject: "world"];
+  
+  [archiver drop];
+  
+  return self;
+}
+
+
+
+
+
+
 
 /*"This triggers a writing of the model parameters, for record keeping."*/
 - writeParams
@@ -237,134 +332,61 @@
 {
   [super buildActions];
 
- //Define the actual period's actions.  
+  //Define the actual period's actions.  
   periodActions = [ActionGroup create: [self getZone]];
 
-//Set the new dividend.  This method is defined below. 
-  [periodActions createActionTo:     self
+  //Set the new dividend.  This method is defined below. 
+  [periodActions createActionTo: self  
 		 message: M(periodStepDividend)];
 
   // Tell agents to credit their earnings and pay taxes.
-  // There are 3 ways you might do this
-  // 1. The FAction way: fastest Swarm way, replaces old 
-  // createActionForEach.  
-/*  {
+  [periodActions createActionTo: self 
+		 message: M(creditAgentEarningsAndPayTaxes)];
 
-    id call =
-      [FCall create: self
-             target: [agentList getFirst]
-             selector: M(creditEarningsAndPayTaxes)
-             arguments:
-               [[[FArguments createBegin: self]
-                  setSelector: M(creditEarningsAndPayTaxes)]
-                 createEnd]];
-                                                                                
-    
-      [periodActions createFActionForEachHomogeneous: agentList call: call];
-
-
-  }
-*/
-  // 2. write a loop method in self to go through agents. Just as fast as
-  // method 1, perhaps simpler.
-  [periodActions createActionTo: self message: M(creditAgentEarningsAndPayTaxes)];
-
-
-  // 3. The old, slow way is Swarm's createActionForEach.
-//  [periodActions createActionForEach:    agentList     
-//		 message: M(creditEarningsAndPayTaxes)];
-
-// Update world -- moving averages, bits, etc
-  [periodActions createActionTo:     world     
+  [periodActions createActionTo: world  
 		 message: M(updateWorld)];
 
-// Tell BFagents to get ready for trading (they may run GAs here)
+  // Tell BFagents to get ready for trading (they may run GAs here)
+  [periodActions createActionTo: self 
+		 message: M(prepareAgentsForTrading)];
 
-/*  {
-
-    id call =
-      [FCall create: self
-             target: [agentList getFirst]
-             selector: M(prepareForTrading)
-             arguments:
-               [[[FArguments createBegin: self]
-                  setSelector: M(prepareForTrading)]
-                 createEnd]];
-                                                                                
-    
-      [periodActions createFActionForEachHomogeneous: agentList call: call];
-
-
-  }
-*/
-
-  [periodActions createActionTo: self message: M(prepareAgentsForTrading)];
-
-
-  // [periodActions createActionForEach:     agentList
-  //		   message: M(prepareForTrading)];
-
-// Do the trading -- agents make bids/offers at one or more trial prices
-// and price is set.  This is defined below.
+  // Do the trading -- agents make bids/offers at one or more trial
+  // prices and price is set.  This is defined below.
   [periodActions createActionTo:     self
 		 message: M(periodStepPrice)];
 
-// Complete the trades -- change agents' position, cash, and profit
+  // Complete the trades -- change agents' position, cash, and profit
   [periodActions createActionTo:     specialist     
 		 message: M(completeTrades:Market:):agentList:world];
 
-  // One way To Tell the agents to update their performance
-  /*
-    {
-    
-    id call =
-    [FCall create: self
-    target: [agentList getFirst]
-    selector: M(updatePerformance)
-    arguments:
-    [[[FArguments createBegin: self]
-    setSelector: M(updatePerformance)]
-    createEnd]];
-    
-    
-    [periodActions createFActionForEachHomogeneous: agentList call: call];
-    
-    
-    }
-  */
   
   // Another way to tell agents to update their performance, equally fast
-  [periodActions createActionTo: self message: M(updateAgentPerformance)];
+  [periodActions createActionTo: self 
+		 message: M(updateAgentPerformance)];
 
 
-  // The really slow old way to tell agents to update their performance
-  //  [periodActions createActionForEach: agentList     
-  //		 message: M(updatePerformance)];
-
-// Create the model schedule
+     startupSchedule = [Schedule create: [self getZone] setAutoDrop: YES];
 
 
-  startupSchedule = [Schedule create: [self getZone] setAutoDrop: YES];
+  if (![(Parameters *)arguments getFilename])
+   {
+     //force the system to do 501 "warmup steps" at the beginning of the
+     //startup Schedule.  Note that, since these phony steps are just
+     //handled by telling classes to do the required steps, nothing fancy
+     //is required.
+     {
+       int i;
+       for (i = 0; i < 502; i++)
+	 [startupSchedule at: 0 createActionTo: self message:M(doWarmupStep)];
+     }
+   
 
-
- 
-  //force the system to do 501 "warmup steps" at the beginning of the
-  //startup Schedule.  Note that, since these phony steps are just
-  //handled by telling classes to do the required steps, nothing fancy
-  //is required.
-  {
-    int i;
-    for (i = 0; i < 502; i++)
-      [startupSchedule at: 0 createActionTo: self message:M(doWarmupStep)];
-  }
- 
-
-  //pj: 2001-10-30. This was in the original model, I don't know why, but
-  //taking it out changes the numerical results, so I'm leaving it in,
-  //even though it is not logically necessary.
-  [startupSchedule at: 0 createAction: periodActions];
-    
-
+     //pj: 2001-10-30. This was in the original model, I don't know why, but
+     //taking it out changes the numerical results, so I'm leaving it in,
+     //even though it is not logically necessary.
+     [startupSchedule at: 0 createAction: periodActions];
+   } 
+  
   periodSchedule = [Schedule createBegin: [self getZone]];
   [periodSchedule setRepeatInterval: 1];
   periodSchedule = [periodSchedule createEnd];
@@ -413,7 +435,7 @@
 
 
 /*"Ask the dividend object for a draw from the dividend distribution, then tell the world about it. Tell the world to do an update of to respond to the dividend. Then calculate the price the divident implies and insert it into the world"*/
--doWarmupStep
+- doWarmupStep
 {
   double div = [dividendProcess dividend];
   [world setDividend: div];
@@ -459,6 +481,9 @@
   [output drop];
   [super drop];
 }
+
+
+
 
 @end
 

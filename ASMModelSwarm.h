@@ -6,7 +6,6 @@
 #import "Output.h"
 #import "ASMModelParams.h"
 
-
 @interface ASMModelSwarm: Swarm
 {
   int modelTime;    /*"An integer used to represent the current timestep"*/
@@ -42,6 +41,14 @@
 - setBatchRandomSeed: (int)newSeed;
 
 - buildObjects;
+
+- createAgents;
+
+
+- lispArchive: (char *)inputName;
+- lispLoadAgents: (const char *)lispfile;
+- lispLoadWorld: (const char *)lispfile;
+
 - writeParams;
 - buildActions;
 
@@ -60,6 +67,7 @@
 -(long int) getModelTime;
 
 -(void) drop;
+
 
 @end
 

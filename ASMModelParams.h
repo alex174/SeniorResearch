@@ -32,10 +32,7 @@
   int randomSeed;
   //Agent parameters overridden by the BFagent.  
   //These might be used for other agents that a user implements. 
-  double tauv;          
-  double lambda;
   double maxbid; 
-  double initvar;
   double maxdev;
   int setOutputForData;
 };

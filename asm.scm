@@ -64,10 +64,7 @@
   #:rea 9.0D0
   #:reb 2.0D0
   #:randomSeed 0  
-  #:tauv  50.0D0         
-  #:lambda 0.3D0
   #:maxbid  10.0D0
-  #:initvar 0.4000212D0
   #:maxdev  100D0
   #:exponentialMAs 1 
 ))

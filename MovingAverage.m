@@ -67,7 +67,7 @@
     {
       movingAverage = (double)sumOfInputs / (double) width;
     }
-  //printf( "Object: ma=%f  sumOfInput: %f numInputs: %d \n",movingAverage, sumOfInputs, numInputs);
+
   return movingAverage;
 }
 
@@ -110,6 +110,20 @@
   [[self getZone] freeBlock: maInputs  blockSize: width*sizeof(double)];
   [super drop];
 }
+
+
+
+
+- (void)lispOutDeep: stream
+{
+  [stream catStartMakeInstance: "MovingAverage"];
+  [super lispOutVars: stream deep: YES];//Important to note this!!
+
+  [super lispStoreDoubleArray: maInputs Keyword: "maInputs" Rank: 1 Dims: &width Stream: stream];
+
+  [stream catEndMakeInstance];
+}
+
 
 
 

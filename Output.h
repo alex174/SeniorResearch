@@ -18,40 +18,62 @@
 
   World * outputWorld;  /*"Reference to the world, where we can get data!"*/
   Specialist * outputSpecialist; /*" Reference to the Specialist object, where we can get data!"*/
-  id archiver, dataArchiver; /*"hdf5 or LISP objects, depending on the CPP flags"*/
-  
+  id agentList;
+
+  id archiver; /*"LISP archiver object"*/
+
+  int bs[16];
+  int cs[3];
+
   time_t runTime; /*"Return from the systems time() function"*/
+  time_t now;
   char timeString[100];/*"a verbose description of current time"*/
   
   FILE * dataOutputFile; /*"FILE handle for output from C style fprintf"*/
-  id <EZGraph> hdfWriter; /*"EZGraph object that is used only to create hdf5 formatted output"*/
+
   id <HDF5> hdf5container; /*"HDF5 data container object used by hdfWriter"*/
+
+  id <EZGraph> priceGraph; /*"Time plot of risk neutral and observed market price"*/
+ 
+  id <EZGraph> volumeGraph; /*"Time plot of market trading volume"*/
+  id <EZGraph> bitGraph; /*"Time plot of risk neutral and observed market price"*/
   
+  id volsequence;  //sequences for data on volume
+  id prsequence[2]; //sequences for data price (observed and expected)
+  id cssequence[3];
+  id bssequence[16];
+
   @public
     int currentTime; /*"current time of simulation"*/
  
-  // These IVARs were previously used for record keeping, but they
-  // are not needed now. Could reinstate and add "self" to the
-  // objects that the archiver dumps out.				       
-  // double price; /*"current price"*/
-  // double dividend; /*"current dividend"*/
-  // double volume; /*"current volume"*/
 
 }
 
--setSpecialist: (Specialist *)theSpec;
+- setSpecialist: (Specialist *)theSpec;
 
--setWorld: (World *)theWorld;
+- setWorld: (World *)theWorld;
+
+- (void)setAgentlist: list;
+
+- _priceGraphDeath_ : caller;
+
+- _volumeGraphDeath_ : caller;
 
 - writeParams: modelParam BFAgent: bfParms Time: (long int) t;
 
--prepareOutputFile;
+- prepareCOutputFile;
 
--(void) initializeHDFWriter;
+- createTimePlots;
 
--writeData;
+- calculateBitData;
 
--(void) drop;
+- (double)getCS: (unsigned) i;
+
+- stepPlots;
+
+- writeCData;
+
+- (void)drop;
 
 @end
 

@@ -11,13 +11,7 @@
 +createBegin: (id)aZone
 {
   ASMBatchSwarm * obj;
-
-  obj = [super createBegin: aZone];
-
-  //overridden by settings from scm file
-  // obj->loggingFrequency = 1;
-  //obj->experimentDuration = 500;
-	
+  obj = [super createBegin: aZone];	
   return obj;
 }
 
@@ -39,32 +33,30 @@ instructed to write results"*/
 
   [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
 
-  //ObjectLoader: is deprecated
-  //: [ObjectLoader load: self fromAppDataFileNamed: "batch.setup"];
-
-  //pj:  [ObjectLoader load: asmModelSwarm fromAppDataFileNamed: "param.data"];
- 
   [asmModelSwarm buildObjects];
 
   output = [asmModelSwarm getOutput];
-  [output prepareOutputFile];
+  [output prepareCOutputFile];
   [output writeParams: asmModelParams BFAgent: bfParams Time: 0];
   
   return self;
 }
 
 /*"Create schedules.  Assures that the output object writes the data when needed and checks to see if the required number of time steps has been completed"*/
--buildActions
-{
+- buildActions
+{ 
+  id agentlist;
   [super buildActions];
   
   [asmModelSwarm buildActions];
 
   if(loggingFrequency)
     {
+      agentlist = [asmModelSwarm getAgentList];
+       
       displayActions = [ActionGroup create: [self getZone]];
-      [displayActions createActionTo: output message: M(writeData)];
-						    
+      [displayActions createActionTo: output message: M(writeCData)];
+					    
       displaySchedule = [Schedule createBegin: [self getZone]];
       [displaySchedule setRepeatInterval: loggingFrequency];
       displaySchedule = [displaySchedule createEnd];
@@ -78,7 +70,7 @@ instructed to write results"*/
 }
 
 /*"activateIn: is required to preserve the hierarchy of schedules across many levels"*/
--activateIn: (id)swarmContext
+- activateIn: (id)swarmContext
 {
   [super activateIn: swarmContext];
   [asmModelSwarm activateIn: self];
@@ -117,6 +109,7 @@ instructed to write results"*/
 /*"tell the top level swarm to terminate the simulation"*/
 -stopRunning
 {
+  [asmModelSwarm lispArchive: "end"];		
   [getTopLevelActivity() terminate];
   return self;
 }

@@ -1,9 +1,180 @@
+2003-05-18  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* Output.m ([Output -createEnd]): simplified data storage options.
+	Now only save time streams as C fprintf text and HDF vectors
+	through graphs.
+
+2003-05-17  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* Output.m ([Output -calculateBitData]): new method, separated 
+	from writeData method
+	([Output -getCS:i]): new method to give cs data for plotting
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): moved
+	graphs of price and volume int Output.m.
+	([ASMObserverSwarm -_writeRawData_]): deleted. Not needed due to
+	redesign.
+
+<<<<<<< ChangeLog
+2003-05-16  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* BFagent.h (Agent): remove lastgatime and avgspecificity. 
+	
+	Have to declare all these methods in order for them to be inherited.
+	
+- (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
+- (void) MakePool: (id <List>)rejects From: (id <Array>) list;
+- (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed;
+- (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2;
+- (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects; 
+- (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects;
+- (void) Generalize: (id) list AvgStrength: (double) avgstrength;
+- (BFCast *) Tournament: (id <Array>) list;
+- (double) CalculateAndUseMadv;
+- (double) CalculateAvAndMinstrength;
+- (BFCast *) CreateFcastAvstrength: (double)avstrength Madv: (double)madv;
+- (BOOL) PickParents: (BFCast *) aNewForecast;
+	
+	* BFagent.m ([BFagent -CalculateAvAndMinstrength]): new method to clean up GA.
+	([BFagent -CalculateAndUseMadv]): new method to clean up GA.
+	([ -CalculateAvAndMinstrength]):  new method to clean up GA.
+	([BFagent -CreateFcastAvstrength:Madv:]): new method to clean up GA.
+
+2003-03-26  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* BFagent.m: close memory leak in prepareForTrading. Was caused
+	by getDouble() function, which had called a probeAsDouble.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): remember
+	randomSeed all the time, whether we put it in or not.
+
 2003-03-27  Paul E Johnson  <pauljohn@ukans.edu>
 
 	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): Thomas
 	Badegruber pointed out ASM crashes on windows systems and
 	submitted a patch.
 
+=======
+2003-03-27  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* World.m (changes): Rewrite all MA code to access Swarm
+	Arrays, not C arrays. This is for serialization.
+	(NWORLDBITS): Stop calculating NWORLDBITS, just declare
+	a number in World.h. This allows the realworld array to be
+	statically allocated.
+
+	* World.h (SwarmObject): convert priceMA, oldpriceMA and divMA and
+	olddivMA into Swarm Arrays for serialization.
+
+	* World.m (changes): Serialization: eliminate dynamic memory 
+	allocation of
+
+	* BFagent.m ([BFagent -collectWorldData:]): init for BitVector
+	need. Serialzation was the reason.
+
+	* BFCast.m ([BFCast -init]): must call init in BitVector every
+	time a BitVector is created.
+
+
+	* BitVector.h: changed createEnd to init method, for serialization.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -lispLoadAgents:]): new method
+	to restore agents from the saved scm file
+	([ASMModelSwarm -createAgents]): separate method to create
+	agents. Used only if an input scm file is not present.
+
+	* BFCast.m ([BFCast -init]): new method to initialize the BFCast.
+	Same work used to be done in createEnd, but serialization conflicts
+	with that usage.
+
+	* BFagent.m ([BFagent -createNewForecast]): call init method when
+	BFCast is created. needed for serialization.
+
+2003-03-27    <Anwender@BANK99>
+
+	* SOCagent.m ([SOCagent -PickParents:]): introduced first type of
+	social behaviour: look at strongest forecast of agent at offset 0
+	and copy it.
+
+2003-03-27    Thomas Badegruber <thomas.badegruber@uni-graz.at> 
+
+	* BFagent.m ([BFagent -updateActiveList:]): introduced
+	strongestBFCast as instance variable for use in
+	SOCagent. SOCagents are able to ask each other for strongest
+	forecast. also created get-method for strongestBFCast
+
+	* BFParams.h: added psocial and startsocial to list of parameters
+	that can be read out of asm.scm. corresponding changes also in
+	BFParams.m and asm.scm.
+
+	* ASMModelSwarm.m deleted comments and examples of previous
+	versions
+
+	* World.m: also deleted comments.
+
+	* Dividend.m ([Dividend -initNormal]): also deleted comments.
+
+	* BFCast.m: also deleted comments.
+
+	* ASMBatchSwarm.m ([ASMBatchSwarm +createBegin:]): deleted
+	legacies of older versions that were already commented out.
+
+	* BFagent.m ([BFagent -performGA]): removed lastgatime variable,
+	because it is of no use
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): inserted
+	"if ([controlPanel getState] == ControlStateQuit) return self;" to
+	fix troubles when pressing Quit on controlpanel. fixed error in
+	enableDestroyNotification for volumeGraph
+	([ASMObserverSwarm -drop]): inserted
+	[priceGraph drop];
+	[volumeGraph drop];
+	[positionHisto drop];
+	[relativeWealthHisto drop]; to fix trouble at shutdown in Windows
+
+	* BFagent.m: got rid of all unneccessary comments and explanations
+	of previous versions of the market in BFagent.m, eliminated
+	WEIGHTED == 1 part, since it did not work. deleted alternative
+	implementation to create activelist. removed empty methods that
+	were designed for ANNagents. gotten rid of av, bv ignoring BLs
+	comment in updatePerformance, used a, b that are based on tauv
+	instead. usefulnes of global_mean seriously in doubt since it is
+	only used at start when new forecasts are created. removed
+	lastgatime variable and method because its of no use
+
+
+2003-03-26  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): remember
+	randomSeed in asmModelParams. This means if a randomSeed is not
+	entered by the user, the one chosen by Swarm will be recorded.
+
+	* asmModelParamsrandomSeed variable will equal the GUI input,
+	otherwise it will equal the value used by the default or the CLI.
+
+	* BFagent.m ([BFagent -MakePool:From:]): fix bug where only
+	npool-1 rules were created. iterate from 1 to n, not 1 to n-1.
+
+2003-03-26    Thomas Badegruber <thomas.badegruber@uni-graz.at>
+
+	* ASMModelParams.m ([ASMModelParams +createBegin:aZone]): removed
+	tauv, lambda and initvar from asm.scm and the probemap in
+	ASMModelParams.m because they are not needed, since pj introduced
+	the BFParams
+
+	* BFagent.m ([BFagent -prepareForTrading]) fixed the memory leak
+	at the very end of the method. it now says
+	divisor=privateParams->lambda*forecastvar; instead of 
+	divisor =getDouble(privateParams,"lambda")*forecastvar;
+
+
+2003-03-25  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm
+	-_relativeWealthHistoDeath_:]): windows users say Swarm crashes on
+	shutdown.
+
+>>>>>>> 1.28.2.10
 2003-03-18  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
 
 	* BFagent.m ([BFagent -updateActiveList:]): Looking for speedups in
