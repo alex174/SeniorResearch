@@ -55,6 +55,10 @@
 
 -createEnd;
 -initForecasts;
+
+
+-(BFCast*) createNewForecast: (int) agentID;
+-setConditionsRandomly: (BFCast *) fcastObject;
 //-free;
 -prepareForTrading;
 -getInputValues;  //does nothing, used only if their are ANNagents

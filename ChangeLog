@@ -1,5 +1,9 @@
 2000-05-30  Paul Johnson  <pauljohn@ukans.edu>
 
+	* BFagent.m: Found vital flaw in original ASM model--forecasts
+	were not updated. Dynamics look more persuasive after
+	fixing. Created "updateForecast" method in BFCast class to do this.
+
 	* BFagent.m (prepareForTrading): lActiveList commented out. It is never used!
 
 	* ASMModelSwarm.m: [BFagent init] no longer needed.

@@ -372,22 +372,21 @@ static BFParams *  params;
   //struct BF_fcast *fptr, *topfptr;
   //unsigned int *conditions, *cond;
   //int word, 
-  int bit;
+  //  int bit;
   int  sumspecificity = 0;
-  int condbits;
-  int condwords;
-  double *problist;
-  double abase, bbase, cbase, asubrange, bsubrange, csubrange;
-  double newfcastvar, bitcost;
-  int *bitlist;
+  //  int condbits;
+  // int condwords;
+  //double *problist;
+  // double abase, bbase, cbase, asubrange, bsubrange, csubrange;
+  // double newfcastvar, bitcost;
+  //int *bitlist;
 
   //pj:new vars
   int i;
   BFCast * aForecast; id index;
   int numfcasts;
 
-
-  //   lActiveList = [List create: [self getZone]];
+//   lActiveList = [List create: [self getZone]];
 // Initialize our instance variables
 
   //pj: in the future, it may be good to have a separate parameter object for each BFagent.
@@ -421,17 +420,17 @@ static BFParams *  params;
   global_mean = price + dividend;
   forecast = lforecast = global_mean;
 
-// Extract some things for rapid use
-  // condwords = p->condwords;
-  condwords = getInt (privateParams,"condwords");
-  // condbits = p->condbits;
-  condbits = getInt (privateParams,"condbits");
-  // bitlist = p->bitlist;
-  bitlist = [privateParams getBitListPtr];
-  //problist = p->problist;
-  problist = [privateParams getProbListPtr];
-  newfcastvar = getDouble(privateParams,"newfcastvar");
-  bitcost = getDouble (privateParams, "bitcost");
+//  // Extract some things for rapid use
+//    // condwords = p->condwords;
+//    condwords = getInt (privateParams,"condwords");
+//    // condbits = p->condbits;
+//    condbits = getInt (privateParams,"condbits");
+//    // bitlist = p->bitlist;
+//    bitlist = [privateParams getBitListPtr];
+//    //problist = p->problist;
+//    problist = [privateParams getProbListPtr];
+//    newfcastvar = getDouble(privateParams,"newfcastvar");
+//    bitcost = getDouble (privateParams, "bitcost");
 
 // Allocate memory for forecasts and their conditions
 //    fcast = calloc(privateParams->numfcasts,sizeof(struct BF_fcast));
@@ -479,56 +478,9 @@ static BFParams *  params;
   //    fptr->variance = newfcastvar;
   //    fptr->strength = fptr->specfactor/fptr->variance;
   //  }
-
-
-  abase = privateParams->a_min + 0.5*(1.-privateParams->subrange)*privateParams->a_range;
-  bbase = privateParams->b_min + 0.5*(1.-privateParams->subrange)*privateParams->b_range;
-  cbase = privateParams->c_min + 0.5*(1.-privateParams->subrange)*privateParams->c_range;
-  asubrange = privateParams->subrange*privateParams->a_range;
-  bsubrange = privateParams->subrange*privateParams->b_range;
-  csubrange = privateParams->subrange*privateParams->c_range;
-
-  for ( i = 0; i < numfcasts; i++)
+ for ( i = 0; i < numfcasts; i++)
     {
-      aForecast= [BFCast createBegin: [self getZone]]; 
-      [aForecast setCondwords: condwords];
-      [aForecast setCondbits: condbits];
-      aForecast = [aForecast createEnd];
-      [aForecast setLforecast: global_mean];
-
-      if(i > 0)   //only set nonzero condbits for forecasts after 0
-	{
-	  for(bit=0; bit< condbits; bit++)
-	    {
-	     
-	    if (bitlist[bit] < 0)
-	      {
-		[aForecast setConditionsbit: bit FromZeroTo: 3];//3=11 is a "filler"
-	      }
-	    else if (drand() < problist[bit])
-	      {  
-	          [aForecast setConditionsbit: bit FromZeroTo:  irand(2)+1];
-		  //remember 1 means yes, or binary 01, and 2 means no, or 10
-		  [aForecast incrSpecificity];//I wish this were automatic!
-	      }
-	    }
-	}
-  [aForecast setSpecFactorParam: bitcost];
-  [aForecast setVariance: newfcastvar];  
-  [aForecast setStrength: [aForecast getSpecfactor] / [aForecast getVariance]];
-
-     
-/* Set the forecasting parameters for each fcast to random values in a
- * fraction "subrange" of their range, centered at the midpoint.  For
- * subrange=1 this is the whole range (min to max).  For subrange=0.5,
- * values lie between 1/4 and 3/4 of this range.  subrange=0 gives
- * homogeneous agents, with values at the middle of their min-max range. 
- */
-      [aForecast setAval : abase + drand()*asubrange];
-      [aForecast setBval : bbase + drand()*bsubrange];
-      [aForecast setCval : cbase + drand()*csubrange];
-    
-      [fcastList atOffset: i put: aForecast];
+       [fcastList atOffset: i put: [self createNewForecast: i]];
     }
 
 /* Compute average specificity */
@@ -577,8 +529,72 @@ static BFParams *  params;
 //    return [super free];
 //  }
 
+-(BFCast *) createNewForecast: (int) agentID;
+{
+  BFCast * aForecast;
+  double abase = privateParams->a_min + 0.5*(1.0-privateParams->subrange)*privateParams->a_range;
+  double bbase = privateParams->b_min + 0.5*(1.0-privateParams->subrange)*privateParams->b_range;
+  double cbase = privateParams->c_min + 0.5*(1.0-privateParams->subrange)*privateParams->c_range;
+  double asubrange = privateParams->subrange*privateParams->a_range;
+  double bsubrange = privateParams->subrange*privateParams->b_range;
+  double csubrange = privateParams->subrange*privateParams->c_range;
 
+  aForecast= [BFCast createBegin: [self getZone]]; 
+  [aForecast setCondwords: privateParams->condwords];
+  [aForecast setCondbits: privateParams->condbits];
+  aForecast = [aForecast createEnd];
+  [aForecast setLforecast: global_mean];
+  //note aForecast has forecast=0 by its own createEnd.
+  //also inside its createEnd, lastactive =1, specificity=0, variance=99999;
 
+  if(agentID > 0)   //only set nonzero condbits for forecasts after 0
+    {
+      [self setConditionsRandomly: aForecast];
+    }
+
+  [aForecast setSpecFactorParam: privateParams->bitcost];
+  [aForecast setVariance: privateParams->newfcastvar];  
+  [aForecast setStrength: [aForecast getSpecfactor] / [aForecast getVariance]];
+
+     
+  /* Set the forecasting parameters for each fcast to random values in a
+   * fraction "subrange" of their range, centered at the midpoint.  For
+   * subrange=1 this is the whole range (min to max).  For subrange=0.5,
+   * values lie between 1/4 and 3/4 of this range.  subrange=0 gives
+   * homogeneous agents, with values at the middle of their min-max range. 
+   */
+  [aForecast setAval : abase + drand()*asubrange];
+  [aForecast setBval : bbase + drand()*bsubrange];
+  [aForecast setCval : cbase + drand()*csubrange];
+
+  return aForecast;   
+}
+
+-setConditionsRandomly: (BFCast *) fcastObject
+{
+  int bit;
+  double *problist;
+  int *bitlist;
+
+  bitlist = [privateParams getBitListPtr];
+ 
+  problist = [privateParams getProbListPtr];
+
+  for(bit=0; bit< privateParams->condbits; bit++)
+    {
+      if (bitlist[bit] < 0)
+	{
+	  [fcastObject setConditionsbit: bit FromZeroTo: 3];//3=11 is a "filler"
+	}
+      else if (drand() < problist[bit])
+	{  
+	  [fcastObject setConditionsbit: bit FromZeroTo:  irand(2)+1];
+	  //remember 1 means yes, or binary 01, and 2 means no, or 10
+	  [fcastObject incrSpecificity];//I wish this were automatic!
+	}
+    }
+  return self;
+}
 
 -prepareForTrading
 /*
@@ -641,13 +657,13 @@ static BFParams *  params;
 //        fptr->lforecast = fptr->forecast;
 //      }
 
-
-  index=[ fcastList begin: [self getZone] ];
-  for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-    [aForecast setLforecast: [aForecast getForecast]];
-    }
-  [index drop];
+   //the lForecast is copied automatically whenever "updateForecast" executes
+ //   index=[ fcastList begin: [self getZone] ];
+//    for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+//      {
+//      [aForecast setLforecast: [aForecast getForecast]];
+//      }
+//    [index drop];
 
 
 // Main inner loop over forecasters.  We set this up separately for each
@@ -838,7 +854,7 @@ static BFParams *  params;
   	  b += strength*[aForecast getBval] ;
   	  c += strength*[aForecast getCval] ;
   	  sum += strength;
-  	  sumv += fptr->variance;
+  	  sumv += [aForecast getVariance];
       }
     }
   [index drop];
@@ -878,7 +894,6 @@ static BFParams *  params;
       if([aForecast incrCount] >= mincount)
       {
 	double strength=[aForecast getStrength];
-	printf("strength is %f\n",strength);
 	++nactive;
 	if (strength > maxstrength)
 	  {
@@ -1061,6 +1076,10 @@ return self;
 // Update global mean (p+d) and our variance
   [self getPriceFromWorld];
   ftarget = price + dividend;
+
+
+// Update global mean (p+d) and our variance
+    
   realDeviation = deviation = ftarget - lforecast;
   if (fabs(deviation) > maxdev) deviation = maxdev;
   global_mean = b*global_mean + a*ftarget;
@@ -1070,6 +1089,20 @@ return self;
     variance = privateParams->initvar;
   else
     variance = bv*variance + av*deviation*deviation;
+
+ //??cant find anywhere in ASM-2.0 an update of the forecast's
+ //forecast. but it is clearly needed if you look at bfagent from the
+ //objc version???
+  //??This seems to fix the strange time series properties too??//
+  if ( getCurrentTime() >0 )
+    {
+   index = [ activeList begin: [self getZone]];
+   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+    {
+      [aForecast updateForecastPrice: price Dividend: dividend];
+    }
+   [index drop];
+    }
 
 // Update all the forecasters that were activated.
 //    if (currentTime > 0)
@@ -1099,8 +1132,7 @@ return self;
   if (currentTime > 0)
     {
     index = [ activeList begin: [self getZone]];
-  if([activeList getCount] > 0)
-  for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
       double lastForecast;
       lastForecast=[aForecast getLforecast];
@@ -1293,7 +1325,7 @@ return self;
   register int f;
   int  new;
   BFCast * parent1, * parent2;
-  BOOL changed;
+ 
   double ava,avb,avc,sumc;
   double temp;  //for holding values needed shortly
   //pj: previously declared as globals
@@ -1354,9 +1386,12 @@ return self;
   avstrength /= privateParams->numfcasts;
     
 
+
 // Loop to construct nnew new rules
 for (new = 0; new < privateParams->nnew; new++) 
 {
+  BOOL changed;
+ 
   changed = NO;
 // Loop used if we force diversity
   do 
@@ -1375,8 +1410,11 @@ for (new = 0; new < privateParams->nnew; new++)
 	  [aNewForecast setVariance: [aNewForecast getSpecfactor]/[aNewForecast getStrength]];
           [aNewForecast setLastactive: currentTime];
 
-	  [newList addLast: aNewForecast];
-       
+	  [newList addLast: aNewForecast]; //?? were these not initialized in original?//
+          
+	  printf("\n New Forecast diagnostic: \n");
+	  [aNewForecast print];
+
   // Pick first parent using touranment selection
 	  //pj: ??should this operate on all or only active forecasts???
       do
@@ -1394,7 +1432,6 @@ for (new = 0; new < privateParams->nnew; new++)
 	[self Crossover:  aNewForecast Parent1:  parent1 Parent2:  parent2];
 	if (aNewForecast==nil) {fprintf(stderr,"got nil back from crossover");}
 	  changed = YES;
-	  
 	}
       else
 	{
@@ -1412,14 +1449,14 @@ for (new = 0; new < privateParams->nnew; new++)
   if (changed) 
     {
       //    nr = newfcast + new;
-      //  	    nr->strength = avstrength;
-      //  	    nr->variance = nr->specfactor/nr->strength;
-      //  	    nr->lastactive = currentTime;
+      //    nr->strength = avstrength;
+      //    nr->variance = nr->specfactor/nr->strength;
+      //    nr->lastactive = currentTime;
       [aNewForecast setStrength: avstrength];
       [aNewForecast setVariance: [aNewForecast getSpecfactor]/[aNewForecast getStrength]];
       [aNewForecast setLastactive: currentTime];
-  
-      }
+    }
+  [aNewForecast print];
 } while (0);
 /* Replace while(0) with while(!changed) to force diversity */
 }

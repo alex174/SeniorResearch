@@ -82,6 +82,8 @@
 
 - (double) getForecast;
 
+-(double) updateForecastPrice: (double) price Dividend: (double) dividend;
+
 -(void)  setLforecast: (double) x;
 
 - (double) getLforecast;

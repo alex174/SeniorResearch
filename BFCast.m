@@ -259,7 +259,14 @@ static void makebittables(void);
 
 - (double) getForecast
 {
-  return lforecast;
+  return forecast;
+}
+
+-(double) updateForecastPrice: (double) price Dividend: (double) dividend
+{
+  lforecast=forecast;
+  forecast= a* (price+dividend) + b*dividend + c;
+  return forecast;
 }
 
 
@@ -286,7 +293,6 @@ static void makebittables(void);
   printf("BFCast print: forecast %f lforecast %f variance %f strength %f \n",forecast,lforecast,variance,strength);
   for ( word=0; word < condwords; word++)
     [self printcond: conditions[word]]; 
-  printf("\n");
   printf("a %f b %f c %f specfactor %f, specificity %d count %d lastactive %d \n", a,b,c,specfactor,specificity,count,lastactive);
 
   return self;
