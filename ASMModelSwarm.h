@@ -1,11 +1,10 @@
 #import <objectbase/Swarm.h>
-#import "BFagent.h"
 #import "Specialist.h"
 #import "Dividend.h"
 #import "World.h"
 #import "Output.h"
 #import "ASMModelParams.h"
-
+#import "BFParams.h"
 
 @interface ASMModelSwarm: Swarm
 {
