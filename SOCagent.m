@@ -12,9 +12,8 @@
 {
   double psocial = 0.5;
   BFCast * parent1, * parent2;
-  id agentlist;
   id agent,index = 0;
-  ASMModelSwarm * asmModelSwarm;
+  BOOL changed = NO;
    
   if (drand() > psocial)
     {
@@ -43,12 +42,11 @@
     }
   else
     {
-      asmModelSwarm = 
-      agentlist = [asmModelSwarm getAgentList];
-      index = [agentlist begin: [self getZone]];
-      int num = [agentlist getCount];
-      int zahl = [asmModelSwarm getNumBFagents];
-      printf("number of agents=%d num=%d\n",zahl, num);
+     
+      index = [agentList begin: [self getZone]];
+      int num = [agentList getCount];
+      ;
+      printf("number of agents=%d \n", num);
       while ((agent = [index next]))
 	{
 	  printf("Agent number %3d\n",[agent getID]);

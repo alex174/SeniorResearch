@@ -1,6 +1,8 @@
 #import <objectbase.h>               //Agent is a SwarmObject
 #import <objectbase/SwarmObject.h>
+#import <collections.h>
 #import "World.h"
+
 
 @interface Agent:SwarmObject          
 {
@@ -18,31 +20,35 @@
   double price;         // price is maintained by World
   double dividend;      // dividend is maintained by World
   int myID;
+  @protected
+    id <List> agentList;
 }
 
 
-+setWorld: (World *)aWorld;
++ setWorld: (World *)aWorld;
 
--setID: (int)iD;
--(int)getID;
--setPosition: (double)aDouble;
--setintrate: (double)rate;
--setminHolding: (double)holding   minCash: (double)minimumcash;
--setInitialCash: (double)initcash;
--setInitialHoldings;
--getPriceFromWorld;
--getDividendFromWorld;
+- setID: (int)iD;
+- (int)getID;
+- setPosition: (double)aDouble;
+- setintrate: (double)rate;
+- setminHolding: (double)holding   minCash: (double)minimumcash;
+- setInitialCash: (double)initcash;
+- setInitialHoldings;
+- (void)setAgentList: aList;
 
--creditEarningsAndPayTaxes;
--(double)constrainDemand: (double *)slope : (double)trialprice;
--(double)getAgentPosition;
--(double)getWealth;
--(double)getCash;
+- getPriceFromWorld;
+- getDividendFromWorld;
+
+- creditEarningsAndPayTaxes;
+- (double)constrainDemand: (double *)slope : (double)trialprice;
+- (double)getAgentPosition;
+- (double)getWealth;
+- (double)getCash;
 
 //Methods specified by each agent type
--prepareForTrading;   
--(double)getDemandAndSlope: (double *)slope forPrice: (double)trialprce;
--updatePerformance;
+- prepareForTrading;   
+- (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprce;
+- updatePerformance;
 
 @end
 

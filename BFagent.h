@@ -26,6 +26,7 @@
 
   id <List> activeList;       /*"A Swarm list containing a subset of all forecasts"*/
   id <List> oldActiveList;    /*"A copy of the activeList from the previous time step"*/
+  BFCast * strongestBFCast;  /*"A pointer to the strongest rule of the agent"*/
 }
 
 + (void)setBFParameterObject: x;

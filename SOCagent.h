@@ -7,7 +7,7 @@
 {
 
 }
-- (BOOL) PickParents: (BFCast *) aNewForecast Status: (BOOL) changed;
+- (BOOL) PickParents: (BFCast *) aNewForecast;
 
 @end
 

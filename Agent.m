@@ -84,6 +84,13 @@ return myID;
   return self;
 }
 
+
+- (void)setAgentList: aList
+{
+  agentList = aList;
+}
+
+
 /*" Sets an instance variable of agent, price, to the current price
   which is controlled by the object known as "world". Please note this
   assumes world is already set. "*/

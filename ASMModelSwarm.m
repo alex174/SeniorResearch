@@ -217,6 +217,7 @@
       [agent setInitialHoldings];
       [agent setPosition: asmModelParams->initholding];
       [agent initForecasts];
+      [agent setAgentList: agentList];
       agent = [agent createEnd];
       [agentList addLast: agent];
     }

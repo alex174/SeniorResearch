@@ -539,6 +539,8 @@ same bitlist."*/
 {
   id index;
   BFCast * aForecast;
+  double val = 0;
+  double strongestBFValue = -1.0;
  
   [self copyList: activeList To: oldActiveList]; 
   //pj: note, if activeList is empty, then oldActiveList will be empty.
@@ -560,10 +562,14 @@ same bitlist."*/
     {
       int real0 = [worldvalues getConditionsWord: 0];
       
-      
       index=[ fcastList begin: [self getZone]];
       for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
 	{
+	  if ( (val = [aForecast getStrength]) > strongestBFValue )
+	    {
+	      strongestBFCast = aForecast;
+	      strongestBFValue = val;
+	    }
 	  if ( [aForecast getConditionsWord: 0] & real0 ) 
 	    {
 	      continue ;
@@ -578,11 +584,17 @@ same bitlist."*/
       {
 	int * real = [worldvalues getConditions];
     
+
 	
 	index=[ fcastList begin: [self getZone]];
 	for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
 	  {
 	    int * conditions = [aForecast getConditions];
+	    if ( (val = [aForecast getStrength]) > strongestBFValue )
+	      {
+		strongestBFCast = aForecast;
+		strongestBFValue = val;
+	      }
 	    if ( conditions[0] & real[0] ) continue ;
 	    if ( conditions[1] & real[1] ) continue ;
 	    [activeList addLast: aForecast];
@@ -600,6 +612,11 @@ same bitlist."*/
       for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
 	{
 	  int * conditions = [aForecast getConditions];
+	  if ( (val = [aForecast getStrength]) > strongestBFValue )
+	    {
+	      strongestBFCast = aForecast;
+	      strongestBFValue = val;
+	    }
 	  if ( conditions[0] & real[0] ) continue ;
 	  if ( conditions[1] & real[1] ) continue ;
 	  if ( conditions[2] & real[2] ) continue ;
@@ -616,6 +633,11 @@ same bitlist."*/
 	for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
 	  {
 	    int * conditions = [aForecast getConditions];
+	    if ( (val = [aForecast getStrength]) > strongestBFValue )
+	      {
+		strongestBFCast = aForecast;
+		strongestBFValue = val;
+	      }
 	    if ( conditions[0] & real[0] ) continue ;
 	    if ( conditions[1] & real[1] ) continue ;
 	    if ( conditions[2] & real[2] ) continue ;
@@ -633,6 +655,11 @@ same bitlist."*/
 	for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
 	  {
 	    int * conditions = [aForecast getConditions];
+	    if ( (val = [aForecast getStrength]) > strongestBFValue )
+	      {
+		strongestBFCast = aForecast;
+		strongestBFValue = val;
+	      }
 	    if ( conditions [0] & real[0] ) continue ;
 	    if ( conditions [1] & real[1] ) continue ;
 	    if ( conditions [2] & real[2] ) continue ;
@@ -649,6 +676,7 @@ same bitlist."*/
 #endif
 
      //pj??? There ought to be a "default" action here for other cases.
+  printf ("strongest bfcast is worth %f",[strongestBFCast getStrength]);
 
   return self;
 }
