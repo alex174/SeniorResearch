@@ -33,21 +33,21 @@ static double gset;
   return self;
 }
 
--setBaseline: (double)theBaseline
+- setBaseline: (double)theBaseline
 {
   baseline = theBaseline;
   return self;
 }
 
 
--setmindividend: (double)minimumDividend
+- setmindividend: (double)minimumDividend
 {
   mindividend = minimumDividend;
   return self;
 }
 
 
--setmaxdividend: (double)maximumDividend
+- setmaxdividend: (double)maximumDividend
 {
   maxdividend = maximumDividend;
   return self;
@@ -58,7 +58,7 @@ static double gset;
 //	value actually set, which may be clipped or rounded compared to the
 //	supplied argument. See "-setDivType:".
 "*/
--(double)setAmplitude:(double)theAmplitude
+- (double)setAmplitude:(double)theAmplitude
 {
   amplitude = theAmplitude;
   if (amplitude < 0.0) 
@@ -73,7 +73,7 @@ static double gset;
 // value actually set, which may be clipped compared to the supplied
 // argument. See "-setDivType:". "*/
 
--(int)setPeriod: (int)thePeriod
+- (int)setPeriod: (int)thePeriod
 {
   period = thePeriod;
   if (period < 2) 
@@ -82,7 +82,7 @@ static double gset;
 }
 
 
--setDerivedParams
+- setDerivedParams
 /*
  * Sets various parameters derived from the externally-settable ones.  This
  * is called lazily, when a parameter is needed and the needsSetDerivedParams
@@ -106,7 +106,7 @@ static double gset;
   variable "t" because shifts are introduced to maintain phase when
   certain parameters are changed."*/
 
--(double)dividend
+- (double)dividend
 {
   dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[normal getDoubleSample]; 
   //dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[self normal]; 
