@@ -1,0 +1,4 @@
+@begin
+loggingFrequency 1
+experimentDuration 500
+@end

@@ -1,0 +1,31 @@
+@begin
+numBFagents 60
+initholding 1.000000
+initialcash 10000.000000
+minholding 0.000000
+mincash 0.000000
+intrate 0.100000
+baseline 10.000000
+mindividend 0.000050
+maxdividend 100.000000
+amplitude 0.141780
+period .99
+exponentialMAs 1
+maxprice 500.000000
+minprice 0.001000
+taup 50.000000
+sptype 1
+maxiterations 10
+minexcess 0.010000
+eta 0.000500
+etamax 0.050000
+etamin 0.000010
+rea 9.000000
+reb 2.000000
+randomSeed 0
+tauv 50.000000
+lambda 0.300000
+maxbid 10.000000
+initvar 0.4000212
+maxdev 100.000000
+@end
