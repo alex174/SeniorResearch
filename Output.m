@@ -1,8 +1,8 @@
 #import "Output.h"
 
 #include <misc.h> // stdio, time
-
-
+#import "BFagent.h" 
+#import "BFCast.h" //BaT 11.09.2002 for bitDist
 
 /*"
 To show the possible data output tools, I have 3
@@ -250,12 +250,12 @@ necessary to initialize an hdfWriter, as seen in this code.  "*/
 }
 
 /*"The write data method dumps out measures of the price, dividend, and volume indicators into several formats"*/
--writeData
-{
+// - writeData: liste
+// {
 
-  long t = getCurrentTime();
-  char worldName[50];
-  char specName[50];
+//   long t = getCurrentTime();
+//   char worldName[50];
+//   char specName[50];
 
   //**** I've got 3 ways to write out numerical results. *****//
   //**** Choose what you like ****//
@@ -264,18 +264,90 @@ necessary to initialize an hdfWriter, as seen in this code.  "*/
   // First, just dump out the raw numbers in text.
   // This is the old standby!
 
-  fprintf (dataOutputFile, "%10ld\t %5f\t %8f\t %f\n", 
+//   fprintf (dataOutputFile, "%10ld\t %5f\t %8f\t %f\n", 
+// 	   t, 
+//            [outputWorld getPrice],
+//            [outputWorld getDividend], 
+//            [outputSpecialist getVolume]);
+
+
+//   // Second, dump those same values out to an hdf5 format file.  This
+//   // uses the Archiver library "put shallow" to dump all primitive
+//   // types, ints and doubles mainly.
+
+//   sprintf (worldName, "world%ld",t);
+//   sprintf (specName, "specialist%ld",t); 
+
+// #ifndef NO_LISP
+//   [dataArchiver putShallow: worldName object: outputWorld];
+//   [dataArchiver sync];
+// #else
+//   [dataArchiver putDeep: worldName object: outputWorld];
+// #endif
+
+//   [dataArchiver putShallow: specName  object: outputSpecialist];
+// #ifndef NO_LISP
+//   [archiver sync];
+// #endif
+//   // Third, now use the EZGraph dump of its time strings.
+
+//   if (!hdfWriter) [self initializeHDFWriter];
+//   [hdfWriter step];
+   
+//   return self;
+// }
+
+
+
+//Modified by BaT 10.09.2002 to write additional agent-specific data on file*/
+
+-writeData: (id) liste
+{
+
+  long t = getCurrentTime();
+  //  char worldName[50];
+  //char specName[50];
+  id index,agent; 
+  static int *(*countpointer)[4];
+  BOOL cum;
+  int i,bs[16];
+
+  //**** I've got 3 ways to write out numerical results. *****//
+  //**** Choose what you like ****//
+
+
+  // First, just dump out the raw numbers in text.
+  // This is the old standby!
+  
+  fprintf (dataOutputFile, "%10ld\t %5f\t %8f\t %f ", 
 	   t, 
            [outputWorld getPrice],
            [outputWorld getDividend], 
            [outputSpecialist getVolume]);
-
-
+  cum = NO;
+  countpointer = calloc(4,sizeof(int));
+  index = 0;
+  for (i=0;i<16;i++) bs[i]=0;
+  now = time(NULL);
+  if (t%10000 == 0) printf("at time %s %7ld runs complete\n",asctime(localtime(&now)),t);
+  index = [liste begin: [self getZone]];
+      while ((agent = [index next]))
+	{
+	  //printf("Agent number %3d\n",[agent getID]);
+	[agent bitDistribution: countpointer cumulative:cum];
+	for (i = 0; i < [agent nbits];i++ ) bs[i]=bs[i]+(*countpointer)[1][i]+(*countpointer)[2][i];
+	}
+      for (i=0;i<16;i++) fprintf(dataOutputFile,"%3d ",bs[i]);
+      fprintf(dataOutputFile,"\n");
+      [index drop];
+         
   // Second, dump those same values out to an hdf5 format file.  This
   // uses the Archiver library "put shallow" to dump all primitive
   // types, ints and doubles mainly.
 
-  sprintf (worldName, "world%ld",t);
+  //commented out BaT 11.09.2002
+    
+  /*  sprintf (worldName, "world%ld",t);
   sprintf (specName, "specialist%ld",t); 
 
 #ifndef NO_LISP
@@ -292,10 +364,12 @@ necessary to initialize an hdfWriter, as seen in this code.  "*/
   // Third, now use the EZGraph dump of its time strings.
 
   if (!hdfWriter) [self initializeHDFWriter];
-  [hdfWriter step];
-   
+  [hdfWriter step];*/
+
   return self;
 }
+
+
 
 /*"It is necessary to drop the data writing objects in order to make
 sure they finish their work.

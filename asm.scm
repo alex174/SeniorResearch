@@ -2,7 +2,7 @@
 
  (cons 'bfParams
   (make-instance 'BFParams
-  #:numfcasts 60
+  #:numfcasts 100
   #:tauv  50.0D0
   #:lambda  0.3D0 
   #:maxbid  10.0D0

@@ -154,7 +154,7 @@
 			setAxisLabelsX: "time" Y: "volume"
 			setWindowGeometryRecordName: "volumeGraph"];
   
-  [volumeGraph createSequence: "actual price"
+  [volumeGraph createSequence: "actual volume"
 	       withFeedFrom: [asmModelSwarm getSpecialist]
 	       andSelector: M(getVolume)];
   
@@ -315,8 +315,10 @@
 /*"If data logging is turned on, this cause data to be written whenever it is called"*/
 - _writeRawData_
 {
+  id agentlist; //BaT 10.09.2002
+  agentlist = [asmModelSwarm getAgentList];//BaT 10.09.2002
   if (writeData == YES)
-    [output writeData];  
+    [output writeData:agentlist];  //BaT 10.09.2002
   return self;
 }
 

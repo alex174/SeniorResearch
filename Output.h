@@ -21,6 +21,7 @@
   id archiver, dataArchiver; /*"hdf5 or LISP objects, depending on the CPP flags"*/
   
   time_t runTime; /*"Return from the systems time() function"*/
+  time_t now;
   char timeString[100];/*"a verbose description of current time"*/
   
   FILE * dataOutputFile; /*"FILE handle for output from C style fprintf"*/
@@ -39,19 +40,19 @@
 
 }
 
--setSpecialist: (Specialist *)theSpec;
+- setSpecialist: (Specialist *)theSpec;
 
--setWorld: (World *)theWorld;
+- setWorld: (World *)theWorld;
 
 - writeParams: modelParam BFAgent: bfParms Time: (long int) t;
 
--prepareOutputFile;
+- prepareOutputFile;
 
--(void) initializeHDFWriter;
+- (void)initializeHDFWriter;
 
--writeData;
+- writeData: liste ;
 
--(void) drop;
+- (void)drop;
 
 @end
 

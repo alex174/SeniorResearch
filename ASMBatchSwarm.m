@@ -54,17 +54,21 @@ instructed to write results"*/
 }
 
 /*"Create schedules.  Assures that the output object writes the data when needed and checks to see if the required number of time steps has been completed"*/
--buildActions
-{
+- buildActions
+{ 
+  id agentlist;
   [super buildActions];
   
   [asmModelSwarm buildActions];
 
   if(loggingFrequency)
     {
+      agentlist = [asmModelSwarm getAgentList]; //BaT 11.09.2002
+       
       displayActions = [ActionGroup create: [self getZone]];
-      [displayActions createActionTo: output message: M(writeData)];
-						    
+      //[displayActions createActionTo: output message: M(writeData)];
+      [displayActions createActionTo: output message: M(writeData:):agentlist];//BaT 11.09.2002
+					    
       displaySchedule = [Schedule createBegin: [self getZone]];
       [displaySchedule setRepeatInterval: loggingFrequency];
       displaySchedule = [displaySchedule createEnd];
@@ -78,7 +82,7 @@ instructed to write results"*/
 }
 
 /*"activateIn: is required to preserve the hierarchy of schedules across many levels"*/
--activateIn: (id)swarmContext
+- activateIn: (id)swarmContext
 {
   [super activateIn: swarmContext];
   [asmModelSwarm activateIn: self];
