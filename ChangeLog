@@ -17,7 +17,8 @@
 
 	* BFagent.m ([BFagent -initForecasts]): corrected
 	numfcasts=... and variance=... to fix memory leak there caused by
-	getInt and getDouble
+	getInt and getDouble, also replaced the use of getInt and
+	getDouble in the GA
 	
 2003-03-25  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 

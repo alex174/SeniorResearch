@@ -23,7 +23,7 @@
   #:bitcost   0.005D0
   #:maxdev   500D0 
   #:bitprob   0.1D0 
-  #:poolfrac   0.25D0
+  #:poolfrac   0.2D0
   #:newfrac   0.2D0
   #:pcrossover   0.1D0
   #:plinear   0.333D0
