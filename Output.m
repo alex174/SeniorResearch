@@ -133,7 +133,7 @@
            [outputSpecialist getVolume]);
 
   sprintf (worldName, "world%ld",t);
-  sprintf (specName, "specialist%4.0ld",t); 
+  sprintf (specName, "specialist%ld",t); 
 
    [dataArchiver putShallow: worldName object: outputWorld];
 #ifdef USE_LISP
