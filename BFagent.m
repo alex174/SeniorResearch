@@ -67,6 +67,8 @@
 #import <random.h> 
 #import "World.h"
 #include <misc.h>
+#import "BFParams.h"
+#import <defobj.h>
 
 extern World *worldForAgent;
 
@@ -77,17 +79,13 @@ extern World *worldForAgent;
 #define urand()  [uniformDblRand getDoubleWithMin: -1 withMax: 1] 
 #define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1]  
  
-//Macros for bittables
-#define WORD(bit)	(bit>>4)
-#define MAXCONDBITS	80
-
+//  //Macros for bittables
+//  #define WORD(bit)	(bit>>4)
+//  #define MAXCONDBITS	80
 //pj: no need for externs here, not used in other classes
 //pj: extern int SHIFT[MAXCONDBITS];
 //pj: extern unsigned int MASK[MAXCONDBITS];
 //pj: extern unsigned int NMASK[MAXCONDBITS];
-//pj:  int SHIFT[MAXCONDBITS];
-//pj:  unsigned int MASK[MAXCONDBITS];
-//pj:  unsigned int NMASK[MAXCONDBITS];
 
 static int SHIFT[MAXCONDBITS];
 static unsigned int MASK[MAXCONDBITS];
@@ -96,71 +94,25 @@ static unsigned int NMASK[MAXCONDBITS];
 // Type of forecasting.  WEIGHTED forecasting is untested in its present form.
 #define WEIGHTED 0
 
-struct keytable 
-{
-  const char *name;
-  int value;
-};
-
-struct keytable individualkeys[] = 
-{
-  {"yes", 1},
-  {"no", 0},
-  {NULL, -1}
-};
-
-// Values in table of special bit names (negative, avoiding NULLBIT)
-#define ENDLIST		-2
-#define ALL		-3
-#define SETPROB		-4
-#define BADINPUT	-5
-#define NOTFOUND	-6
-#define EQ               0
-#define NULLBIT         -1
-
-static struct keytable specialbits[] = 
-{
-  {"null", NULLBIT},
-  {"end", ENDLIST},
-  {".", ENDLIST},
-  {"all", ALL},
-  {"allbits", ALL},
-  {"p", SETPROB},
-  {"P", SETPROB},
-  {"???", BADINPUT},
-  {NULL,  NOTFOUND}
-};
-
-/* Local function prototypes */
-static void CopyRule(struct BF_fcast *, struct BF_fcast *);
-static void MakePool(struct BF_fcast *);
-static int Tournament(struct BF_fcast *);
-static void Crossover(struct BF_fcast *, int, int, int);
-static BOOL Mutate(int, BOOL);
-static void TransferFcasts(void);
-static void Generalize(struct BF_fcast *);
-static struct BF_fcast *GetMort(struct BF_fcast *);
 static void makebittables(void);
 
-// Local variables, shared by all instances
-static int condbits;		/* Often copied from p->condbits */
-static int condwords;		/* Often copied from p->condwords */
-static int * bitlist;		/* Often copied from p->bitlist */
-static unsigned int * myworld;	/* Often copied from p->myworld */
-static struct BFparams * params;
-static struct BFparams * pp;
-static double avstrength,minstrength;	/* working variable for GA */
+//pj: this is a static global declaration of the params object, shared by all instances.
+//pj: note there is also a local copy which is, in current code, the same thing.
+static BFParams *  params;
+
+//pj: other global variables were moved either to the performGA method where they are 
+//pj: needed or into the BFParams class, where they are used to create BFParams objects
 
 
+
+//pj: I don't want to share this across agents.  Now it is an IVAR.
 // Working space, dynamically allocated, shared by all instances
-static struct BF_fcast	**reject;	/* GA temporary storage */
-static struct BF_fcast	*newfcast;	/* GA temporary storage */
-static unsigned int *newconds;		/* GA temporary storage */
-static int npoolmax = -1;		/* size of reject array */
-static int nnewmax = -1;		/* size of newfcast array */
-static int ncondmax = -1;		/* size of newconds array */
+//    static struct BF_fcast	**reject;	/* GA temporary storage */
+//    static struct BF_fcast	*newfcast;	/* GA temporary storage */
 
-extern int ReadBitname(const char *variable, const struct keytable *table);
+//pj:  extern int ReadBitname(const char *variable, const struct keytable *table);
+//pj:  ReadBitname moved to BFParams
+
 
 // PRIVATE METHODS
 @interface BFagent(Private)
@@ -170,137 +122,16 @@ extern int ReadBitname(const char *variable, const struct keytable *table);
 
 @implementation BFagent
 
-+(void *)init
++(void)setBFParameterObject: x
 {
-  int i, nnulls;
-  double currentprob;
- 
-  //pj: no need bits or probs to be dynamically allocated or class vars.
-  //they are only used in this method!  So remove calloc's
-  int bits[MAXCONDBITS];
-  double probs[MAXCONDBITS];
+    params=x;
+}
 
++(void)init
+{
 //Makes the bit tables for the agent    
   makebittables();
-
-// Allocate space for our parameters
-  params = (struct BFparams *) malloc(sizeof(struct BFparams));
-  if(!params)
-    printf("There was an error allocating space for params.");
-
-// Read in general parameters
-  params->numfcasts = 60;
-  params->tauv = 50.0;
-  params->lambda = 0.3; 
-  params->maxbid = 10.0;
-  params->mincount = 5;
-  params->subrange = 0.5;
-  params->a_min = 0.0;
-  params->a_max = 1.98;
-  params->b_min = 0;
-  params->b_max = 0;
-  params->c_min = -10;
-  params->c_max = 11.799979;
-  params->newfcastvar = 4.000212; 
-  params->initvar = 4.000212;
-  params->bitcost = 0.01;
-  params->maxdev = 100;
-  params->individual = 0; 
-  params->bitprob = 0.1;
-
-// Read in the list of bits, storing it in a work array for now
-  nnulls = 0;
-  currentprob = params->bitprob;
-  bits[0] = ReadBitname("pr/d>1/4", specialbits);
-  bits[1] = ReadBitname("pr/d>1/2", specialbits);
-  bits[2] = ReadBitname("pr/d>3/4", specialbits);
-  bits[3] = ReadBitname("pr/d>7/8", specialbits);
-  bits[4] = ReadBitname("pr/d>1", specialbits);
-  bits[5] = ReadBitname("pr/d>9/8", specialbits);
-  bits[6] = ReadBitname("pr/d>5/4", specialbits);
-  bits[7] = ReadBitname("pr/d>3/2", specialbits);
-  bits[8] = ReadBitname("pr/d>2", specialbits);
-  bits[9] = ReadBitname("pr/d>4", specialbits);
-  bits[10] = ReadBitname("p>p5", specialbits);
-  bits[11] = ReadBitname("p>p20", specialbits);
-  bits[12] = ReadBitname("p>p100", specialbits);
-  bits[13] = ReadBitname("p>p500", specialbits);
-  bits[14] = ReadBitname("on", specialbits);
-  bits[15] = ReadBitname("off", specialbits);
-    
-  for (i=0; i<16; i++) 
-    {
-      probs[i] = currentprob;
-    }
-
-  //pj: why not params->condbit=16; ??
-  params->condbits = i;
-  params->nnulls = nnulls;
-
-// Allocate permanent space for bit and probability lists, and copy them there
-  params->bitlist = calloc(params->condbits,sizeof(int));
-  if(!params->bitlist)
-    printf("There was an error allocating space for bitlist.");
-
-  params->problist = calloc(params->condbits,sizeof(double));
-  if(!params->problist)
-    printf("There was an error allocating space for problist.");
-
-  for (i=0; i < params->condbits; i++) 
-    {
-      params->bitlist[i] = bits[i];
-      params->problist[i] = probs[i];
-    }
-  
-// Allocate space for our world bits, clear initially
-  params->condwords = (params->condbits+15)/16;
-  params->myworld = calloc(params->condwords,sizeof(unsigned int));
-  if(!params->myworld)
-    printf("There was an error allocating space for myworld.");
-
-  for (i=0; i<params->condwords; i++)
-    params->myworld[i] = 0;
-
-// Check bitcost isn't too negative
-  if (1.0+params->bitcost*(params->condbits-params->nnulls) <= 0.0)
-    printf("The bitcost is too negative.");
-
-// Read in GA parameters
-  params->gafrequency = 100; 
-  params->firstgatime = 1000;
-  params->poolfrac = 0.1;
-  params->newfrac = 0.05;
-  params->pcrossover = 0.3;
-  params->plinear = 0.333;
-  params->prandom = 0.333;
-  params->pmutation = 0.01;
-  params->plong = 0.05;
-  params->pshort = 0.2;
-  params->nhood = 0.05;
-  params->longtime = 2000;
-  params->genfrac = 0.10;
-
-// Compute derived parameters
-  params->gaprob = 1.0/params->gafrequency;
-
-  params->a_range = params->a_max - params->a_min;
-  params->b_range = params->b_max - params->b_min;
-  params->c_range = params->c_max - params->c_min;
-
-  params->npool = (int)(params->numfcasts*params->poolfrac + 0.5);
-  params->nnew = (int)(params->numfcasts*params->newfrac + 0.5);
-    
-// Record maxima needed for GA working space
-  if (params->npool > npoolmax) npoolmax = params->npool;
-  if (params->nnew > nnewmax) nnewmax = params->nnew;
-  if (params->condwords > ncondmax) ncondmax = params->condwords;
-
-// Miscellaneous initialization
-  params->lastgatime = 1;
-
-/* Note that, as well as returning it, the current value of "params" is
- * available as a static variable in this file.  initAgent: uses that. */
-  return (void *)params;
+  return;
 }
 
 
@@ -358,63 +189,43 @@ static void makebittables()    //declared in BFagent.m
     }
 }
 
-
-int ReadBitname(const char *variable, const struct keytable *table)
-/*
- * Like ReadKeyword, but looks up the name first as the name of a bit
- * and then (if there's no match) in table if it's non-NULL.  Declared
- * in BFagent.m
- */
-{
-  const struct keytable *ptr;
-  int n;
-
-  n = [World bitNumberOf: variable];
-  
-  if (n < 0 && table) 
-    {
-      for (ptr=table; ptr->name; ptr++)
-	if (strcmp(variable,ptr->name) == EQ)
-	  break;
-      if (!ptr->name && strcmp(variable,"???") != EQ)
-	printf("unknown keyword '%s'\n",variable);
-      n = ptr->value;
-    }
-  return n;
-}
-
-
 +didInitialize
 {
-  struct BF_fcast *fptr, *topfptr;
-  unsigned int *conditions;
-  
-  //pj: no longer needed because these are converted to arrays in +init  
-//  // Free working space we're done with
-//    free(probs);
-//    free(bits);
+//    struct BF_fcast *fptr, *topfptr;
+//    unsigned int *conditions;
+//    unsigned int *newconds;	
+    //pj: no longer needed because these are converted to arrays in +init  
+  //  // Free working space we're done with
+  //    free(probs);
+  //    free(bits);
 
-// Allocate working space for GA
-  reject = calloc(npoolmax,sizeof(struct BF_fcast *));
-  if(!reject)
-    printf("There was an error allocating space for reject.");
 
-  newfcast = calloc(nnewmax,sizeof(struct BF_fcast));
-  if(!newfcast)
-    printf("There was an error allocating space for newfcast.");
+
+//  // Allocate working space for GA
+//    int npoolmax = getDouble(params,"npoolmax");
+//    int nnewmax = getDouble(params,"nnewmax");
+//    int ncondmax = getDouble (params,"ncondmax");
+
+//    reject = calloc(npoolmax,sizeof(struct BF_fcast *));
+//    if(!reject)
+//      printf("There was an error allocating space for reject.");
+
+//    newfcast = calloc(nnewmax,sizeof(struct BF_fcast));
+//    if(!newfcast)
+//      printf("There was an error allocating space for newfcast.");
     
-  newconds = calloc(ncondmax*nnewmax,sizeof(unsigned int));
-  if(!newconds)
-    printf("There was an error allocating space for newconds.");
-  
-// Tie up pointers for conditions
-  topfptr = newfcast + nnewmax;
-  conditions = newconds;
-  for (fptr = newfcast; fptr < topfptr; fptr++) 
-    {
-      fptr->conditions = conditions;
-      conditions += ncondmax;
-    }
+//    newconds = calloc(ncondmax*nnewmax,sizeof(unsigned int));
+//    if(!newconds)
+//      printf("There was an error allocating space for newconds.");
+
+//  // Tie up pointers for conditions
+//    topfptr = newfcast + nnewmax;
+//    conditions = newconds;
+//    for (fptr = newfcast; fptr < topfptr; fptr++) 
+//      {
+//        fptr->conditions = conditions;
+//        conditions += ncondmax;
+//      }
 
   return self;
 }
@@ -425,23 +236,33 @@ int ReadBitname(const char *variable, const struct keytable *table)
   int i, n;
   int * myRealWorld;
   int nworldbits;
+  int * bitlist;
+  //previously were global vars
+  int condbits;
+  int condwords;
+  int * myworld;
+  BFParams * pp;
+  //?why relable this?????????????????
+  pp=params;
 
-  //pj: pp = (struct BFparams *)params;
+  //pp = params;
+  
+  condwords = getInt(pp,"condwords");
+  condbits = getInt(pp,"condbits");
 
-// Make a "myworld" string of bits extracted from the full "realworld"
-// bitstring.
+  //bitlist = pp->bitlist;
+  bitlist = [pp getBitListPtr];
 
-  pp = params;  //perhaps this is necessary to initialize pp?  
-  condwords = pp->condwords;
-  condbits = pp->condbits;
-  bitlist = pp->bitlist;
-  myworld = pp->myworld;
+  //myworld = pp->myworld;
+  myworld = [pp getMyworldPtr];
+
   for (i = 0; i < condwords; i++)
     myworld[i] = 0;
   //pj: nworldbits = [self setNumWorldBits];
   //replace with:
    nworldbits = [worldForAgent getNumWorldBits];
 
+   //pj:when does this get freed????????
   myRealWorld = calloc(nworldbits, sizeof(int));
   if(!myRealWorld)
     printf("There was an error allocating space for myRealWorld.");
@@ -457,12 +278,12 @@ int ReadBitname(const char *variable, const struct keytable *table)
 }
 
 
-+(int)lastgatime
-{
-  //  pp = (struct BFparams *)params;
-  //return pp->lastgatime;
-  return params->lastgatime;
-}
+//  +(int)lastgatime
+//  {
+//    //  pp = (struct BFparams *)params;
+//    //return pp->lastgatime;
+//    return params->lastgatime;
+//  }
 
 
 +setRealWorld: (int *)array
@@ -479,47 +300,99 @@ int ReadBitname(const char *variable, const struct keytable *table)
   return numofbits;
 }
 
+-createEnd
+{
+
+  //pj: this is moved from "didInitialize" because these are now IVARS.
+  struct BF_fcast *fptr, *topfptr;
+  unsigned int *conditions;
+  unsigned int *newconds;	
+
+
+// Allocate working space for GA
+  int npoolmax = getDouble(params,"npoolmax");
+  int nnewmax = getDouble(params,"nnewmax");
+  int ncondmax = getDouble (params,"ncondmax");
+
+  reject = calloc(npoolmax,sizeof(struct BF_fcast *));
+  if(!reject)
+    printf("There was an error allocating space for reject.");
+
+  newfcast = calloc(nnewmax,sizeof(struct BF_fcast));
+  if(!newfcast)
+    printf("There was an error allocating space for newfcast.");
+    
+  newconds = calloc(ncondmax*nnewmax,sizeof(unsigned int));
+  if(!newconds)
+    printf("There was an error allocating space for newconds.");
+
+  // Tie up pointers for conditions
+  topfptr = newfcast + nnewmax;
+  conditions = newconds;
+  for (fptr = newfcast; fptr < topfptr; fptr++) 
+    {
+      fptr->conditions = conditions;
+      conditions += ncondmax;
+    }
+
+  fprintf(stderr,"BFagent creatended \n");
+  return [super createEnd];
+}
+
 
 -initForecasts
 {
   struct BF_fcast *fptr, *topfptr;
   unsigned int *conditions, *cond;
   int word, bit, specificity;
+  int condbits;
+  int condwords;
   double *problist;
   double abase, bbase, cbase, asubrange, bsubrange, csubrange;
   double newfcastvar, bitcost;
+  int *bitlist;
 
 // Initialize our instance variables
-  p = params;
+
+   if ((privateParams =
+         [lispAppArchiver getWithZone: [self getZone] key: "bfParams"]) == nil)
+      raiseEvent(InvalidOperation,
+                 "Can't find the BFParams parameters");
+    [privateParams init];
+
   avspecificity = 0.0;
   lactivelist = activelist = NULL;
   gacount = 0;
 
-  variance = p->initvar;
+  variance = getDouble(privateParams, "initvar");
   [self getPriceFromWorld];
   [self getDividendFromWorld];
   global_mean = price + dividend;
   forecast = lforecast = global_mean;
 
 // Extract some things for rapid use (is this worth it?)
-  condwords = p->condwords;
-  condbits = p->condbits;
-  bitlist = p->bitlist;
-  problist = p->problist;
-  newfcastvar = p->newfcastvar;
-  bitcost = p->bitcost;
+  // condwords = p->condwords;
+  condwords = getInt (privateParams,"condwords");
+  // condbits = p->condbits;
+  condbits = getInt (privateParams,"condbits");
+  // bitlist = p->bitlist;
+  bitlist = [privateParams getBitListPtr];
+  //problist = p->problist;
+  problist = [privateParams getProbListPtr];
+  newfcastvar = privateParams->newfcastvar;
+  bitcost = getDouble (privateParams, "bitcost");
 
 // Allocate memory for forecasts and their conditions
-  fcast = calloc(p->numfcasts,sizeof(struct BF_fcast));
+  fcast = calloc(privateParams->numfcasts,sizeof(struct BF_fcast));
   if(!fcast)
     printf("There was an error allocating space for fcast.");
   
-  conditions = calloc(p->numfcasts*condwords,sizeof(unsigned int));
+  conditions = calloc(privateParams->numfcasts*condwords,sizeof(unsigned int));
   if(!conditions)
     printf("There was an error allocating space for conditions.");
 
 // Iniitialize the forecasts
-  topfptr = fcast + p->numfcasts;
+  topfptr = fcast + privateParams->numfcasts;
   for (fptr = fcast; fptr < topfptr; fptr++) 
     {
       fptr->forecast = 0.0;
@@ -558,7 +431,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
   specificity = 0;
   for (fptr = fcast; fptr < topfptr; fptr++)
     specificity += fptr->specificity;
-  avspecificity = ((double) specificity)/p->numfcasts;
+  avspecificity = ((double) specificity)/privateParams->numfcasts;
 
 /* Set the forecasting parameters for each fcast to random values in a
  * fraction "subrange" of their range, centered at the midpoint.  For
@@ -566,12 +439,12 @@ int ReadBitname(const char *variable, const struct keytable *table)
  * values lie between 1/4 and 3/4 of this range.  subrange=0 gives
  * homogeneous agents, with values at the middle of their min-max range. 
  */
-  abase = p->a_min + 0.5*(1.-p->subrange)*p->a_range;
-  bbase = p->b_min + 0.5*(1.-p->subrange)*p->b_range;
-  cbase = p->c_min + 0.5*(1.-p->subrange)*p->c_range;
-  asubrange = p->subrange*p->a_range;
-  bsubrange = p->subrange*p->b_range;
-  csubrange = p->subrange*p->c_range;
+  abase = privateParams->a_min + 0.5*(1.-privateParams->subrange)*privateParams->a_range;
+  bbase = privateParams->b_min + 0.5*(1.-privateParams->subrange)*privateParams->b_range;
+  cbase = privateParams->c_min + 0.5*(1.-privateParams->subrange)*privateParams->c_range;
+  asubrange = privateParams->subrange*privateParams->a_range;
+  bsubrange = privateParams->subrange*privateParams->b_range;
+  csubrange = privateParams->subrange*privateParams->c_range;
   for (fptr = fcast; fptr < topfptr; fptr++) 
     {
       fptr->a = abase + drand()*asubrange;
@@ -605,7 +478,10 @@ int ReadBitname(const char *variable, const struct keytable *table)
   unsigned int real0 = 0, real1, real2, real3, real4;
   double weight, countsum, forecastvar;
   int mincount;
-        
+
+  int * myworld;
+ 
+
 #if  WEIGHTED == 1    
   static double a, b, c, sum, sumv;
 #else
@@ -613,11 +489,11 @@ int ReadBitname(const char *variable, const struct keytable *table)
   double maxstrength;
 #endif
 
-  topfptr = fcast + p->numfcasts;
+  topfptr = fcast + privateParams->numfcasts;
   
 // First the genetic algorithm is run if due
   currentTime = getCurrentTime( );
-  if (currentTime >= p->firstgatime && drand() < p->gaprob) 
+  if (currentTime >= privateParams->firstgatime && drand() < privateParams->gaprob) 
     {
       [self performGA]; 
       // Clear linked list for active rules
@@ -640,10 +516,12 @@ int ReadBitname(const char *variable, const struct keytable *table)
 // condwords allowed for here sets the maximum number of condition bits
 // permitted (no matter how large MAXCONDBITS).
   nextptr = &activelist;	/* start of linked list */
-  myworld = p->myworld;
+  // myworld = p->myworld;
+   myworld = [privateParams getMyworldPtr];
+
   if(!myworld)
     real0 = myworld[0];
-  switch (p->condwords) {
+  switch (privateParams->condwords) {
   case 1:
     for (fptr = fcast; fptr < topfptr; fptr++) 
       {
@@ -721,7 +599,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
   sumv = 0.0;
   sum = 0.0;
   nactive = 0;
-  mincount = p->mincount;
+  mincount = privateParams->mincount;
   for (fptr=activelist; fptr!=NULL; fptr=fptr->next) 
     {
       fptr->lastactive = t;
@@ -739,14 +617,14 @@ int ReadBitname(const char *variable, const struct keytable *table)
     {
       pdcoeff = a/sum;
       offset = (b/sum)*dividend + (c/sum);
-      forecastvar = (p->individual? sumv/((double)nactive) :variance);
+      forecastvar = (privateParams->individual? sumv/((double)nactive) :variance);
     }
 #else
 // Now go through the list and find best forecast
   maxstrength = -1e50;
   bestfptr = NULL;
   nactive = 0;
-  mincount = p->mincount;
+  mincount = privateParams->mincount;
   for (fptr=activelist; fptr!=NULL; fptr=fptr->next) 
     {
       fptr->lastactive = currentTime;
@@ -764,7 +642,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
     {
       pdcoeff = bestfptr->a;
       offset = bestfptr->b*dividend + bestfptr->c;
-      forecastvar = (p->individual? bestfptr->variance :variance);
+      forecastvar = (privateParams->individual? bestfptr->variance :variance);
     }
 #endif
   else 
@@ -774,7 +652,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
       countsum = 0.0;
       pdcoeff = 0.0;
       offset = 0.0;
-      mincount = p->mincount;
+      mincount = privateParams->mincount;
       for (fptr = fcast; fptr < topfptr; fptr++)
 	if (fptr->count >= mincount) 
 	  {
@@ -791,7 +669,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
 	offset = global_mean;
       forecastvar = variance;
     }
-  divisor = p->lambda*forecastvar;
+  divisor = privateParams->lambda*forecastvar;
     
   return self;
 }
@@ -812,7 +690,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
 -(double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice
 /*
  * Returns the agent's requested bid (if >0) or offer (if <0) using
- * best (or mean) linear forecast chosen by -prepareForTrading.
+ * best (or mean) linear forecast chosen by -prepareForTrading
  */
 {
 // The actual forecast is given by
@@ -840,14 +718,14 @@ int ReadBitname(const char *variable, const struct keytable *table)
 // Clip bid or offer at "maxbid".  This is done to avoid problems when
 // the variance of the forecast becomes very small, thought it's not clear
 // that this is the best solution.
-  if (demand > p->maxbid) 
+  if (demand > privateParams->maxbid) 
     { 
-      demand = p->maxbid;
+      demand = privateParams->maxbid;
       *slope = 0.0;
     }
-  else if (demand < -p->maxbid) 
+  else if (demand < -privateParams->maxbid) 
     {
-      demand = -p->maxbid;
+      demand = -privateParams->maxbid;
       *slope = 0.0;
     }
     
@@ -871,13 +749,13 @@ int ReadBitname(const char *variable, const struct keytable *table)
 // since now we know how they performed.
 
 // Precompute things for speed
-  tauv = p->tauv;
+  tauv = privateParams->tauv;
   a = 1.0/tauv;
   b = 1.0-a;
 // special rates for variance
 // We often want this to be different from tauv
 // PARAM:  100. should be a parameter  BL
-  av = 1.0/100.;
+  av = 1.0/(double)100.0;
   bv = 1.0-av;
 
     /* fixed variance if tauv at max */
@@ -888,7 +766,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
       av = 0.0;
       bv = 1.0;
     }
-  maxdev = p->maxdev;
+  maxdev = privateParams->maxdev;
 
 // Update global mean (p+d) and our variance
   [self getPriceFromWorld];
@@ -899,7 +777,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
 // Use default for initial variances - for stability at startup
   currentTime = getCurrentTime( );
   if (currentTime < 1)
-    variance = p->initvar;
+    variance = privateParams->initvar;
   else
     variance = bv*variance + av*deviation*deviation;
 
@@ -949,13 +827,13 @@ int ReadBitname(const char *variable, const struct keytable *table)
 
 -(int)nbits
 {
-  return p->condbits;
+  return privateParams->condbits;
 }
 
 
 -(int)nrules
 {
-  return p->numfcasts;
+  return privateParams->numfcasts;
 }
 
 
@@ -970,11 +848,14 @@ int ReadBitname(const char *variable, const struct keytable *table)
   struct BF_fcast *fptr, *topfptr;
   unsigned int *agntcond;
   int i;
+  int condbits;
+ 
+
   static int *count[4];	// Dynamically allocated 2-d array
   static int countsize = -1;	// Current size/4 of count[]
   static int prevsize = -1;
 
-  condbits = p->condbits;
+  condbits = getInt (privateParams, "condbits");
 
   if (cum && condbits != prevsize)
     printf("There is an error with an agent's condbits.");
@@ -1002,7 +883,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
     for(i=0;i<condbits;i++)
       count[0][i] = count[1][i] = count[2][i] = count[3][i] = 0;
 
-  topfptr = fcast + p->numfcasts;
+  topfptr = fcast + privateParams->numfcasts;
   for (fptr = fcast; fptr < topfptr; fptr++) 
     {
       agntcond = fptr->conditions;
@@ -1013,39 +894,41 @@ int ReadBitname(const char *variable, const struct keytable *table)
   return condbits;
 }
 
--(int)fMoments: (double *)moment cumulative: (BOOL)cum
-{
-  struct BF_fcast *fptr, *topfptr;
-  int i;
+//pj: this method was never called anywhere
+//  -(int)fMoments: (double *)moment cumulative: (BOOL)cum
+//  {
+//    struct BF_fcast *fptr, *topfptr;
+//    int i;
+//    int condbits;
+
+//    condbits = getInt (privateParams, "condbits");
   
-  condbits = p->condbits;
+//    if (!cum)
+//  	for(i=0;i<6;i++)
+//  	  moment[i] = 0;
   
-  if (!cum)
-	for(i=0;i<6;i++)
-	  moment[i] = 0;
-  
-  topfptr = fcast + p->numfcasts;
-  for (fptr = fcast; fptr < topfptr; fptr++) 
-    {
-      moment[0] += fptr->a;
-      moment[1] += fptr->a*fptr->a;
-      moment[2] += fptr->b;
-      moment[3] += fptr->b*fptr->b;
-      moment[4] += fptr->c;
-      moment[5] += fptr->c*fptr->c;
-    }
+//    topfptr = fcast + privateParams->numfcasts;
+//    for (fptr = fcast; fptr < topfptr; fptr++) 
+//      {
+//        moment[0] += fptr->a;
+//        moment[1] += fptr->a*fptr->a;
+//        moment[2] += fptr->b;
+//        moment[3] += fptr->b*fptr->b;
+//        moment[4] += fptr->c;
+//        moment[5] += fptr->c*fptr->c;
+//      }
     
-  return p->numfcasts;
-}
+//    return privateParams->numfcasts;
+//  }
 
-
--(const char *)descriptionOfBit: (int)bit
-{
-  if (bit < 0 || bit > p->condbits)
-    return "(Invalid condition bit)";
-  else
-    return [World descriptionOfBit:p->bitlist[bit]];
-}
+//pj: this method is not called anywhere
+//  -(const char *)descriptionOfBit: (int)bit
+//  {
+//    if (bit < 0 || bit > getInt(privateParams,"condbits"))
+//      return "(Invalid condition bit)";
+//    else
+//      return [World descriptionOfBit:privateParams->bitlist[bit]];
+//  }
 
 
 // Genetic algorithm
@@ -1086,6 +969,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
 //   nhood      -- size of neighborhood.
 //   longtime	-- generalize if rule unused for this length of time
 //   genfrac	-- fraction of 0/1 bits to make don't-care when generalising
+
 - performGA
 {
   register struct BF_fcast *fptr;
@@ -1094,109 +978,13 @@ int ReadBitname(const char *variable, const struct keytable *table)
   int specificity, new, parent1, parent2;
   BOOL changed;
   double ava,avb,avc,sumc;
-
-  ++gacount;
-  currentTime = getCurrentTime();
-  p->lastgatime = lastgatime = currentTime;
-
-/* Make instance variable visible to GA routines */
-  pp = p;
-  condwords = p->condwords;
-  condbits = p->condbits;
-  bitlist = p->bitlist;
-
-// Find the npool weakest rules, for later use in TrnasferFcasts
-  MakePool(fcast);
-
-// Compute average strength (for assignment to new rules)
-  avstrength = ava = avb = avc = sumc = 0.0;
-  minstrength = 1.0e20;
-  for (f=0; f < p->numfcasts; f++) 
-    {
-      avstrength += fcast[f].strength;
-      sumc += 1./fcast[f].variance;
-      ava += fcast[f].a * 1./fcast[f].variance;
-      avb += fcast[f].b * 1./fcast[f].variance;
-      avc += fcast[f].c * 1./fcast[f].variance;
-      if(fcast[f].strength<minstrength)
-	minstrength = fcast[f].strength;
-    }
-  ava /= sumc;
-  avb /= sumc;
-  avc /= sumc;
-
-/*
- * Set rule 0 (always all don't care) to inverse variance weight 
- * of the forecast parameters.  A somewhat Bayesian way for selecting 
- * the params for the unconditional forecast.  Remember, rule 0 is imune to
- * all mutations and crossovers.  It is the default rule.
-*/
-  fcast[0].a = ava;
-  fcast[0].b = avb;
-  fcast[0].c = avc;
-  
-  avstrength /= p->numfcasts;
-    
-
-// Loop to construct nnew new rules
-  for (new = 0; new < p->nnew; new++) 
-    {
-      changed = NO;
-
-      // Loop used if we force diversity
-      do 
-	{
-
-	// Pick first parent using touranment selection
-	  do
-	    parent1 = Tournament(fcast);
-	  while (parent1 == 0);
-
-	// Perhaps pick second parent and do crossover; otherwise just copy
-	  if (drand() < p->pcrossover) 
-	    {
-	      do
-		parent2 = Tournament(fcast);
-	      while (parent2 == parent1 || parent2 == 0) ;
-	      Crossover(fcast, new, parent1, parent2);
-	      changed = YES;
-	    }
-	  else
-	    CopyRule(&newfcast[new],&fcast[parent1]);
-
-	// Mutate the result
-	  if (Mutate(new,changed)) changed = YES;
-
-	// Set strength and lastactive if it's really new
-	  if (changed) {
-	    nr = newfcast + new;
-	    nr->strength = avstrength;
-	    nr->variance = nr->specfactor/nr->strength;
-	    nr->lastactive = currentTime;
-	  }
-
-
-	} while (0);
-	/* Replace while(0) with while(!changed) to force diversity */
-    }
-
-// Replace nnew of the weakest old rules by the new ones
-  TransferFcasts();
-
-// Generalize any rules that haven't been used for a long time
-  Generalize(fcast);
-
-// Compute average specificity
-  specificity = 0;
-  for (f = 0; f < p->numfcasts; f++) 
-    {
-      fptr = fcast + f;
-      specificity += fptr->specificity;
-    }
-  avspecificity = ((double) specificity)/p->numfcasts;
-
-  return self;
-}
+  //previously declared as globals
+  int * bitlist;
+  int condbits;
+  int condwords;
+  static double avstrength,minstrength;	
+  static BFParams * pp;  //this is just declared to serve as a shortcut
+  static struct BF_fcast *GetMort(struct BF_fcast *);//declares GetMort for other fns
 
 
 /*------------------------------------------------------*/
@@ -1220,22 +1008,22 @@ static void CopyRule(struct BF_fcast *to, struct BF_fcast *from)
 /*------------------------------------------------------*/
 /*	MakePool					*/
 /*------------------------------------------------------*/
-static void MakePool(struct BF_fcast *fcast)
+static void MakePool(struct BF_fcast *fcastinput)
 {
   register int j, top;
   register struct BF_fcast *fptr, *topfptr;
 
 // Dumb bubble sort
-  topfptr = fcast + pp->npool;
+  topfptr = fcastinput + pp->npool;
   top = -1;
-  for (fptr = fcast; fptr < topfptr; fptr++) 
+  for (fptr = fcastinput; fptr < topfptr; fptr++) 
     {
       for (j = top; j >= 0 && fptr->strength < reject[j]->strength; j--)
 	reject[j+1] = reject[j];
       reject[j+1] = fptr;
       top++;
     }
-  topfptr = fcast + pp->numfcasts;
+  topfptr = fcastinput + pp->numfcasts;
   for (; fptr < topfptr; fptr++) {
     if (fptr->strength < reject[top]->strength) 
       {
@@ -1246,7 +1034,7 @@ static void MakePool(struct BF_fcast *fcast)
   }
     /* protect all don't cares (first) from elimination - bl */
   for(j=0;j<pp->npool;j++)
-    if (reject[j]==fcast) reject[j] = NULL;
+    if (reject[j]==fcastinput) reject[j] = NULL;
 /* Note that reject[npool-1]->strength gives the "dud threshold" */
 }
 
@@ -1254,7 +1042,7 @@ static void MakePool(struct BF_fcast *fcast)
 /*------------------------------------------------------*/
 /*	Tournament					*/
 /*------------------------------------------------------*/
-static int Tournament(struct BF_fcast *fcast)
+static int Tournament(struct BF_fcast *fcastinput)
 {
   int candidate1 = irand(pp->numfcasts);
   int candidate2;
@@ -1263,7 +1051,7 @@ static int Tournament(struct BF_fcast *fcast)
     candidate2 = irand(pp->numfcasts);
   while (candidate2 == candidate1);
 
-  if (fcast[candidate1].strength > fcast[candidate2].strength)
+  if (fcastinput[candidate1].strength > fcastinput[candidate2].strength)
       return candidate1;
   else
     return candidate2;
@@ -1273,7 +1061,7 @@ static int Tournament(struct BF_fcast *fcast)
 /*------------------------------------------------------*/
 /*	Crossover					*/
 /*------------------------------------------------------*/
-static void Crossover(struct BF_fcast *fcast, int new, int parent1,
+static void Crossover(struct BF_fcast *fcastinput, int new, int parent1,
 int parent2)
 /*
  * On the condition bits, Crossover() uses uniform crossover -- each
@@ -1298,8 +1086,8 @@ int parent2)
 
 /* Uniform crossover of condition bits */
   newcond = nr->conditions;
-  cond1 = fcast[parent1].conditions;
-  cond2 = fcast[parent2].conditions;
+  cond1 = fcastinput[parent1].conditions;
+  cond2 = fcastinput[parent2].conditions;
   if(irand(1)==0) 
     {
       for (word = 0; word <condwords; word++)
@@ -1321,27 +1109,27 @@ int parent2)
   if (choice < pp->plinear) 
     {
     /* Crossover method 1 -- linear combination */
-      weight1 = fcast[parent1].strength/(fcast[parent1].strength +
-					 fcast[parent2].strength);
+      weight1 = fcastinput[parent1].strength/(fcastinput[parent1].strength +
+					 fcastinput[parent2].strength);
       weight2 = 1.0-weight1;
-      nr->a = weight1*fcast[parent1].a + weight2*fcast[parent2].a;
-      nr->b = weight1*fcast[parent1].b + weight2*fcast[parent2].b;
-      nr->c = weight1*fcast[parent1].c + weight2*fcast[parent2].c;
+      nr->a = weight1*fcastinput[parent1].a + weight2*fcastinput[parent2].a;
+      nr->b = weight1*fcastinput[parent1].b + weight2*fcastinput[parent2].b;
+      nr->c = weight1*fcastinput[parent1].c + weight2*fcastinput[parent2].c;
     }
   else if (choice < pp->plinear + pp->prandom) 
     {
       /* Crossover method 2 -- randomly from each parent */
-      nr->a = fcast[(irand(2)? parent1: parent2)].a;
-      nr->b = fcast[(irand(2)? parent1: parent2)].b;
-      nr->c = fcast[(irand(2)? parent1: parent2)].c;
+      nr->a = fcastinput[(irand(2)? parent1: parent2)].a;
+      nr->b = fcastinput[(irand(2)? parent1: parent2)].b;
+      nr->c = fcastinput[(irand(2)? parent1: parent2)].c;
     }
   else 
     {
       /* Crossover method 3 -- all from one parent */
       parent = (irand(2)? parent1: parent2);
-      nr->a = fcast[parent].a;
-      nr->b = fcast[parent].b;
-      nr->c = fcast[parent].c;
+      nr->a = fcastinput[parent].a;
+      nr->b = fcastinput[parent].b;
+      nr->c = fcastinput[parent].c;
     }
 
 /* Set miscellanaeous variables (but not lastactive, strength, variance) */
@@ -1388,6 +1176,10 @@ static BOOL Mutate(int new, BOOL changed)
   unsigned int *cond, *cond0;
   double choice, temp;
   BOOL bitchanged = NO;
+  int * bitlist= NULL;
+  
+  //recall pp same as privateParams
+  bitlist= [pp getBitListPtr];
 
   bitchanged = changed;
   if (pp->pmutation > 0) 
@@ -1593,7 +1385,7 @@ static struct BF_fcast *GetMort(struct BF_fcast *nr)
 /*------------------------------------------------------*/
 /*	Generalize					*/
 /*------------------------------------------------------*/
-static void Generalize(struct BF_fcast *fcast)
+static void Generalize(struct BF_fcast *fcastinput)
 /*
  * Each forecast that hasn't be used for longtime is generalized by
  * turning a fraction genfrac of the 0/1 bits to don't-cares.
@@ -1603,13 +1395,16 @@ static void Generalize(struct BF_fcast *fcast)
   register int f;
   int bit, j;
   BOOL changed;
-  int currentTime;
+  // int currentTime;
+  int * bitlist=NULL;
 
-  currentTime = getCurrentTime();
+  bitlist = [pp getBitListPtr];
+
+  //currentTime = getCurrentTime();
 
     for (f = 0; f < pp->numfcasts; f++) 
       {
-	fptr = fcast + f;
+	fptr = fcastinput + f;
 	if (currentTime - fptr->lastactive > pp->longtime) 
 	  {
 	    changed = NO;
@@ -1636,6 +1431,116 @@ static void Generalize(struct BF_fcast *fcast)
 	      }
 	  }
       }
+}
+
+//********************************GA work begins now*********************//
+//performGA declarations are finished. Now starts the ga method "proper" which uses those
+//declared functions and variables.
+
+  ++gacount;
+  currentTime = getCurrentTime();
+
+  privateParams->lastgatime= params->lastgatime = lastgatime = currentTime;
+
+/* Make instance variable visible to GA routines */
+
+   pp = privateParams;  //pj: I don't understand why it can't just use p now, but I'm not changing it yet ???
+
+  condwords = pp->condwords;
+  condbits = pp->condbits;
+  bitlist = pp->bitlist;
+
+// Find the npool weakest rules, for later use in TrnasferFcasts
+  MakePool(fcast);
+
+// Compute average strength (for assignment to new rules)
+  avstrength = ava = avb = avc = sumc = 0.0;
+  minstrength = 1.0e20;
+  for (f=0; f < pp->numfcasts; f++) 
+    {
+      avstrength += fcast[f].strength;
+      sumc += 1./fcast[f].variance;
+      ava += fcast[f].a * 1./fcast[f].variance;
+      avb += fcast[f].b * 1./fcast[f].variance;
+      avc += fcast[f].c * 1./fcast[f].variance;
+      if(fcast[f].strength<minstrength)
+	minstrength = fcast[f].strength;
+    }
+  ava /= sumc;
+  avb /= sumc;
+  avc /= sumc;
+
+/*
+ * Set rule 0 (always all don't care) to inverse variance weight 
+ * of the forecast parameters.  A somewhat Bayesian way for selecting 
+ * the params for the unconditional forecast.  Remember, rule 0 is imune to
+ * all mutations and crossovers.  It is the default rule.
+*/
+  fcast[0].a = ava;
+  fcast[0].b = avb;
+  fcast[0].c = avc;
+  
+  avstrength /= privateParams->numfcasts;
+    
+
+// Loop to construct nnew new rules
+  for (new = 0; new < privateParams->nnew; new++) 
+    {
+      changed = NO;
+
+      // Loop used if we force diversity
+      do 
+	{
+
+	// Pick first parent using touranment selection
+	  do
+	    parent1 = Tournament(fcast);
+	  while (parent1 == 0);
+
+	// Perhaps pick second parent and do crossover; otherwise just copy
+	  if (drand() < privateParams->pcrossover) 
+	    {
+	      do
+		parent2 = Tournament(fcast);
+	      while (parent2 == parent1 || parent2 == 0) ;
+	      Crossover(fcast, new, parent1, parent2);
+	      changed = YES;
+	    }
+	  else
+	    CopyRule(&newfcast[new],&fcast[parent1]);
+
+	// Mutate the result
+	  if (Mutate(new,changed)) changed = YES;
+
+	// Set strength and lastactive if it's really new
+	  if (changed) {
+	    nr = newfcast + new;
+	    nr->strength = avstrength;
+	    nr->variance = nr->specfactor/nr->strength;
+	    nr->lastactive = currentTime;
+	  }
+
+
+	} while (0);
+	/* Replace while(0) with while(!changed) to force diversity */
+    }
+
+// Replace nnew of the weakest old rules by the new ones
+  TransferFcasts();
+
+// Generalize any rules that haven't been used for a long time
+  Generalize(fcast);
+
+// Compute average specificity
+  specificity = 0;
+  for (f = 0; f < privateParams->numfcasts; f++) 
+    {
+      fptr = fcast + f;
+      specificity += fptr->specificity;
+    }
+  avspecificity = ((double) specificity)/privateParams->numfcasts;
+
+  return self;
 }
 
 @end

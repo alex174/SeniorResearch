@@ -2,9 +2,13 @@
 #import <simtools.h>
 #import "Output.h"
 //#import "random.h"
+#import "BFParams.h"
+
 #import <random.h>
 
 #include <misc.h>
+
+
 
 @implementation ASMModelSwarm
 
@@ -209,6 +213,7 @@
 -buildObjects        //Build and initialize all objects
 {
   int i;
+  id bfParams;
 
 /* Initialise random number stream (0 means set randomly) */
   //pj
@@ -260,8 +265,15 @@
     }
 /* Initialize the agent modules and create the agents */
   agentList = [List create: [self getZone]];  //create list for agents
+
   
-   
+  if ((bfParams =
+       [lispAppArchiver getWithZone: self key: "bfParams"]) == nil)
+    raiseEvent(InvalidOperation,
+               "Can't find the modelSwarm parameters");
+  [bfParams init];
+
+   [BFagent setBFParameterObject: bfParams];
    [BFagent init];
    [BFagent setWorld: world];
     

@@ -1,3 +1,21 @@
+2000-05-25  Paul Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m: changed IVAR "p" to "privateParams" to ease editing
+	and clarify things.  There is no current purpose in keeping a
+	private param object, but at some future time it may be useful,
+	especially if there are subclasses from BFagent.
+	([BFagent -performGA]): Everything is as local as possible.
+	Eliminated all possible global vars.
+
+2000-05-25  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
+
+	* BFagent.m ([BFagent -performGA]): moved GA functions inside
+	performGA method, so they have automatic access to Ivars and we no
+	longer need to declare all those global variables or functions.  *
+
+	* BFParams.m: new object to old parameters, which were previously
+	kept in a struct.
+
 2000-05-24  Paul Johnson  <pauljohn@ukans.edu>
 
 	* BFagent.m: cleared out ^M from Windows
