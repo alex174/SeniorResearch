@@ -31,7 +31,8 @@ initial values for three classes, bfParams, asmModelParms, and
 asmBatchParams.  This data is "called" to create the classes, you have
 to stare at it a while to get used to it.  Where we used to have the
 createBegin/createEnd routine for a class, now we've got this
-different thing that creates a class and initializes its ivars for us.
+different thing that creates a class and initializes its ivars for us,
+like so
 
 asmModelParams =[lispAppArchiver getWithZone: self key: "asmModelParams"])
 
@@ -95,7 +96,15 @@ output.data_Thu_Jun_28_23_48_00_2001
 
 However, I understand the reasons others are pushing to use more
 refined formats.  Many people are digging into hdf5 format for data
-storage, and I've taken a look at that too.  
+storage, and I've taken a look at that too.  I took the easy road and
+just dumped the whole world and specialist class with swarm's
+archiver. It seems to work great?!  The output file is called
+something like
+
+swarmDataArchiveFri_Jun_29_16_29_25_2001.hdf
+
+
+swarmDataArchiveFri_Jun_29_16_22_59_2001.scm
 
 
   

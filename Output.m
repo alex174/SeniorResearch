@@ -82,8 +82,8 @@
   char paramKey[20];
  
 
-  sprintf (modelKey, "modelParams-%ld",t);
-  sprintf (paramKey, "bfParams-%ld",t);
+  sprintf (modelKey, "modelParams%ld",t);
+  sprintf (paramKey, "bfParams%ld",t);
   
   [archiver putShallow: modelKey object: modelParam];
 #ifdef USE_LISP
@@ -132,8 +132,8 @@
            [outputWorld getDividend], 
            [outputSpecialist getVolume]);
 
-   sprintf (worldName, "world-%4.0ld",t);
-   sprintf (specName, "specialist-%4.0ld",t); 
+  sprintf (worldName, "world%ld",t);
+  sprintf (specName, "specialist%4.0ld",t); 
 
    [dataArchiver putShallow: worldName object: outputWorld];
 #ifdef USE_LISP
