@@ -36,6 +36,7 @@
 - (BFCast *)getStrongestBFCast;
 - createEnd;
 - initForecasts;
+- (int)getNfcasts;
 
 - (BFCast *)createNewForecast;  //all conditions=0
 

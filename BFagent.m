@@ -301,6 +301,13 @@ getConditionsbit: x].  "*/
   return self;
 }
 
+/*"Get the number of forecasts that this agent is using"*/
+- (int)getNfcasts
+{
+  return [fcastList getCount];
+}
+
+
 /*"Creates a new forecast object (instance of BFCast), with all
   condition bits set to 00 here, meaning "don't care.  It also sets
   values for the other coefficients inside the BFCast.  This method is

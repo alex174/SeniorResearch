@@ -1,33 +1,95 @@
-ASM-new.  note from Paul Johnson April 2, 2000
+Swarm ASM notes.  If you are looking for highlights, this
+is the right spot.
 
-SNAP1: May 7, 2000
-In ASM-new-snap1, I've removed the random.h and random.m from this
-program, and replaced their functionality with Swarm library
-calls. Contrary to the statements below, this program should now
-behave like a Swarm app. Every time you run it,  you get the same
-random seed, unless you use the command line switch or input a
-randomSeed of your own.	
+Paul Johnson <pauljohn@ku.edu>
+
+ASM-2.4 June 2003
+
+This version requires Swarm-2.1.143 or newer. If you don't have 
+that, you will have to disable serialization features and compile
+without using HDF5 data output.
+
+Thomas Badegruber <thomas.badegruber@uni-graz.at> visited here in
+Kansas in March and then went to Boston to work with Blake
+LeBaron. That re-energized me on this project.  Thomas is now a full
+contributor to the CVS archive on Sourceforge.  We have made changes
+to improve functionality, fix bugs, and make the genetic algorithm
+code more easy to read and extend. And, perhaps most importantly, we
+can now re-produce the finding that there is a major difference in the
+usage of technical and fundamental bits when the agent use of the
+genetic algorithm is made more frequent. That is to say, when agents
+use the GA every 250 periods, they are substantially more likely to
+use technical trading information than if they update every 1000
+periods.  Because this behavior is now reproduced, we are confident
+that the Swarm-ASM behaves in the same way in all substantial ways as
+the Next/Objective-C models presented in the literature.
+
+Functionality enhancements
+
+* Graph showing usage of funamental bits, technical bits, and dummy
+bits full model serialization.
+
+* Serialization: Simulation can be saved in a "snapshot" and restarted.
+
+* Parameter values have been reset to match the ones used in
+publications.
+
+* Uses enhancements in Swarm's EZGraph (changes introduced since
+Swarm-2.1.1) to save output data as vectors in HDF5 files.  This
+significantly enhances usage of output data files in statistical
+analysis programs.
+
+Bug fixes / code changes (see ChangeLog for details, or persue
+the patch from ASM-2.2 to ASM-2.4.)
+
+* closed memory leakes caused by use of probes in the getDouble()
+function in BFParams.m.
+
+* revised some of the scheduling apparatus to make the model run
+faster.
+
+* Fixed a misplaced bracked in BFagent's MakePool method.  This
+was discovered and corrected by Thomas Badegruber. It significantly
+affects the performance of the genetic algorithm over the long run.
+
+* Coding for graphs and data output of hdf5 vectors for time plots
+was reorganized, significanly simplifying the shift from GUI to nonGUI
+models.  Look in Output.m
 
 
-SNAP2: ASM 20000602 June 2, 2000
-Thorough workover of BFagent class, creating three new classes (BitVector,
-BFParams, and BFCast)  and a massive reorganization of BFagent itself.
-See long comment in BFagent.m.
+ASM-2.2 November 2001
+
+This work was mainly aimed at documentation, inserting Autodoc markers
+so I can build nicer looking documentation.
+
+The only big substantive cleanup was in ASMModelSwarm.  I had been
+avoiding this for a long time because the scheduling that was used was
+very complicated and hard to understand.  I succeeded in a major
+simplicification and cleanup and have verified the numerical results
+are identical. This is explained in the beginning of ASMModelSwarm.m
+
+There was also a "procedural" cleanup of the code in World.m.  The old
+version had a lot of callocs and other memory magic because it was
+keeping moving averages "by hand".  This has been changed. There is
+now a MovingAverage class that is used to do that magic, so the code
+in World.m is much easier to read.
+
+There is much less low level math floating around.
 
 SNAP3: ASM 20011024 October 2001
 
 The aim has been to bring this model into convenient Swarm standards.
-Actually, the real aim has been to make ASM an effective teaching
-tool and an example of good simulation coding practice.
-Part of that is a modernization of the data handling, both the
-input of parameter values, and record keeping of parameter values, as
-well as the saving of data.  One of my pet peeves about Swarm is that
-we do not have a standard, idiot proof way to keep records on the
-settings and results are for a particular run.  We also don't have
-fool proof ways to interate models and run simulations over again.  
-The first problem is dealt with here in the Output class, and the
-second one is dealt with by the creation of a Parameter class, where
-we could manage command line parameters if we wanted to.
+Actually, the real aim has been to make ASM an effective teaching tool
+and an example of good simulation coding practice.  Part of that is a
+modernization of the data handling, both the input of parameter
+values, and record keeping of parameter values, as well as the saving
+of data.  One of my pet peeves about Swarm is that we do not have a
+standard, idiot proof way to keep records on the settings and results
+are for a particular run.  We also don't have fool proof ways to
+interate models and run simulations over again.  The first problem is
+dealt with here in the Output class, and the second one is dealt with
+by the creation of a Parameter class, where we could manage command
+line parameters if we wanted to.
 
 1. Inputting Parameter Values.
 
@@ -143,21 +205,25 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 
 
 
-ASM-2.2 November 2001
 
-This work was mainly aimed at documentation, inserting Autodoc markers so I can build nicer looking documentation.
 
-The only big substantive cleanup was in ASMModelSwarm.  I had been avoiding 
-this for a long time because the scheduling that was used was very
-complicated and hard to understand.  I succeeded in a major simplicification
-and cleanup and have verified the numerical results are identical. This is
-explained in the beginning of ASMModelSwarm.m
+SNAP2: ASM 20000602 June 2, 2000
+Thorough workover of BFagent class, creating three new classes (BitVector,
+BFParams, and BFCast)  and a massive reorganization of BFagent itself.
+See long comment in BFagent.m.
 
-There was also a "procedural" cleanup of the code in World.m.  The old
-version had a lot of callocs and other memory magic because it was keeping
-moving averages "by hand".  This has been changed. There is now a MovingAverage
-class that is used to do that magic, so the code in World.m is much easier to read. 
-There is much less low level math floating around.
+
+
+
+SNAP1: May 7, 2000
+In ASM-new-snap1, I've removed the random.h and random.m from this
+program, and replaced their functionality with Swarm library
+calls. Contrary to the statements below, this program should now
+behave like a Swarm app. Every time you run it,  you get the same
+random seed, unless you use the command line switch or input a
+randomSeed of your own.	
+
+
 
 -------original readme follows
 This is the port to Swarm of the original NeXTstep version of

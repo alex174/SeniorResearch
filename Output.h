@@ -22,7 +22,7 @@
 
   id archiver; /*"LISP archiver object"*/
 
-  int bs[16]; //*"counter array, size of number of bits in use"*/
+  int bs[12]; //*"counter array, size of number of bits in use"*/
   double csfreq[3];
 
   time_t runTime; /*"Return from the systems time() function"*/

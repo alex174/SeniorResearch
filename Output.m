@@ -68,7 +68,7 @@ If you are running from the graphical interface and the run variable
 is not explicitly set, then run equals "-1" and the output file will 
 have a date string pasted into it:
 
- stockData-Sun_May_18_10_47_58_2003.hdf
+stockData-Sun_May_18_10_47_58_2003.hdf
 
 
 "*/
@@ -118,8 +118,8 @@ have a date string pasted into it:
   archiver = [LispArchiver create: [self getZone] setPath: paramFileName];
   unlink ("settingsSaved.scm");
 
-  for (i=0;i<16;i++) bs[i]=0;
-  for (i=0;i<4;i++) csfreq[i]=0;
+  for (i=0; i<12; i++) bs[i]=0;
+  for (i=0; i<4; i++) csfreq[i]=0;
   return self;
 }
 
@@ -296,7 +296,7 @@ have a date string pasted into it:
 #ifndef NO_HDF5
   [bitGraph setHDF5Container: hdf5container];
 #endif
-  [bitGraph  setTitle: "fraction of bits used"];
+  [bitGraph  setTitle: "fraction of bits used (by type)"];
   [bitGraph  setAxisLabelsX: "time" Y: "frequency"];
   [bitGraph  setWindowGeometryRecordName: "bitGraph"];
   if (swarmGUIMode == YES)
@@ -317,8 +317,8 @@ have a date string pasted into it:
       char name[10];
       if (i == 0) sprintf (name, "fundamental bits");
       else if (i == 1) sprintf (name, "technical bits");
-			 else if (i == 2) sprintf (name, "dummy bits");
-                                       else if (i == 3) sprintf (name, "total bits");
+      else if (i == 2) sprintf (name, "dummy bits");
+      else if (i == 3) sprintf (name, "total bits");
      
       cssequence[i] = [bitGraph createSequence: name
 				withFeedFrom: self
@@ -344,8 +344,11 @@ have a date string pasted into it:
 
 
 
-
-
+/*"This method gets bit usage information from agents and then
+calculates how many bits are being used in each type--technical
+or fundamental.  This method assumes the bits are as coded in
+BFParams.m, where 0-5 are fundamental, 6-9 are technical, 
+"*/
 - calculateBitData
 {
   int i;
@@ -356,6 +359,7 @@ have a date string pasted into it:
   int condbits = 12;
   int cs[4];
   int numagents = -1;
+  int numFcasts = 0;
 
   cum = NO;
   numagents = [agentList getCount];
@@ -364,25 +368,29 @@ have a date string pasted into it:
   for (i=0; i < condbits; i++) bs[i]=0;
   now = time(NULL);
   if (t%10000 == 0) printf("at time %s %7ld runs complete\n",asctime(localtime(&now)),t);
+
+  //save for later calculation
+  //assumes all agents use the same N of forecasts. 
+  //can easly generalize.
+ 
+  numFcasts = [ [agentList atOffset:0] getNfcasts];
+
   index = [agentList begin: [self getZone]];
   while ((agent = [index next]))
     {
-      //printf("Agent number %3d bits: %d\n",[agent getID],[agent nbits]);
       [agent bitDistribution: countpointer cumulative:cum];
       for (i = 0; i < [agent nbits];i++ ) 
 	{
-	  bs[i]=bs[i]+(*countpointer)[1][i]+(*countpointer)[2][i];
-	  
+	  bs[i]=bs[i]+(*countpointer)[1][i]+(*countpointer)[2][i]; 
 	}
+     
     }
-
+ 
   [index drop];
-         
-
-  
+           
   cs[0]=0; cs[1]=0; cs[2]=0; cs[3]=0;
   
-  for (i = 0; i < condbits;i++ )
+  for (i = 0; i < condbits; i++)
     {
       if (i < 6) cs[0] = cs[0]+bs[i];
       else if ( i >= 6 && i < 10) cs[1] = cs[1]+bs[i];
@@ -390,10 +398,13 @@ have a date string pasted into it:
       cs[3] = cs[3]+bs[i];
     }
 
-  csfreq[0] = (double)cs[0]/(6.0*numagents*100);
-  csfreq[1] = (double)cs[1]/(4.0*numagents*100);
-  csfreq[2] = (double)cs[2]/(2.0*numagents*100);
-  csfreq[3] = (double)cs[3]/(condbits*numagents*100);
+
+  //calculate the fraction of bits used among each type
+
+  csfreq[0] = (double)cs[0]/(6.0*numagents*numFcasts);
+  csfreq[1] = (double)cs[1]/(4.0*numagents*numFcasts);
+  csfreq[2] = (double)cs[2]/(2.0*numagents*numFcasts);
+  csfreq[3] = (double)cs[3]/(condbits*numagents*numFcasts);
 
   free (countpointer);
   return self;
@@ -425,7 +436,6 @@ have a date string pasted into it:
 
  
   for (i=0;i<12;i++) fprintf(dataOutputFile,"%3d ",bs[i]);
-  //for (i=0;i<16;i++) fprintf(stderr,"%3d ",bs[i]);fprintf(stderr,"\n");
   fprintf(dataOutputFile,"%f %f %f %f", csfreq[0], csfreq[1], csfreq[2], csfreq[3]);
   fprintf(dataOutputFile,"\n");
  

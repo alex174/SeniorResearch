@@ -1,3 +1,18 @@
+2003-06-07  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* Output.h (SwarmObject): seems to me bs[] array only should have 12
+	items if BFParams only lists 12 conditions being monitored. This
+	whole setup is horribly hard wired to the particular 12 bits
+	described in BFParams.
+
+	* Dividend.m ([Dividend -initNormal]): subtract 5 from system seed
+	rather than add to get seed.
+
+2003-06-06  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* BFagent.m ([BFagent -getNfcasts]): retrieve the number
+	of forecasts that is in use. Primarily for use in Output.m
+
 2003-06-06  Thomas Badegruber  <badegruber@localhost.localdomain>
 
 	* asm.scm (cons): changed values to mirror original publication
@@ -86,7 +101,6 @@
 	([ASMObserverSwarm -_writeRawData_]): deleted. Not needed due to
 	redesign.
 
-<<<<<<< ChangeLog
 2003-05-16  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* BFagent.h (Agent): remove lastgatime and avgspecificity. 
@@ -125,7 +139,6 @@
 	Badegruber pointed out ASM crashes on windows systems and
 	submitted a patch.
 
-=======
 2003-03-27  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* World.m (changes): Rewrite all MA code to access Swarm
