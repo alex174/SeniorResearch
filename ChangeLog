@@ -1,0 +1,736 @@
+2003-06-09  Thomas Badegruber  <badegruber@localhost.localdomain>
+
+	* BFagent.h: created new ivar medianstrength for use in fMoments,
+	local variable in GA and fMoments still called medstrength.
+
+	* BFagent.m: changed bitDistribution to count only bits of
+	forecast that were used within the last 10000 periods. changed
+	fMoments to calculate means and absolute mean deviations of
+	forecast parameters and forecast variance.
+
+	* BFCast.m ([BFCast -createEnd]): introduced new ivar lastused to
+	track last actual use of forecast in contrast to lastactive, that
+	tracks when forecast was last in activelist.
+
+2003-06-07  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* Output.h (SwarmObject): seems to me bs[] array only should have 12
+	items if BFParams only lists 12 conditions being monitored. This
+	whole setup is horribly hard wired to the particular 12 bits
+	described in BFParams.
+
+	* Dividend.m ([Dividend -initNormal]): subtract 5 from system seed
+	rather than add to get seed.
+
+2003-06-06  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* BFagent.m ([BFagent -getNfcasts]): retrieve the number
+	of forecasts that is in use. Primarily for use in Output.m
+
+2003-06-06  Thomas Badegruber  <badegruber@localhost.localdomain>
+
+	* asm.scm (cons): changed values to mirror original publication
+
+	* Output.m ([Output -createTimePlots]): changed createTimePlots
+	and calculateBitData to correctly count and plot averages of the
+	now 12 information bits grouped in technical, fundamental, dummy
+	and overall bits.
+
+	* Dividend.m (normal) new function that returns a normally
+	distributed random variable. copied from original version to see
+	if algorithm leads to changes in results. function is currently
+	not in use.
+
+	* BFagent.m: removed variable minstrength. increased currentTime
+	by one to fix discrepancy between counting of of modeltime,
+	lastused and count. selection of rules is now based on minimum
+	actual variance (actvar), but demand function still uses
+	variance. see lebaron (1999) for reasons.
+	([BFagent -updatePerformance]): variance reset to initial value as
+	long as currentTime < tauv. moving average calculation for actvar
+	begins at time 1.
+	([BFagent -performGA]): changed some methods inside GA to
+	calculate and deal with median strength. fixed very bad error in
+	sorting algorithm in MakePool. changed selection of candidates in
+	Tournament. included actvar and removed the assignment of a new
+	strength value in CopyRule. in Mutate, the value of bool variable
+	changed is only set to YES if the range of the variable (a,b, or
+	c) != 0. mutations of b, which is usually set to 0 do not cause
+	changed to be set to YES. unused rules or rules that have not been
+	matched for a long time get median strength in Mutate
+	method. count value of mutated rules is not reset to 0. In
+	Crossover, lastactive of new rule is calculated as average of its
+	parents, count is set to the smaller value of both parents,
+	strength is set to median strength if rule has not been used at
+	all or for a long time.GetMort now includes all three methods for
+	selecting rules to leave, although GetMort is not used as long as
+	newlist and rejectlist are of the same size. In Generalize,
+	varvalue is replaced by actvar to calculate a variance backwards
+	out of median strength.
+
+	* BFagent.h: changed variable names from avgstrength to
+	medstrength since BFagent now uses median strength instead of
+	average strength.
+
+	* BFParams.m ([BFParams -init]): reduced the set of information
+	bits to fit original publications.
+
+	* BFCast.m ([BFCast -updateSpecfactor]): changed calculation of
+	specfactor, since condbits is already adjusted for
+	nnulls. implemeneted get and set method for actvar and included it
+	in copyEverthingFrom.
+
+	* BFCast.h (SwarmObject): added new ivar actvar to hold actual
+	variance, the current variance estimate of a forecast. forecast
+	variance itself is only updated during GA. introduced get and set
+	method for actvar.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildActions]): changed the
+	number of warmup runs to 501 from 502, deleted additional
+	periodActions at time 0 to fix discrepancy between the counting of
+	modeltime, lastused and count in BFagent.
+
+2003-05-18  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* Output.m ([Output -calculateBitData]): csfreq is new ivar to
+	remember important values that are graphed.
+
+	* BFParams.m: delete getDouble because of memory leak.
+
+	* ASMBatchSwarm.m ([ASMBatchSwarm -buildActions]): output updates
+	to suit graph usage changes in Output
+
+	* Output.m ([Output -createEnd]): simplified data storage options.
+	Now only save time streams as C fprintf text and HDF vectors
+	through graphs.
+
+2003-05-17  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* Output.m ([Output -calculateBitData]): new method, separated 
+	from writeData method
+	([Output -getCS:i]): new method to give cs data for plotting
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): moved
+	graphs of price and volume int Output.m.
+	([ASMObserverSwarm -_writeRawData_]): deleted. Not needed due to
+	redesign.
+
+2003-05-16  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* BFagent.h (Agent): remove lastgatime and avgspecificity. 
+	
+	Have to declare all these methods in order for them to be inherited.
+	
+- (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
+- (void) MakePool: (id <List>)rejects From: (id <Array>) list;
+- (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed;
+- (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2;
+- (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects; 
+- (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects;
+- (void) Generalize: (id) list AvgStrength: (double) avgstrength;
+- (BFCast *) Tournament: (id <Array>) list;
+- (double) CalculateAndUseMadv;
+- (double) CalculateAvAndMinstrength;
+- (BFCast *) CreateFcastAvstrength: (double)avstrength Madv: (double)madv;
+- (BOOL) PickParents: (BFCast *) aNewForecast;
+	
+	* BFagent.m ([BFagent -CalculateAvAndMinstrength]): new method to clean up GA.
+	([BFagent -CalculateAndUseMadv]): new method to clean up GA.
+	([ -CalculateAvAndMinstrength]):  new method to clean up GA.
+	([BFagent -CreateFcastAvstrength:Madv:]): new method to clean up GA.
+
+2003-03-26  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* BFagent.m: close memory leak in prepareForTrading. Was caused
+	by getDouble() function, which had called a probeAsDouble.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): remember
+	randomSeed all the time, whether we put it in or not.
+
+2003-03-27  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): Thomas
+	Badegruber pointed out ASM crashes on windows systems and
+	submitted a patch.
+
+2003-03-27  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* World.m (changes): Rewrite all MA code to access Swarm
+	Arrays, not C arrays. This is for serialization.
+	(NWORLDBITS): Stop calculating NWORLDBITS, just declare
+	a number in World.h. This allows the realworld array to be
+	statically allocated.
+
+	* World.h (SwarmObject): convert priceMA, oldpriceMA and divMA and
+	olddivMA into Swarm Arrays for serialization.
+
+	* World.m (changes): Serialization: eliminate dynamic memory 
+	allocation of
+
+	* BFagent.m ([BFagent -collectWorldData:]): init for BitVector
+	need. Serialzation was the reason.
+
+	* BFCast.m ([BFCast -init]): must call init in BitVector every
+	time a BitVector is created.
+
+
+	* BitVector.h: changed createEnd to init method, for serialization.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -lispLoadAgents:]): new method
+	to restore agents from the saved scm file
+	([ASMModelSwarm -createAgents]): separate method to create
+	agents. Used only if an input scm file is not present.
+
+	* BFCast.m ([BFCast -init]): new method to initialize the BFCast.
+	Same work used to be done in createEnd, but serialization conflicts
+	with that usage.
+
+	* BFagent.m ([BFagent -createNewForecast]): call init method when
+	BFCast is created. needed for serialization.
+
+2003-03-27    <Anwender@BANK99>
+
+	* SOCagent.m ([SOCagent -PickParents:]): introduced first type of
+	social behaviour: look at strongest forecast of agent at offset 0
+	and copy it.
+
+2003-03-27    Thomas Badegruber <thomas.badegruber@uni-graz.at> 
+
+	* BFagent.m ([BFagent -updateActiveList:]): introduced
+	strongestBFCast as instance variable for use in
+	SOCagent. SOCagents are able to ask each other for strongest
+	forecast. also created get-method for strongestBFCast
+
+	* BFParams.h: added psocial and startsocial to list of parameters
+	that can be read out of asm.scm. corresponding changes also in
+	BFParams.m and asm.scm.
+
+	* ASMModelSwarm.m deleted comments and examples of previous
+	versions
+
+	* World.m: also deleted comments.
+
+	* Dividend.m ([Dividend -initNormal]): also deleted comments.
+
+	* BFCast.m: also deleted comments.
+
+	* ASMBatchSwarm.m ([ASMBatchSwarm +createBegin:]): deleted
+	legacies of older versions that were already commented out.
+
+	* BFagent.m ([BFagent -performGA]): removed lastgatime variable,
+	because it is of no use
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): inserted
+	"if ([controlPanel getState] == ControlStateQuit) return self;" to
+	fix troubles when pressing Quit on controlpanel. fixed error in
+	enableDestroyNotification for volumeGraph
+	([ASMObserverSwarm -drop]): inserted
+	[priceGraph drop];
+	[volumeGraph drop];
+	[positionHisto drop];
+	[relativeWealthHisto drop]; to fix trouble at shutdown in Windows
+
+	* BFagent.m: got rid of all unneccessary comments and explanations
+	of previous versions of the market in BFagent.m, eliminated
+	WEIGHTED == 1 part, since it did not work. deleted alternative
+	implementation to create activelist. removed empty methods that
+	were designed for ANNagents. gotten rid of av, bv ignoring BLs
+	comment in updatePerformance, used a, b that are based on tauv
+	instead. usefulnes of global_mean seriously in doubt since it is
+	only used at start when new forecasts are created. removed
+	lastgatime variable and method because its of no use
+
+
+2003-03-26  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): remember
+	randomSeed in asmModelParams. This means if a randomSeed is not
+	entered by the user, the one chosen by Swarm will be recorded.
+
+	* asmModelParamsrandomSeed variable will equal the GUI input,
+	otherwise it will equal the value used by the default or the CLI.
+
+	* BFagent.m ([BFagent -MakePool:From:]): fix bug where only
+	npool-1 rules were created. iterate from 1 to n, not 1 to n-1.
+
+2003-03-26    Thomas Badegruber <thomas.badegruber@uni-graz.at>
+
+	* ASMModelParams.m ([ASMModelParams +createBegin:aZone]): removed
+	tauv, lambda and initvar from asm.scm and the probemap in
+	ASMModelParams.m because they are not needed, since pj introduced
+	the BFParams
+
+	* BFagent.m ([BFagent -prepareForTrading]) fixed the memory leak
+	at the very end of the method. it now says
+	divisor=privateParams->lambda*forecastvar; instead of 
+	divisor =getDouble(privateParams,"lambda")*forecastvar;
+
+
+2003-03-25  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm
+	-_relativeWealthHistoDeath_:]): windows users say Swarm crashes on
+	shutdown.
+
+>>>>>>> 1.28.2.10
+2003-03-18  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
+
+	* BFagent.m ([BFagent -updateActiveList:]): Looking for speedups in
+	calculations after gcc profiling pointed at this as a slow down. Done
+	by saving values of real world once for each batch of forecasts and only
+	making one "getConditions" call on each forecast.
+
+	    int * real = [worldvalues getConditions];
+	    index=[ fcastList begin: [self getZone]];
+      for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+	{
+	  int * conditions = [aForecast getConditions];
+	  if ( conditions[0] & real[0] ) continue ;
+	  if ( conditions[1] & real[1] ) continue ;
+	  if ( conditions[2] & real[2] ) continue ;
+	  [activeList addLast: aForecast];
+	}
+      [index drop];
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildActions]): explore variations to
+	make model run faster. Stop using createActionForEach. Consider 2 alternatives,
+	both equally fast. See comments.
+
+2003-03-11  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
+
+	* World.m ([World +nameOfBit:]): NUMWORLDBITS is an unsigned, have
+	to cast as (int) in order to do comparisons. Necessitated by
+	gcc-3.3
+
+	* BFagent.m ([BFagent -performGA]): Thomas Badegruber pointed out
+	typos on lines 1199 1455. He says they don't affect results.
+
+2002-10-02  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* World.m (bitnamelist): Put parens around GETMA macro. Thanks to
+	Thomas Badegruber for pointing out the problem and the
+	fix.<thomas.badegruber@uni-graz.at>
+
+	* asm.scm (cons): add D0 to all double valued entries. Windows
+	users got crashes without them.
+
+2001-11-25    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): No need to set
+	world or agentList in Specialist anymore.  See below where performTrading
+	and completeTrading are discussed.
+
+	* Specialist.h: changed performTrading method to performTrading:
+	Market: and completeTrades is now completeTrades: Market:.  This
+	way, the agent list and the market are explicitly passed in every
+	time. There is no need for Specialist class to have IVARs world
+	and agentList, so now the Specialist class can be archived without
+	any hassle. That is, putShallow should work.
+
+2001-11-08    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* Output.m ([Output -writeData]): Necessary to have hdf5 archives
+	putDeep because they can't save ordinary C arrays otherwise.
+
+2001-11-06    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* World.m (changes): Converted pricehistory and divhistory back to
+	dynamically allocated arrays.  This was done because the Swarm
+	archiver was writing those arrays at every timestep, massively
+	filling up filespace.  Don't know how to selectively write
+	variables from objects yet.
+
+2001-11-03    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* BFagent.m ([BFagent -initForecasts]): Now privateParams is a
+	truely separate instance of BFParams, one for each object. The old
+	way of using the same instance for all agents seemed fraught with
+	danger.
+
+	* BFParams.m ([BFParams -copy:aZone]): New method to create a copy
+	of an instance and return it.  Does detailed copy of all ivars,
+	including dynamically allocated arrays.
+	([BFParams -copyProbList:p:size]): used in copy: method. This takes 
+	a pointer to a double array and replaced the problist with it.
+	([BFParams -copyBitList:Length:size]): copies a bitlist  and replaces
+	existing bitlist with it.
+
+2001-11-02    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* BFParams.m ([BFParams -init]): Commented out "myWorld" array,
+	couldn't find any place it was used. Also commented out
+	lastgatime, couldn't figure why that value was kept here in the
+	parameters object, rather than in the BFagent. Maybe there's a
+	reason, but I can't find it.
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -expostParamWrite]): fixed
+	expostParamWrite error (due to unavailability of time at
+	shutdown).
+	([ASMObserverSwarm -buildObjects]): show probe map for BFParams
+	object.
+
+2001-11-02  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): create
+	IVAR output, an aOutput object. This must exist as soon as the GUI
+	comes up, because the GUI buttons allow people to write
+	output. So, the output has to exist before the control panel stops
+	the simulation, and then the output object must be passed along to
+	ASMModelSwarm, where in turn the buildObjects method sticks some
+	things into the Output object.  This is at the outer limits of my
+	patience.
+	([ASMObserverSwarm -drop]): make sure the expostParamWrite method
+	is called, to save a copy of parameters at shutdown time if
+	writeParams==1;
+
+	* Output.m ([Output -initializeHDFWriter]): Trying to stop the
+	nuisance of the empty hdfGraph file that was created from runs 
+	that had data writing turned off.
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): put
+	control panel set state stopped before model swarm is
+	created. That way, any magic done in Parameters class will be
+	taken into account when the model is created.
+
+2001-10-26  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMModelSwarm.h: delete warmupStepDividend and warmupStepPrice.
+	Delete the -initPeriod: method. It was superflous
+
+	* ASMModelSwarm.m ([ASMModelSwarm -initPeriod:]): This method is
+	unnecessary. It can be replaced by a createAction in time 0 to the
+	startupSchedule.  Note memory leaks of undropped objects in the
+	warmUp: method.
+	([ASMModelSwarm -doWarmupStep]): new method to replace the 3
+	separate methods, 
+
+	- warmupStepDividend; 
+	- warmupStepPrice;
+	
+	I verified that the simulation is exactly the same after this
+	change.
+	
+	* ASMModelSwarm.h: convert warmUp and initPeriod to methods. Don't
+	know why they were C functions before.  Did Autodoc documentation.
+
+2001-10-26    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* BFagent.h (Agent): nactive removed from IVAR list, it is used
+	only in prepareForTrading, so it is defined there.
+
+2001-10-25    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* World.m (GETMA): GETMA(ma,i) is a macro that tells the given ma
+	whether to get the exponential or regular ma. IT gets it from the
+	i'th element of the array of moving averages.
+
+	* World.h (SwarmObject): delete awieght, bweight. That gets taken
+	care of byMovingAverage now. priceMA, divMA, oldpriceMA, olddivMA
+	objects now replace old mas.  These MA objects keep both regular and
+	exponential MAs, and retrieve them with getMA and getEWMA.
+
+2001-10-25    <pauljohn@ukans.edu>
+
+	* World.m: Moved define NMAS into World.h, converted pointers to
+	arrays[NMAS], got rid of alloc's in World.m.
+	
+	* World.m: Moved define UPDOWNLOOKBACK into World.h,
+	converted pointers to arrays[NMAS], got rid of alloc's in World.m.
+
+
+2001-10-25  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m ([BFagent -CopyRule:to:from]): minstrength has to be
+	put back in as a global variable because it is used in the
+	performGA as well as CopyRule methods.  Changing it to a local
+	variable broke CopyRule for some forecasts in which Count=0.  That
+	was hard to track down, I'll tell ya.
+
+2001-10-24  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMObserverSwarm.hm (GUISwarm): Found way to make histograms
+	work without using these IVARS *position, *wealth,and
+	*relativeWealth. That means no more need for calloc calls in the
+	"m" file and it also means that this model should respond well if
+	agents are removed or added (i.e., numagents need not be a
+	constant).
+
+	* Output.m ([Output -writeData]): hdfWriter is an EZGraph that
+	does not show on the screen, but it dumps its time series into a
+	file.  That means there are 3 data outputs: 1 text, 1 archiver
+	dump (either hdf5 or scm) and 1 hdf5.  This new EZGraph writer
+	requires a newish edition of swarm.
+
+2001-10-23    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* ASMObserverSwarm.h (GUISwarm): Convert volumeGraph to EZGraph
+	format, insert _volumeGraphDeath_ method for destroy notification.
+
+2001-10-23  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): Convert
+	Graph to EZGraphs, create _priceGraphDeath_: method for destroy
+	notification.
+
+2001-06-29  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* BFParams.m ([BFParams -createEnd]): init method name changed to
+	createEnd, so that these settings are ready from the moment the
+	object is created.
+
+	* Output.hm (SwarmObject): new dataArchiver object, writes in hdf5
+	or lisp, according to cpp flag.
+
+	* Parameters.h: New class to collect up parameter creation
+
+	* Output.m ([Output -createEnd]): create timeString variable to
+	capture current time. Purify it. Use it in naming files
+
+2001-06-28  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): fix
+	coding for graphs to unrwap object creation because Swarm no
+	longer returns values from creating methods.
+
+2001-02-08  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* Specialist.[hm]: removed setEtaMax/setEtaMin methods because
+	they were never used. Cleaned out unused variables.
+
+	* Specialist.[hm]: removed init method, because its work has been 
+	reallocated to other methods.
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -expostParamWrite]): If
+	writeParams is YES at the end of the run, it dumps a copy of the
+	settings.  That way, there will always be a record of the
+	simulation, even if the user punches the "writeSimulationParams"
+	button only at the very beginning.
+
+	* Output.m ([Output -writeParams:BFAgent:Time:t]): Moved all
+	archiver-creating code and parmeter writing activity in here.
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -writeSimulationParams]):
+	Whenever you punch the "writeSimulationParams" button, it tells
+	Output object to dump out a time-keyed set of parameters to
+	asm.scm.  Note: If user does this before the model has started,
+	nothing happens because there are no objects to save yet.  But it
+	will turn on a switch that causes params to be automatically saved
+	at the end of the run.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -createEnd]): added, set
+	modelTime=0; 
+
+	* ASMModelSwarm.m ([AsmModelSwarm -getModelTime): get
+	method to allow other classes to find out what Swarm "time step"
+	the model is on.
+
+2001-02-07  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* Output.m ([Output -dumpParametersModel:BFAgent:]): New method,
+	Model can tell it to do this and it will decide whether to use
+	Lisp or HDF5 and create a time-stamped parameter output file.
+
+	* Output.m([Output -createEnd]): runTime is now calculated at
+	create time, so that any output files can be time stamped.
+
+	* main.m (main): Now it will dump parameter values at the end of
+	the run, whatever Output is supposed to dump, will get dumped,
+	with a time-stamp.
+	
+	* ASMModelSwarm.m (buildObjects): get rid of conditional round
+	output object creation/setting. We are always setting up an output
+	object, whether or not the user wants to actually output
+	data. This gets rid of one layer of stupidity.
+
+	* ASMModelSwarm.m (initOutputForDataWrite): delete this method and
+	associated IVAR
+
+	* ASMModelParams.m ([ASMModelParams +createBegin:aZone]): added
+	probe for setOutputData
+
+	* asm.scm (cons): added setOutputForData 1 to initialize it.
+
+2001-02-06  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* BFCast.m: added import of <misc.h> 
+
+2000-06-16  Paul Johnson  <pauljohn@dellap.pols.ukans.edu>
+
+	* main.m (main): lispAppArchiver loading for ASMBatchSwarm
+
+	* ASMBatchSwarm.m ([ASMBatchSwarm -buildObjects]): batch model
+	load parameters from asm.scm.  Adjust asm.scm accordingly.
+
+2000-06-08  Paul Johnson  <pauljohn@ukans.edu>
+
+	* Output.h:Removed the following methods:
+		-setNumBFagents: (int)BFagents;
+		-setInitHolding: (float)Holding;
+		-setInitialCash: (double)initcash;
+		-setminHolding: (double)holding   minCash: (double)minimumcash;
+		-setIntRate: (double)Rate;
+			      
+	         -setBaseline: (double)theBaseline;
+		 -setmindividend: (double)minimumDividend;
+	      -setmaxdividend: (double)maximumDividend;
+	      -setTheAmplitude: (double)theAmplitude;	
+		-setThePeriod: (int)thePeriod;
+	       -setExponentialMAs: (BOOL)aBool;
+			        
+		-setMaxPrice: (double)maximumPrice;
+		-setMinPrice: (double)minimumPrice;
+		-setTaup: (double)aTaup;
+		-setSPtype: (int)i;	
+		-setMaxIterations: (int)someIterations;
+		-setMinExcess: (double)minimumExcess;
+		-setETA: (double)ETA;
+		-setETAmin: (double)ETAmin;
+		-setETAmax: (double) ETAmax;
+		-setREA: (double)REA;
+		-setREB: (double)REB;
+
+		-setSeed: (int)aSeed;
+
+		-setTauv: (double)aTauv;
+		-setLambda: (double)aLambda;
+		-setMaxBid: (double)maximumBid;
+		-setInitVar: (double)initialVar;
+		-setMaxDev: (double)maximumDev;
+ 
+
+	* ASMModelSwarm.m ([ASMModelSwarm): removed parameter setting
+	activity to separate class called ASMModelParams.  That class also
+	has probes now. So no more need for createBegin.  Deleted all
+	IVARS from ASMModelSwarm.h that are in the param object, use -> to
+	get params back from parameter object.
+
+	* ASMModelSwarm: Removed initParamForWrite. Now archiver can put
+	shallow and it works fine.
+
+2000-06-02  Paul Johnson  <pauljohn@valinux.pols.ukans.edu>
+
+	* BFagent.h (Agent): Closed memory leaks by [index drop]. Still
+	some small leak in the GA code.
+
+2000-06-01  Paul Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m : Added BitVector usage, added methods -updateActiveList and
+	-collectWorldData.
+
+	* BitVector.h,m: Created this class, used in both BFagent.m and BFCast.m.
+
+2000-05-31  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
+
+	* BFagent.m:  Crossover:  added  calculation  of  new  forecast's
+	Strength,   based   on   bfagent   code.   Tried   to   sort   out
+	mistake/differences between bfagent and BFagent.
+
+	*BFagent.m: moved the "world getting" capability from
+	+prepareForTrading to -prepareForTrading. Each agent gets its own
+	copy of the world now. No more need to execute +prepareForTrading
+	anymore.
+
+
+	* BFagent.m: Use "updateSpecfactor" whenever conditions are changed in a
+	BFCast.
+
+	* BFagent.m: prepareForTrading: commented out previous code to select
+	activeList on grounds it was false. Instead, created routine to
+	check forcast's bits, and for each non 00 bit, check if it matches
+	the world.  There's some fat to be removed here, but at least it
+	is not logically wrong.
+
+	* BFCast.m: added "updateSpecfactor" method.
+
+
+2000-05-30  Paul Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m: Found vital flaw in original ASM model--forecasts
+	were not updated. Dynamics look more persuasive after
+	fixing. Created "updateForecast" method in BFCast class to do this.
+
+	* BFagent.m (prepareForTrading): lActiveList commented out. It is never used!
+
+	* ASMModelSwarm.m: [BFagent init] no longer needed.
+	[BFagent didInitialize] no longer needed.
+
+	
+	* BFagent.m: Note makebittables is now moved to BFCast.m.
+	"free" method removed, now handled by drop method in BFCast.m
+	Commented out usage of lActiveList, since it is a memory leak and seems to serve no purpose
+
+2000-05-28  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
+
+	* BFCast.m: This is a new class that has the same basic structure
+	as the BF_Cast struct that used to be in BFagent.h.  It has
+	get/set methods for all the variables. Most importantly, is has
+	the makebittables() function and the bit management
+	interface/functions.  All bit management is handled by methods
+	like getConditions, getConditionsBit: , setConditions:
+	setConditionsBit: To:, and so forth.
+
+	*  BFagent.m:  A complete  clarification/reconstruction  of  the
+	BFagent  code, that  eliminates as  much  as possible  any of  the
+	"spaghetti" flavor of the previous BFagent code.
+
+	1. Separates into 2 new classes the 2 big structs in BFagent.h,
+	and creates an interface for putting information into BFCasts (the
+	bit string forecast class) and BFParams ( the parameter keeping
+	object).  The beauty of this is that almost all (99.5%) of the bit
+	math is moved into that separate class, and the BFagent can change
+	the values of bits by just telling a forecast object to do it, as
+	in
+	
+       [heyYouForecast setConditionsbit: 22 To: 1];
+
+	2. Complete and total elimination of all global variables.
+
+	3. Replacement of pointer-based "homemade" linked lists with Swarm
+	Arrays and Lists.  This eliminates the need for "hands on" processing
+	of dynamic memory.
+
+	4. Conversion of the GA functions into Obj-c methods. They do the
+	same thing, but don't require all those global declarations.  Now
+	more arguments are passed into these methods so they know which
+	lists to manipulate without having all those global variables
+	sitting around.
+
+2000-05-25  Paul Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m: changed IVAR "p" to "privateParams" to ease editing
+	and clarify things.  There is no current purpose in keeping a
+	private param object, but at some future time it may be useful,
+	especially if there are subclasses from BFagent.
+	([BFagent -performGA]): Everything is as local as possible.
+	Eliminated all possible global vars.
+
+2000-05-25  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
+
+	* BFagent.m ([BFagent -performGA]): moved GA functions inside
+	performGA method, so they have automatic access to Ivars and we no
+	longer need to declare all those global variables or functions.  *
+
+	* BFParams.m: new object to hold parameters, which were previously
+	kept in a struct.
+
+2000-05-24  Paul Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m: cleared out ^M from Windows
+	([BFagent +init]): changed probs and bits from class variables to
+	local arrays in this method.  They are only used in this
+	method. MAXCONDBITS is a compile-time variable, no need for
+	dynamic memory.
+	
+
+2000-05-07  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
+
+	* ASMModelSwarm.m ([ASMModelSwarm +createBegin:]): This is the
+	first official entry of the Changelog.  Before Brandon Weber
+	released the ASM code, I was working against a copy of the code
+	from the SFI's cvs.  There are some slight differences, and
+	figuring them out was not too tough.  Anyway, the major idea is to
+	get rid of as many "ad hoc" do-it-yourself components, replacing
+	them with off-the-shelf Swarm things.  The patch file
+	"ASMpatch1-pj.txt" implements the changes that bring the random
+	number usage "up to date" with Swarm.
+

@@ -1,0 +1,19 @@
+SASM.  Social ASM notes. 
+
+Paul Johnson <pauljohn@ku.edu>
+Thomas Badegruber <thomas.badegruber@uni-graz.at>
+
+SASM is a new development path for new ideas about the Santa Fe Artificial
+Stock Market.
+
+We began with  ASM-2.4, which is the "finalized" 
+Swarm version of the artificial stock market as presented by Arthur, LeBaron, Palmer, 
+Holland.  To the best of our knowledge, ASM-2.4 is a fully functional program
+which reproduces the dynamics of the Next Objective-C models that are discussed
+in the published articles.
+
+All changes in content and functionality after that are introduced solely for
+our interests and research purposes, and the original ASM team has no responsibility
+whatsoever for any mistakes or problems that we may introduce.
+
+
