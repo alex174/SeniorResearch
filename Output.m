@@ -278,9 +278,11 @@ necessary to initialize an hdfWriter, as seen in this code.  "*/
   sprintf (worldName, "world%ld",t);
   sprintf (specName, "specialist%ld",t); 
 
-  [dataArchiver putShallow: worldName object: outputWorld];
 #ifndef NO_LISP
+  [dataArchiver putShallow: worldName object: outputWorld];
   [dataArchiver sync];
+#else
+  [dataArchiver putDeep: worldName object: outputWorld];
 #endif
 
   [dataArchiver putShallow: specName  object: outputSpecialist];

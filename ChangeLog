@@ -1,3 +1,8 @@
+2001-11-08    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* Output.m ([Output -writeData]): Necessary to have hdf5 archives
+	putDeep because they can't save ordinary C arrays otherwise.
+
 2001-11-06    <pauljohn@dv01m45.lawrence.ks.us>
 
 	* World.m (changes): Converted pricehistory and divhistory back to
