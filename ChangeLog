@@ -1,3 +1,26 @@
+2001-11-02  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): create
+	IVAR output, an aOutput object. This must exist as soon as the GUI
+	comes up, because the GUI buttons allow people to write
+	output. So, the output has to exist before the control panel stops
+	the simulation, and then the output object must be passed along to
+	ASMModelSwarm, where in turn the buildObjects method sticks some
+	things into the Output object.  This is at the outer limits of my
+	patience.
+	([ASMObserverSwarm -drop]): make sure the expostParamWrite method
+	is called, to save a copy of parameters at shutdown time if
+	writeParams==1;
+
+	* Output.m ([Output -initializeHDFWriter]): Trying to stop the
+	nuisance of the empty hdfGraph file that was created from runs 
+	that had data writing turned off.
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): put
+	control panel set state stopped before model swarm is
+	created. That way, any magic done in Parameters class will be
+	taken into account when the model is created.
+
 2001-10-26  Paul E Johnson  <pauljohn@ukans.edu>
 
 	* ASMModelSwarm.h: delete warmupStepDividend and warmupStepPrice.

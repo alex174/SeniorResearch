@@ -4,6 +4,7 @@
 #import <gui.h>
 #import "ASMModelSwarm.h"
 #import "ASMModelParams.h"
+#import "Output.h"
 #import <misc.h>
 
 
@@ -14,6 +15,7 @@
   id <ActionGroup> displayActions; /*"set of actions necessary to keep display up to date"*/
   id <Schedule> displaySchedule; /*"Schedule that causes the displayActions to be carried out"*/
 
+  Output * output; /*"An output object"*/
   ASMModelSwarm *asmModelSwarm; /*"Instance of ASMModelSwarm, where agents and the world are created and scheduled"*/
   BOOL writeParams; /*"Indicator that files including parameter values should be written"*/
   BOOL writeData;/*"Indicator that files including output values should be written"*/

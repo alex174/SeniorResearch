@@ -64,8 +64,7 @@
 - createEnd
 {
   modelTime=0; 
-  //need to create output so it exists from beginning
-  output = [[Output createBegin: [self getZone]] createEnd];
+
   return [super createEnd];
 }
 
@@ -81,6 +80,13 @@
   fprintf(stderr,"Param object %d ",asmModelParams->numBFagents);
   return self;
 }
+
+- setOutputObject: (Output *) obj
+{
+  output = obj;
+  return self;
+}
+
 
 /*" Returns the number of BFagents,  which is held in asmModelParams"*/
 - (int) getNumBFagents
@@ -182,7 +188,6 @@
   [specialist setREB: asmModelParams->reb];
   [specialist setWorld: world];
   specialist = [specialist createEnd];
-
  
   [output setWorld: world];
   [output setSpecialist: specialist];

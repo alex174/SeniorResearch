@@ -30,7 +30,9 @@
 
 -createEnd;
 
-- setParamsModel: (ASMModelParams *) modelParams BF: (BFParams *) bfp ;  //pj: new param receiver 
+- setParamsModel: (ASMModelParams *) modelParams BF: (BFParams *) bfp ; 
+- setOutputObject: (Output *) obj;
+ //pj: new param receiver 
 - getAgentList;
 - (int)getNumBFagents;
 - (double)getInitialCash;

@@ -43,6 +43,8 @@
 
 -prepareOutputFile;
 
+-(void) initializeHDFWriter;
+
 -writeData;
 
 -(void) drop;

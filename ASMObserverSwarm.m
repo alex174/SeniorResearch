@@ -114,20 +114,26 @@
 - buildObjects 
 {
   int numagents;
+
+  //need to create output and parameters so they exist from beginning
   ASMModelParams * asmModelParams = [(id)arguments getModelParams];
   BFParams * bfParams = [(id)arguments getBFParams];
-
-  [super buildObjects];
- 
-  asmModelSwarm = [ASMModelSwarm create: self];
+  output = [[Output createBegin: self] createEnd];
   
-  [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
+  [super buildObjects];
+  asmModelSwarm = [ASMModelSwarm create: self]; 
+  [asmModelSwarm setOutputObject: output];
 
-  CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
   CREATE_ARCHIVED_PROBE_DISPLAY (self);
 
+  CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
 
   [controlPanel setStateStopped];
+
+  // Don't set the parameter objects until the model starts up That
+  // way, any changes typed into the gui will be taken into account by
+  // the model.
+  [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
   [asmModelSwarm buildObjects];
 
   numagents = asmModelParams->numBFagents;
@@ -270,7 +276,7 @@
 - writeSimulationParams
 {
   writeParams = 1;
-  [[asmModelSwarm getOutput] writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: [asmModelSwarm getModelTime]];
+  [output writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: [asmModelSwarm getModelTime]];
  
   return self;
 }
@@ -281,7 +287,7 @@
 - expostParamWrite
 {
   if (writeParams == 1)
-    [[asmModelSwarm getOutput] writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: getCurrentTime()]; 
+    [output writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: getCurrentTime()]; 
   return self;
 }
 
@@ -298,7 +304,7 @@
 -(BOOL)toggleDataWrite { 
   if(writeData != YES) 
     { 
-      [[asmModelSwarm getOutput]  prepareOutputFile]; 
+      [output  prepareOutputFile]; 
       writeData = YES; 
     } 
   else writeData = NO;
@@ -311,7 +317,7 @@
 - _writeRawData_
 {
   if (writeData == YES)
-    [[asmModelSwarm getOutput] writeData];  
+    [output writeData];  
   return self;
 }
 
@@ -372,11 +378,10 @@
   down to all objects created in asmModelSwarm"*/
 -(void) drop
 {
+  [self expostParamWrite];
   [asmModelSwarm drop];
   [super drop];
 }
 
 
 @end
-
-

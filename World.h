@@ -16,13 +16,12 @@
 
 @interface World: SwarmObject
 {
+@public
   double intrate; /*" interest rate"*/
   double dividendscale; /*" The baseline dividend that is set by initWithBaseline: "*/
 
   int pupdown[UPDOWNLOOKBACK];	       /*" array, dimension UPDOWNLOOKBACK "*/
   int dupdown[UPDOWNLOOKBACK];	       /*" array, dimension UPDOWNLOOKBACK "*/
-  double divhistory[MAXHISTORY];       /*" dividend history array, goes back MAXHISTORY points"*/
-  double pricehistory[MAXHISTORY];     /*" price history array "*/
  
   int history_top;                     /*" index value of current input into history arrays "*/
   int updown_top;     /*"number of time steps to look back to form pupdown and dupdown bits"*/
@@ -47,6 +46,10 @@
   id divMA[NMAS];   /*"  MovingAverage objects which hold dividend moving averages. "*/
   id oldpriceMA[NMAS]; /*" MovingAverage objects which hold lagged price moving averages "*/
   id olddivMA[NMAS];/*" MovingAverage objects which hold lagged dividend moving averages "*/
+@private
+ double divhistory[MAXHISTORY];       /*" dividend history array, goes back MAXHISTORY points"*/
+ double pricehistory[MAXHISTORY];     /*" price history array "*/
+ 
 }
 
 +(const char *)descriptionOfBit: (int)n;

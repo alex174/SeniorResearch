@@ -95,8 +95,6 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 
   char dataArchiveName[100];
 
-  char hdfEZGraphName[100];
-
   if(!runTime)
     runTime = time(NULL);
   dataFileExists = NO;
@@ -124,10 +122,6 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   strcpy (dataArchiveName,"swarmDataArchive");
   strcat (dataArchiveName, timeString);
 
-  strcpy (hdfEZGraphName,"hdfGraph");
-  strcat (hdfEZGraphName, timeString);
-  strcat (hdfEZGraphName, ".hdf");
-
 #ifdef NO_LISP
   strcat (paramFileName,".hdf");
   strcat (dataArchiveName,".hdf");
@@ -147,17 +141,7 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 
 #endif
   
-  {
-    hdf5container = [HDF5 createBegin: [self getZone]];
-    [hdf5container setWriteFlag: YES];
-    [hdf5container  setName: hdfEZGraphName];
-    hdf5container = [hdf5container createEnd];
-    
-    hdfWriter = [EZGraph create: [self getZone] 
-			 setHDF5Container: hdf5container
-			 setPrefix: "market"];
-  }
-
+ 
   return self;
 }
 
@@ -166,9 +150,7 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 {
   outputSpecialist = theSpec;
 
-  [hdfWriter createSequence: "volume"
-	     withFeedFrom: outputSpecialist
-	     andSelector: M(getVolume)];
+
   return self;
 }
 
@@ -177,15 +159,6 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 {
   outputWorld = theWorld;
 
-    
-  [hdfWriter createSequence: "price"
-	     withFeedFrom: outputWorld
-	     andSelector: M(getPrice)];
-
-
-  [hdfWriter createSequence: "dividend"
-	     withFeedFrom: outputWorld
-	     andSelector: M(getDividend)];
   return self;
 }
 
@@ -238,6 +211,46 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   return self;
 }
 
+/*"In case the Output class is told to write output data and there is
+no hdfWriter object yet, then this method will be run. I could not
+find another way to make sure that this object was not created unless
+the system actually tries to write data.  It cannot be done in the
+prepareOutputFile method, because that method can be called from the
+GUI before the Specialist and World objects exist.  Those objects are
+necessary to initialize an hdfWriter, as seen in this code.  "*/
+
+-(void) initializeHDFWriter
+{
+
+  char hdfEZGraphName[100];
+
+  strcpy (hdfEZGraphName,"hdfGraph");
+  strcat (hdfEZGraphName, timeString);
+  strcat (hdfEZGraphName, ".hdf");
+
+  hdf5container = [HDF5 createBegin: [self getZone]];
+  [hdf5container setWriteFlag: YES];
+  [hdf5container  setName: hdfEZGraphName];
+  hdf5container = [hdf5container createEnd];
+    
+  hdfWriter = [EZGraph create: [self getZone] 
+			 setHDF5Container: hdf5container
+			 setPrefix: "market"];
+  [hdfWriter createSequence: "volume"
+	     withFeedFrom: outputSpecialist
+	     andSelector: M(getVolume)];
+
+    
+  [hdfWriter createSequence: "price"
+	     withFeedFrom: outputWorld
+	     andSelector: M(getPrice)];
+
+
+  [hdfWriter createSequence: "dividend"
+	     withFeedFrom: outputWorld
+	     andSelector: M(getDividend)];
+
+}
 
 /*"The write data method dumps out measures of the price, dividend, and volume indicators into several formats"*/
 -writeData
@@ -278,6 +291,8 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   [archiver sync];
 #endif
    // Third, now use the EZGraph dump of its time strings.
+
+  if (!hdfWriter) [self initializeHDFWriter];
    [hdfWriter step];
    
    return self;
@@ -289,7 +304,7 @@ sure they finish their work.
 -(void) drop
 {
   if (dataOutputFile) fclose(dataOutputFile);
-  [hdfWriter drop];
+  if (hdfWriter) [hdfWriter drop];
   [archiver drop];
   [dataArchiver drop];
   [super drop];
