@@ -403,8 +403,6 @@ getConditionsbit: x].  "*/
  * for later updates.
  "*/
 {
-  //register struct BF_fcast *fptr, *topfptr, **nextptr;
-  //unsigned int real0, real1, real2, real3, real4 = 0 ;
   double weight, countsum, forecastvar=0.0;
   int mincount;
   int nactive;
@@ -774,8 +772,8 @@ according to the currently active linear rule. "*/
   realDeviation = deviation = ftarget - lforecast;
   if (fabs(deviation) > maxdev) deviation = maxdev;
   global_mean = b*global_mean + a*ftarget;
-  
-  variance = b*variance + a*deviation*deviation;
+
+  if (currentTime > 1) variance = b*variance + a*deviation*deviation;
 
   index = [ activeList begin: [self getZone]];
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
