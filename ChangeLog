@@ -1,3 +1,8 @@
+2003-06-27  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMObserverSwarm.m, ASMBatchSwarm.m: recast (id)arguments as
+	(Parameter *)arguments to solve compiler warning.
+
 2003-06-09  Thomas Badegruber  <badegruber@localhost.localdomain>
 
 	* BFagent.h: created new ivar medianstrength for use in fMoments,
@@ -272,7 +277,6 @@
 	-_relativeWealthHistoDeath_:]): windows users say Swarm crashes on
 	shutdown.
 
->>>>>>> 1.28.2.10
 2003-03-18  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
 
 	* BFagent.m ([BFagent -updateActiveList:]): Looking for speedups in

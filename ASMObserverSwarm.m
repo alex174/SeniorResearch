@@ -119,8 +119,8 @@
   int numagents;
 
   //need to create output and parameters so they exist from beginning
-  ASMModelParams * asmModelParams = [(id)arguments getModelParams];
-  BFParams * bfParams = [(id)arguments getBFParams];
+  ASMModelParams * asmModelParams = [(Parameters *)arguments getModelParams];
+  BFParams * bfParams = [(Parameters *)arguments getBFParams];
   
   [super buildObjects];
  
@@ -226,7 +226,7 @@
     
   for(i=0; (agent = [index next]); i++)
     {
-      double initcash=[(id)arguments getModelParams]->initialcash;
+      double initcash=[(Parameters *)arguments getModelParams]->initialcash;
       position[i] = [agent getAgentPosition];
       relativeWealth[i] = [agent getWealth]/initcash;
     }
@@ -245,7 +245,7 @@
 - writeSimulationParams
 {
   writeParams = 1;
-  [output writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: [asmModelSwarm getModelTime]];
+  [output writeParams: [(Parameters *)arguments getModelParams] BFAgent: [(Parameters *)arguments getBFParams] Time: [asmModelSwarm getModelTime]];
   
   return self;
 }
@@ -256,7 +256,7 @@
 - expostParamWrite
 {
   if (writeParams == 1)
-    [output writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time:[asmModelSwarm getModelTime]]; 
+    [output writeParams: [(Parameters *)arguments getModelParams] BFAgent: [(Parameters *)arguments getBFParams] Time:[asmModelSwarm getModelTime]]; 
   return self;
 }
 
