@@ -3,11 +3,11 @@
  (cons 'bfParams
   (make-instance 'BFParams
   #:numfcasts 60
-  #:tauv  50.0
-  #:lambda  0.3 
-  #:maxbid  10.0
+  #:tauv  50.0D0
+  #:lambda  0.3D0 
+  #:maxbid  10.0D0
   #:mincount  5
-  #:subrange   0.5  
+  #:subrange   0.5D0  
   #:gafrequency   100 
   #:firstgatime   100
   #:longtime   2000
@@ -51,13 +51,13 @@
   #:mindividend 0.00005D0
   #:maxdividend 100D0
   #:amplitude 0.14178D0
-  #:period 1.0
+  #:period 1.0D0
   #:maxprice 500D0
   #:minprice 0.001D0
   #:taup 50.0D0
   #:sptype 2
   #:maxiterations 10 
-  #:minexcess 0.01
+  #:minexcess 0.01D0
   #:eta 0.0005D0
   #:etamax 0.05D0
   #:etamin 0.00001D0

@@ -440,17 +440,17 @@ same as in bitnamelist[]. "*/
 
   /* Dividend moving averages went up or down */
   for (j = 0; j < NMAS; j++)
-    realworld[i++] = GETMA(divMA,j) > GETMA(olddivMA,j);
+    realworld[i++] = (GETMA(divMA,j)) > (GETMA(olddivMA,j));
   
 
   /* Dividend > MA[j] */
   for (j = 0; j < NMAS; j++)
-    realworld[i++] = dividend >  GETMA(divMA,j);
+    realworld[i++] = dividend > ( GETMA(divMA,j));
 
   /* Dividend MA[j] > dividend MA[k] */
   for (j = 0; j < NMAS-1; j++)
     for (k = j+1; k < NMAS; k++)
-      realworld[i++] = GETMA(divMA,j) > GETMA(divMA,k);
+      realworld[i++] = (GETMA(divMA,j)) > (GETMA(divMA,k));
       //  realworld[i++] = exponentialMAs ? [divMA[j] getEWMA]:[divMA[j] getMA]  > exponentialMAs ? [divMA[k] getEWMA]:[divMA[k] getMA];
       //realworld[i++] = dmav[j] > dmav[k];
 
@@ -472,19 +472,19 @@ same as in bitnamelist[]. "*/
 
   /* Price moving averages went up or down */
   for (j = 0; j < NMAS; j++)
-    realworld[i++] = GETMA(priceMA,j) > GETMA(oldpriceMA,j);
+    realworld[i++] = (GETMA(priceMA,j)) > (GETMA(oldpriceMA,j));
     //realworld[i++] =pmav[j] > oldpmav[j];
 
   /* Price > MA[j] */
   for (j = 0; j < NMAS; j++)
-     realworld[i++] = price > GETMA(priceMA,j);
+     realworld[i++] = price > (GETMA(priceMA,j));
     //  realworld[i++] = price > exponentialMAs ? [priceMA[j] getEWMA]:[priceMA[j] getMA];
   // realworld[i++] = price > pmav[j];
 
   /* Price MA[j] > price MA[k] */
   for (j = 0; j < NMAS-1; j++)
     for (k = j+1; k < NMAS; k++)
-      realworld[i++] = GETMA(priceMA,j) > GETMA(priceMA,k);
+      realworld[i++] = (GETMA(priceMA,j)) > (GETMA(priceMA,k));
   
   // Check
   if (i != NWORLDBITS)
