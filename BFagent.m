@@ -1312,10 +1312,8 @@ _{plinear    -- linear combination "crossover" prob.}
  //pj: could be only in perforGA, but then would be recreated every time.
   id newList = [List create: [self getZone]]; //to collect the new forecasts; 
   id rejectList = [Array create: [self getZone] setCount: getInt(privateParams,"npoolmax")];
- 
 
   static double avstrength;
-
 
   ++gacount;
   currentTime = getCurrentTime();
@@ -1399,7 +1397,7 @@ _{plinear    -- linear combination "crossover" prob.}
           [aNewForecast setLastactive: currentTime];
             //following bfagent.m:
 	  varvalue =  privateParams->maxdev-avstrength+[aNewForecast getSpecfactor];
-	  if (varvalue < 0 ) raiseEvent(WarningMessage, "varvalue  less than zero");
+	  //if (varvalue < 0 ) raiseEvent(WarningMessage, "varvalue  less than zero");
 	  [aNewForecast setVariance: varvalue];
 	  altvarvalue = [[fcastList atOffset: 0] getVariance]- madv;
 	  if ( varvalue < altvarvalue )
@@ -1989,9 +1987,9 @@ _{plinear    -- linear combination "crossover" prob.}
   int bit, j;
   BOOL changed;
   // int currentTime;
- int * bitlist=NULL;
+  int * bitlist=NULL;
 
- bitlist = [privateParams getBitListPtr];
+  bitlist = [privateParams getBitListPtr];
 
   currentTime = getCurrentTime();
 
@@ -2018,20 +2016,22 @@ _{plinear    -- linear combination "crossover" prob.}
 	    }
 	  if (changed) 
 	    {
+	      double varvalue;
 	      [aForecast setCnt: 0];
 	      [aForecast setLastactive: currentTime];
-	      [aForecast updateSpecfactor];
-	      [aForecast setVariance: [aForecast getSpecfactor] / avgstrength];
-	      [aForecast setStrength: [aForecast getSpecfactor]/[aForecast getVariance]];
-	      //???????????????????????
-	      //??bfagent has:   
-	      /*  rptr->specfactor = (condbits - pp->nnulls - rptr->specificity)*
-		  pp->bitcost;
-		  medvar = pp->maxdev-medianstrength+rptr->specfactor;
-		  if (medvar >= 0.0)
-		  rptr->variance = medvar;
-		  rptr->strength = medianstrength;*/
+	      [aForecast updateSpecfactor]; 
+	      //ASM2.0 would be like this:
+	      // [aForecast setVariance: [aForecast getSpecfactor] / avgstrength];
+	      //ASM2.0 would have us do it like this:
+	      //[aForecast setStrength: [aForecast getSpecfactor]/[aForecast getVariance]];  
 
+	      //I rather think that, following sfsm, it would be this:
+	      varvalue = privateParams->maxdev - avgstrength + [aForecast getSpecfactor];
+	      if (varvalue >0 ){
+		[aForecast setVariance: varvalue]; 
+	      }
+	      //apparently don't change variance otherwise !
+	      [aForecast setStrength: avgstrength];
 	    }
 	}
     }

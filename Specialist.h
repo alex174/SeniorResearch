@@ -50,7 +50,7 @@ typedef enum
 -(double)performTrading;
 -(double)getVolume;
 -completeTrades;
-y
+
 
 @end
 

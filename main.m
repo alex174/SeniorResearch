@@ -23,8 +23,6 @@ main (int argc, const char **argv)
   if(swarmGUIMode == 1)
     theTopLevelSwarm = [ASMObserverSwarm create: globalZone];
   else
-    // theTopLevelSwarm = [ASMBatchSwarm create: globalZone];
-    
     if ((theTopLevelSwarm =
 	 [lispAppArchiver getWithZone: globalZone key: "asmBatchSwarm"]) == nil)
     raiseEvent(InvalidOperation,
