@@ -33,8 +33,6 @@ typedef enum
 }
 
 // Methods to set parameters
-//- setAgentList: (id)aList;
-//- setWorld: (World *)myWorld;
 - setMaxPrice: (double)maximumPrice;
 - setMinPrice: (double)minimumPrice;
 - setTaup: (double)aTaup;

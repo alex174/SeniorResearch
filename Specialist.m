@@ -14,21 +14,6 @@
   set the stock price.  It also manages the market-level parameters."*/
 
 
-// /*" Sets a list of agents who are in the market "*/
-// - setAgentList: (id)aList
-// {
-//   agentList = aList;
-//   return self;
-// }
-
-/*" Sets a reference to the world, where price and dividend information is kept"*/
-// - setWorld: (World *)myWorld;
-// {
-//   worldForSpec = myWorld;
-//   return self;
-// }
-
-
 - setMaxPrice: (double)maximumPrice
 {
   maxprice = maximumPrice;

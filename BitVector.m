@@ -135,8 +135,11 @@ to users:
 method takes that pointer and then copies its values into the
 conditions of the current bit vector"*/
 
-- (void)setConditions: (int *)
-x { int i; for(i=0;i<condwords;i++) conditions[i]=x[i]; }
+- (void)setConditions: (int *)x 
+{ 
+  int i; 
+  for(i=0;i<condwords;i++) conditions[i]=x[i]; 
+}
 
 
 /*"Returns a pointer to the current conditions of the bit vector"*/
