@@ -1341,7 +1341,7 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
       candidate1 = [list atOffset: irand(numfcasts)];
       i++;
     }
-  while (([candidate1 getCnt]) == 0 && (i<50));
+  while (([candidate1 getCnt] == 0) && (i<50));
   
   i=0;
   
@@ -1350,7 +1350,7 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
       candidate2 = [list atOffset: irand(numfcasts)];
       i++;
     }
-  while ((([candidate2 getCnt] == 0) || (candidate2 == candidate1)) && (i<50));
+  while (([candidate2 getCnt] == 0) || ((candidate2 == candidate1) && (i<50)));
 	 
   if ([candidate1 getStrength] > [candidate2 getStrength])
     return candidate1;
@@ -1400,9 +1400,10 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
   double choice, temp;
   BOOL bitchanged = NO;
   int * bitlist= NULL;
+  int selmutate;
   
   bitlist = [privateParams getBitListPtr];
-  //pj: dont know why BFagents introduced bitchanged.??
+  
   bitchanged = changed;
   if (privateParams->pmutation > 0) 
     {
@@ -1431,7 +1432,8 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
 	    }
 	}
     }
-
+  
+  selmutate = irand(2);
   /* mutate p+d coefficient */
   choice = drand();
   if (choice < privateParams->plong) 
