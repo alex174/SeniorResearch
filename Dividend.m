@@ -103,7 +103,7 @@
 
 -(double)dividend
 {
-    dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[normal getDoubleSample]; 
+  dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[normal getDoubleSample]; 
   if (dvdnd < mindividend) 
     dvdnd = mindividend;
   if (dvdnd > maxdividend) 

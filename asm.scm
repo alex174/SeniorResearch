@@ -27,7 +27,7 @@
   #:newfrac   0.2D0
   #:pcrossover   0.1D0
   #:psocial   0.2D0
-  #:startsocial   100000
+  #:startsocial   200000
   #:plinear   0.333D0
   #:prandom   0.333D0
   #:pmutation   0.03D0
@@ -74,7 +74,7 @@
   (cons 'asmBatchSwarm
 	(make-instance 'ASMBatchSwarm
   #:loggingFrequency 1000 
-  #:experimentDuration 500
+  #:experimentDuration 2500
  ))
 )
 

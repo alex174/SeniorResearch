@@ -58,7 +58,7 @@ This class also takes responsibility for making sure that objects to manager par
       run = atoi(arg);
       return 0;
     }
- else if (key == 'I')
+  else if (key == 'I')
     {
       filename = strdup(arg);
       return 0;

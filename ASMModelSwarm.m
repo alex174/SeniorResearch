@@ -230,6 +230,7 @@
 {
   int i;
 
+
   for (i = 0; i < asmModelParams->numBFagents; i++) 
     {
       SOCagent * agent;

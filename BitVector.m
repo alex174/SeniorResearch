@@ -289,7 +289,7 @@ static void makebittables()
   [stream catStartMakeInstance: "BitVector"];
   [super lispOutVars: stream deep: YES];//Important to note this!!
 
-  [super lispStoreIntegerArray: conditions Keyword: "conditions" Rank: 1 Dims: &condwords Stream: stream];
+  [super lispStoreUnsignedArray: conditions Keyword: "conditions" Rank: 1 Dims: &condwords Stream: stream];
 
   [stream catEndMakeInstance];
 }
