@@ -56,8 +56,10 @@
   concluded it was doing nothing necessary, it was basically just
   running the periodActions at time 0 only. We might as well just
   schedule that action at time 0 in the startupSchedule. I have
-  verified that the model runs exactly the same (numerically identical). 
-"*/
+  verified that the model runs exactly the same (numerically
+  identical).  Now, as noted below, I think this step is logically
+  unnecessary, but removing it changes the numerical path of the
+  simulation, so I'm leaving it in for comparison.  "*/
 
 - createEnd
 {
@@ -282,8 +284,13 @@
       [startupSchedule at: 0 createActionTo: self message:M(doWarmupStep)];
   }
  
+
+  //pj: 2001-10-30. This was in the original model, I don't know why, but
+  //taking it out changes the numerical results, so I'm leaving it in,
+  //even though it is not logically necessary.
   [startupSchedule at: 0 createAction: periodActions];
-  	      
+    
+
   periodSchedule = [Schedule createBegin: [self getZone]];
   [periodSchedule setRepeatInterval: 1];
   periodSchedule = [periodSchedule createEnd];
