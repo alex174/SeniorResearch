@@ -8,6 +8,7 @@
   double forecast;	/*" this forecast of return"*/
   double lforecast;	/*" previous forecast"*/
   double variance;	/*" variance of this forecast"*/
+  double actvar;        /*"actual variance of this forecast"*/
   double strength;      /*"strength=maxdev - variance +specfactor.*/
   double a;		/*" (price + dividend) coefficient"*/
   double b;		/*" dividend coefficient "*/
@@ -82,6 +83,10 @@
 - (void)setVariance: (double) x;
        
 - (double)getVariance;
+
+- (void)setActvar: (double) x;
+       
+- (double)getActvar;
 
 - (void)setCondwords: (int)x;
 

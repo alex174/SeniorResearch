@@ -15,6 +15,7 @@
   double global_mean; /*"price+dividend"*/
   double realDeviation;  /*" ftarget-lforecast: how far off was the agent's forecast?"*/
   double variance;   /*"an Exp.Weighted MA of the agent's historical variance: Combine the old variance with deviation^squared, as in:  bv*variance + av*deviation*deviation"*/
+
   double pdcoeff;   /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
   double offset;    /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
   double divisor;   /*" a coefficient used to calculate demand for stock. It is a proportion (lambda) of forecastvar (basically, accuracy of forecasts)"*/
@@ -54,16 +55,16 @@
 
 - (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
 - (void) MakePool: (id <List>)rejects From: (id <Array>) list;
-- (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed;
-- (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2;
+- (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed Strength: (double)medstrength;
+- (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2 Strength: (double)medstrength;
 - (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects; 
 - (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects;
-- (void) Generalize: (id) list AvgStrength: (double) avgstrength;
+- (void) Generalize: (id) list Strength: (double) strength;
 - (BFCast *) Tournament: (id <Array>) list;
 - (double) CalculateAndUseMadv;
-- (double) CalculateAvAndMinstrength;
-- (BFCast *) CreateFcastAvstrength: (double)avstrength Madv: (double)madv;
-- (BOOL) PickParents: (BFCast *) aNewForecast;
+- (double) CalculateMedian;
+- (BFCast *) FcastSetParams: (BFCast *)aNewForecast Strength: (double)medstrength Madv: (double)madv;
+- (BOOL) PickParents: (BFCast *) aNewForecast Strength: (double)medstrength;
 
 - printcond: (int)word;
 

@@ -8,7 +8,7 @@
   #:maxbid  10.0D0
   #:mincount  2
   #:subrange   1  
-  #:gafrequency   250 
+  #:gafrequency   1000 
   #:firstgatime   100
   #:longtime   4000
   #:individual   1
@@ -26,7 +26,7 @@
   #:poolfrac   0.2D0
   #:newfrac   0.2D0
   #:pcrossover   0.1D0
-  #:psocial   0.2D0
+  #:psocial   0.0D0
   #:startsocial   100000
   #:plinear   0.333D0
   #:prandom   0.333D0
@@ -35,8 +35,8 @@
   #:pshort   0.2D0
   #:nhood   0.05D0
   #:genfrac   0.25D0 
-  #:nnulls  0
-  #:condbits 16
+  #:nnulls  4
+  #:condbits 12
   #:npoolmax -1
   #:nnewmax -1
   #:ncondmax -1
@@ -46,15 +46,15 @@
   #:numBFagents 25
   #:initholding 1D0
   #:initialcash 20000D0
-  #:minholding 0D0
+  #:minholding -5D0
   #:mincash -2000D0
   #:intrate 0.1D0
   #:baseline 10D0  
   #:mindividend 0.00005D0
   #:maxdividend 100D0
-  #:amplitude 0.1417D0
+  #:amplitude 0.14178D0
   #:period 100D0
-  #:maxprice 300D0
+  #:maxprice 99999D0
   #:minprice 0.001D0
   #:taup 50.0D0
   #:sptype 1
@@ -67,14 +67,14 @@
   #:reb 16.6882D0
   #:randomSeed 0
   #:maxbid  10.0D0
-  #:maxdev  100D0
+  #:maxdev  500D0
   #:exponentialMAs 1 
 ))
 
   (cons 'asmBatchSwarm
 	(make-instance 'ASMBatchSwarm
   #:loggingFrequency 1000 
-  #:experimentDuration 250000
+  #:experimentDuration 350000
  ))
 )
 

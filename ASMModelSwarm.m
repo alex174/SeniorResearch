@@ -79,7 +79,7 @@
 {
   bfParams = bfp;
   asmModelParams=modelParams;
-  fprintf(stderr,"Param object %d ",asmModelParams->numBFagents);
+  fprintf(stderr,"Param object %d \n\n",asmModelParams->numBFagents);
   return self;
 }
 
@@ -377,22 +377,16 @@
      //is required.
      {
        int i;
-       for (i = 0; i < 502; i++)
+       for (i = 0; i < 501; i++)
 	 [startupSchedule at: 0 createActionTo: self message:M(doWarmupStep)];
      }
-   
-
-     //pj: 2001-10-30. This was in the original model, I don't know why, but
-     //taking it out changes the numerical results, so I'm leaving it in,
-     //even though it is not logically necessary.
-     [startupSchedule at: 0 createAction: periodActions];
    } 
   
   periodSchedule = [Schedule createBegin: [self getZone]];
   [periodSchedule setRepeatInterval: 1];
   periodSchedule = [periodSchedule createEnd];
   [periodSchedule at: 0 createAction: periodActions];
-
+  
   return self;
 }
 

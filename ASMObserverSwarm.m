@@ -4,7 +4,7 @@
 
 #include <misc.h>
 
-
+ 
 @implementation ASMObserverSwarm
 
 /*" The ASMObserverSwarm is a Swarm with a graphical user interface
@@ -31,7 +31,7 @@
   id <ProbeMap> probeMap;
 
   obj = [super createBegin: aZone];
-  obj->displayFrequency = 3;
+  obj->displayFrequency = 100;
 
   probeMap = [EmptyProbeMap createBegin: aZone];
   [probeMap setProbedClass: [self class]];

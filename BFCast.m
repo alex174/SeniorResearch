@@ -30,7 +30,7 @@
 {
   forecast= 0.0;
   count = 0;
-  lastactive=1;
+  lastactive = 1;
   specificity = 0;
   variance = 999999999;
   if (!condwords || !condbits ){fprintf(stderr,"BFCast: Must have condwords to create BFCast."); exit(1);}
@@ -180,11 +180,11 @@
 }
 
 /*"Update the spec factor of this forecast. That means calculate:
-specfactor= (condbits - nnulls - specificity)* bitcost
+specfactor= (condbits - specificity)* bitcost
 "*/
 - (void)updateSpecfactor
 {
-  specfactor = (condbits - nnulls - specificity)* bitcost;
+  specfactor = (condbits - specificity)* bitcost;
 }
 
 /*"Set the specfactor value of this forecast"*/
@@ -233,6 +233,18 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 - (double)getVariance
 {
   return variance;
+}
+
+/*"Set the actual variance of this forecast"*/
+- (void)setActvar: (double)x
+{
+  actvar=x;
+}
+
+/*"Return the variance of this forecast"*/
+- (double)getActvar
+{
+  return actvar;
 }
 
 
@@ -323,6 +335,7 @@ specfactor= (condbits - nnulls - specificity)* bitcost
  forecast = [from getForecast];
  lforecast = [from getLforecast];
  variance = [from getVariance];
+ actvar = [from getActvar];
  strength =  [from getStrength];
  a= [from getAval];
  b=  [from getBval];

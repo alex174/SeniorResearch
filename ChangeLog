@@ -1,3 +1,66 @@
+2003-06-06  Thomas Badegruber  <badegruber@localhost.localdomain>
+
+	* asm.scm (cons): changed values to mirror original publication
+
+	* Output.m ([Output -createTimePlots]): changed createTimePlots
+	and calculateBitData to correctly count and plot averages of the
+	now 12 information bits grouped in technical, fundamental, dummy
+	and overall bits.
+
+	* Dividend.m (normal) new function that returns a normally
+	distributed random variable. copied from original version to see
+	if algorithm leads to changes in results. function is currently
+	not in use.
+
+	* BFagent.m: removed variable minstrength. increased currentTime
+	by one to fix discrepancy between counting of of modeltime,
+	lastused and count. selection of rules is now based on minimum
+	actual variance (actvar), but demand function still uses
+	variance. see lebaron (1999) for reasons.
+	([BFagent -updatePerformance]): variance reset to initial value as
+	long as currentTime < tauv. moving average calculation for actvar
+	begins at time 1.
+	([BFagent -performGA]): changed some methods inside GA to
+	calculate and deal with median strength. fixed very bad error in
+	sorting algorithm in MakePool. changed selection of candidates in
+	Tournament. included actvar and removed the assignment of a new
+	strength value in CopyRule. in Mutate, the value of bool variable
+	changed is only set to YES if the range of the variable (a,b, or
+	c) != 0. mutations of b, which is usually set to 0 do not cause
+	changed to be set to YES. unused rules or rules that have not been
+	matched for a long time get median strength in Mutate
+	method. count value of mutated rules is not reset to 0. In
+	Crossover, lastactive of new rule is calculated as average of its
+	parents, count is set to the smaller value of both parents,
+	strength is set to median strength if rule has not been used at
+	all or for a long time.GetMort now includes all three methods for
+	selecting rules to leave, although GetMort is not used as long as
+	newlist and rejectlist are of the same size. In Generalize,
+	varvalue is replaced by actvar to calculate a variance backwards
+	out of median strength.
+
+	* BFagent.h: changed variable names from avgstrength to
+	medstrength since BFagent now uses median strength instead of
+	average strength.
+
+	* BFParams.m ([BFParams -init]): reduced the set of information
+	bits to fit original publications.
+
+	* BFCast.m ([BFCast -updateSpecfactor]): changed calculation of
+	specfactor, since condbits is already adjusted for
+	nnulls. implemeneted get and set method for actvar and included it
+	in copyEverthingFrom.
+
+	* BFCast.h (SwarmObject): added new ivar actvar to hold actual
+	variance, the current variance estimate of a forecast. forecast
+	variance itself is only updated during GA. introduced get and set
+	method for actvar.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildActions]): changed the
+	number of warmup runs to 501 from 502, deleted additional
+	periodActions at time 0 to fix discrepancy between the counting of
+	modeltime, lastused and count in BFagent.
+
 2003-05-18  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* Output.m ([Output -calculateBitData]): csfreq is new ivar to

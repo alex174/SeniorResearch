@@ -38,6 +38,7 @@
 - setDerivedParams;
 
 - (double)dividend;
+- (double) normal;
 
 @end
 

@@ -119,7 +119,7 @@ have a date string pasted into it:
   unlink ("settingsSaved.scm");
 
   for (i=0;i<16;i++) bs[i]=0;
-  for (i=0;i<3;i++) csfreq[i]=0;
+  for (i=0;i<4;i++) csfreq[i]=0;
   return self;
 }
 
@@ -183,7 +183,7 @@ have a date string pasted into it:
     
     if(!(dataOutputFile = fopen(outputFile,"w")))
       abort();
-    fprintf (dataOutputFile, "currentTime\t price\t\t dividend\t volume\n\n");
+    fprintf (dataOutputFile, "currentTime\t price\t\t riskfree price\t volume\n\n");
     dataFileExists = YES;
   }
   return self;
@@ -296,7 +296,7 @@ have a date string pasted into it:
 #ifndef NO_HDF5
   [bitGraph setHDF5Container: hdf5container];
 #endif
-  [bitGraph  setTitle: "bit usage"];
+  [bitGraph  setTitle: "fraction of bits used"];
   [bitGraph  setAxisLabelsX: "time" Y: "frequency"];
   [bitGraph  setWindowGeometryRecordName: "bitGraph"];
   if (swarmGUIMode == YES)
@@ -312,13 +312,14 @@ have a date string pasted into it:
   [bitGraph enableDestroyNotification: self
 	       notificationMethod: @selector (_bitGraphDeath_:)];
   
-  for ( i = 0; i < 3; i++)
+  for ( i = 0; i < 4; i++)
     {
       char name[10];
-      if (i == 0) sprintf (name, "fundamental");
-      else if (i == 1) sprintf (name, "technical");
-			 else if (i == 2) sprintf (name, "dummy");
-      //sprintf (name, "csfreq[%d]",i);
+      if (i == 0) sprintf (name, "fundamental bits");
+      else if (i == 1) sprintf (name, "technical bits");
+			 else if (i == 2) sprintf (name, "dummy bits");
+                                       else if (i == 3) sprintf (name, "total bits");
+     
       cssequence[i] = [bitGraph createSequence: name
 				withFeedFrom: self
 				andSelector: M(getCSfreq:)];
@@ -352,10 +353,12 @@ have a date string pasted into it:
   BOOL cum;
   id index, agent; 
   long t = getCurrentTime();
-  int condbits = 16;
-  int cs[3];
+  int condbits = 12;
+  int cs[4];
+  int numagents = -1;
 
   cum = NO;
+  numagents = [agentList getCount];
   countpointer = calloc(4,sizeof(int*));
   
   for (i=0; i < condbits; i++) bs[i]=0;
@@ -377,18 +380,20 @@ have a date string pasted into it:
          
 
   
-  cs[0]=0; cs[1]=0; cs[2]=0;
+  cs[0]=0; cs[1]=0; cs[2]=0; cs[3]=0;
   
   for (i = 0; i < condbits;i++ )
     {
-      if (i < 10) cs[0] = cs[0]+bs[i];
-      else if ( i >= 10 && i < 14) cs[1] = cs[1]+bs[i];
+      if (i < 6) cs[0] = cs[0]+bs[i];
+      else if ( i >= 6 && i < 10) cs[1] = cs[1]+bs[i];
       else cs[2] = cs[2]+bs[i];
+      cs[3] = cs[3]+bs[i];
     }
 
-  csfreq[0] = (double)cs[0]/10.0;
-  csfreq[1] = (double)cs[1]/4.0;
-  csfreq[2] = (double)cs[2]/2.0;
+  csfreq[0] = (double)cs[0]/(6.0*numagents*100);
+  csfreq[1] = (double)cs[1]/(4.0*numagents*100);
+  csfreq[2] = (double)cs[2]/(2.0*numagents*100);
+  csfreq[3] = (double)cs[3]/(condbits*numagents*100);
 
   free (countpointer);
   return self;
@@ -414,14 +419,14 @@ have a date string pasted into it:
   fprintf (dataOutputFile, "%10ld\t %5f\t %8f\t %f ", 
 	   t, 
            [outputWorld getPrice],
-           [outputWorld getDividend], 
+           [outputWorld getDividend]*10, 
            [outputSpecialist getVolume]);
 
 
  
-  for (i=0;i<16;i++) fprintf(dataOutputFile,"%3d ",bs[i]);
+  for (i=0;i<12;i++) fprintf(dataOutputFile,"%3d ",bs[i]);
   //for (i=0;i<16;i++) fprintf(stderr,"%3d ",bs[i]);fprintf(stderr,"\n");
-  fprintf(dataOutputFile,"%f %f %f", csfreq[0], csfreq[1], csfreq[2]);
+  fprintf(dataOutputFile,"%f %f %f %f", csfreq[0], csfreq[1], csfreq[2], csfreq[3]);
   fprintf(dataOutputFile,"\n");
  
 

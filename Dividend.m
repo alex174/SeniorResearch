@@ -9,6 +9,9 @@
 #include <math.h>
 #include <misc.h>
 
+extern long random(void);
+static int set = 0;
+static double gset;
 
 
 @implementation Dividend
@@ -91,6 +94,7 @@
   rho = 0.0001*rint(10000.0*rho);	
   gauss = deviation*sqrt(1.0-rho*rho);
   dvdnd = baseline + gauss*[normal getDoubleSample];
+  //dvdnd = baseline + gauss*[self normal];;
   return self;
 }
 
@@ -103,7 +107,8 @@
 
 -(double)dividend
 {
-    dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[normal getDoubleSample]; 
+  dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[normal getDoubleSample]; 
+  //dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[self normal]; 
   if (dvdnd < mindividend) 
     dvdnd = mindividend;
   if (dvdnd > maxdividend) 
@@ -111,6 +116,41 @@
 
   return dvdnd;
 }
+
+
+/*------------------------------------------------------*/
+/*	normal						*/
+/*------------------------------------------------------*/
+- (double) normal
+/*
+ * function normal - returns random variable n(0,1), was used in original version, may be used for comparison
+ *
+ * This function converts uniform random numbers to normal 
+ * random numbers.  The algorithm comes out of numerical
+ * recipes.  Note that it may return slightly different values depending
+ * on whether it is compiled with optimization, since floating point
+ * registers have more precision than stored double's on some machines
+ * (including m68k).
+ */
+{
+    double v1, v2, fac, r;
+    if (set) {
+	set = 0;
+	return gset;
+    }
+    else {
+	do {
+	    v1 = [uniformDblRand getDoubleWithMin: -1 withMax: 1];
+	    v2 = [uniformDblRand getDoubleWithMin: -1 withMax: 1];
+	    r = v1*v1 + v2*v2;
+	} while (r >= 1.0);
+	fac = sqrt(-2.0*log(r)/r);
+	gset = v2*fac;
+	set = 1;
+	return v1*fac;
+    }
+}
+
 
 
 @end

@@ -143,16 +143,12 @@ add or change instance variables in here.
       bits[3] = ReadBitname("pr/d>7/8", specialbits);
       bits[4] = ReadBitname("pr/d>1", specialbits);
       bits[5] = ReadBitname("pr/d>9/8", specialbits);
-      bits[6] = ReadBitname("pr/d>5/4", specialbits);
-      bits[7] = ReadBitname("pr/d>3/2", specialbits);
-      bits[8] = ReadBitname("pr/d>2", specialbits);
-      bits[9] = ReadBitname("pr/d>4", specialbits);
-      bits[10] = ReadBitname("p>p5", specialbits);
-      bits[11] = ReadBitname("p>p20", specialbits);
-      bits[12] = ReadBitname("p>p100", specialbits);
-      bits[13] = ReadBitname("p>p500", specialbits);
-      bits[14] = ReadBitname("on", specialbits);
-      bits[15] = ReadBitname("off", specialbits);
+      bits[6] = ReadBitname("p>p5", specialbits);
+      bits[7] = ReadBitname("p>p20", specialbits);
+      bits[8] = ReadBitname("p>p100", specialbits);
+      bits[9] = ReadBitname("p>p500", specialbits);
+      bits[10] = ReadBitname("on", specialbits);
+      bits[11] = ReadBitname("off", specialbits);
     }
   else
     {
