@@ -236,6 +236,13 @@ getConditionsbit: x].  "*/
   return;
 }
 
+/*"This hands over the stronest forecast of an agent upon request."*/
+- (BFCast *)getStrongestBFCast
+{
+  return strongestBFCast;
+}
+
+
 /*"This creates the container objects activeList and oldActiveList.
   In addition, it makes sure that any initialization in the createEnd
   of the super class is done."*/

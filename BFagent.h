@@ -32,6 +32,7 @@
 + (void)setBFParameterObject: x;
 + (void)init;
 
+- (BFCast *)getStrongestBFCast;
 - createEnd;
 - initForecasts;
 

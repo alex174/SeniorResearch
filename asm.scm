@@ -3,13 +3,13 @@
  (cons 'bfParams
   (make-instance 'BFParams
   #:numfcasts 100
-  #:tauv  100.0D0
+  #:tauv  75.0D0
   #:lambda  0.5D0 
   #:maxbid  10.0D0
   #:mincount  2
   #:subrange   1  
-  #:gafrequency   500 
-  #:firstgatime   1
+  #:gafrequency   250 
+  #:firstgatime   100
   #:longtime   4000
   #:individual   1
   #:a_min   0.7D0
@@ -26,6 +26,8 @@
   #:poolfrac   0.2D0
   #:newfrac   0.2D0
   #:pcrossover   0.1D0
+  #:psocial   0.2D0
+  #:startsocial   100000
   #:plinear   0.333D0
   #:prandom   0.333D0
   #:pmutation   0.03D0
@@ -71,8 +73,8 @@
 
   (cons 'asmBatchSwarm
 	(make-instance 'ASMBatchSwarm
-  #:loggingFrequency 1000 
-  #:experimentDuration 250001
+  #:loggingFrequency 100 
+  #:experimentDuration 350001
 ))
 )
 

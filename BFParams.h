@@ -43,6 +43,8 @@ getInt (id obj, const char *ivarName);
   double poolfrac;	/*" fraction of rules in replacement pool"*/
   double newfrac;	/*" fraction of rules replaced"*/
   double pcrossover;	/*" probability of running Crossover()."*/
+  double psocial;       /*" probability for social behaviour of the agents."*/
+  int startsocial;      /*" beginning of social behaviour."*/
   double plinear;	/*" linear combination "crossover" prob."*/
   double prandom;	/*" random from each parent crossover prob."*/
   double pmutation;	/*" per bit mutation prob."*/

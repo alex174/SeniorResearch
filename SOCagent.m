@@ -10,12 +10,23 @@
 //************************************************************************
 - (BOOL)PickParents: (BFCast *)aNewForecast
 {
-  double psocial = -0.1;
+  double psocial = 0;
+  int startsocial = 0;
   BFCast * parent1, * parent2;
-  id agent,index = 0;
+  id agent;
   BOOL changed = NO;
-   
-  if (drand() > psocial)
+  
+  psocial = privateParams->psocial;
+  startsocial = privateParams->startsocial;
+
+  //currentTime got updated right before start of GA, so we can use it
+  if (currentTime < startsocial)
+    {
+      [super PickParents: aNewForecast];
+      return changed;
+    }
+
+  if (drand() > psocial) 
     {
       //for comments on that part of if statement see same passage in BFagent.m
       do
@@ -42,13 +53,13 @@
     }
   else
     {
-     
-      index = [agentList begin: [self getZone]];
- 
-      while ((agent = [index next]))
-	{
-	  //	  printf("Agent number %3d\n",[agent getID]);
-	}
+      //First type of social behaviour: take strongest rule of agent
+      //at position 0 and copy it into your own list.
+      BFCast * strForecast;
+      agent = [agentList atOffset: 0];
+      strForecast= [agent getStrongestBFCast];	  
+
+      [self CopyRule: aNewForecast From: strForecast];
     }
   return changed;
 }

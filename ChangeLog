@@ -1,4 +1,19 @@
-2003-03-27    <Anwender@BANK99> T.Badegruber
+2003-03-27    <Anwender@BANK99>
+
+	* SOCagent.m ([SOCagent -PickParents:]): introduced first type of
+	social behaviour: look at strongest forecast of agent at offset 0
+	and copy it.
+
+2003-03-27    Thomas Badegruber <thomas.badegruber@uni-graz.at> 
+
+	* BFagent.m ([BFagent -updateActiveList:]): introduced
+	strongestBFCast as instance variable for use in
+	SOCagent. SOCagents are able to ask each other for strongest
+	forecast. also created get-method for strongestBFCast
+
+	* BFParams.h: added psocial and startsocial to list of parameters
+	that can be read out of asm.scm. corresponding changes also in
+	BFParams.m and asm.scm.
 
 	* ASMModelSwarm.m deleted comments and examples of previous
 	versions

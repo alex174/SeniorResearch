@@ -309,7 +309,9 @@ int ReadBitname(const char *variable, const struct keytable *table)
   bfParams->maxdev = maxdev;	
   bfParams->poolfrac = poolfrac;	
   bfParams->newfrac = newfrac;	
-  bfParams->pcrossover = pcrossover;	
+  bfParams->pcrossover = pcrossover;
+  bfParams->psocial = psocial;
+  bfParams->startsocial = startsocial;
   bfParams->plinear = plinear;	
   bfParams->prandom = prandom;	
   bfParams->pmutation = pmutation;	
