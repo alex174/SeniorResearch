@@ -72,8 +72,7 @@
 {
   if(i != 0 && i != 1 && i != 2)
     { 
-      printf("The specialist type chosen is invalid.  Only 0, 1, or 2 are 
-acceptable.  The Specialist will be set to Slope (i.e., 1).");
+      printf("The specialist type chosen is invalid.  Only 0, 1, or 2 are acceptable.  The Specialist will be set to Slope (i.e., 1).");
       i = 1;
     }
   sptype = (SpecialistType)i;

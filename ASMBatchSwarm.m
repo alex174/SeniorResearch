@@ -94,8 +94,7 @@
 -go
 {
   printf("\nYou typed 'asm -batchmode'.  The simulation is running without graphics.\n\n");
-  printf("The Artificial Stock Market is running for %d time steps and writing 
-its data.\n\n",experimentDuration);
+  printf("The Artificial Stock Market is running for %d time steps and writing its data.\n\n",experimentDuration);
   if(loggingFrequency)
     printf("It is logging data every %d timesteps to a time-dated output.data file.\n\n",
 	   loggingFrequency);
