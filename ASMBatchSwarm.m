@@ -21,7 +21,9 @@
   return obj;
 }
 
-
+/*"Create a model swarm, have the model swarm build its objects, and
+then get the output object from the model.  Later the output object is
+instructed to write results"*/
 -buildObjects
 {
   id modelZone;
@@ -49,7 +51,7 @@
   return self;
 }
 
-/*"buildActions creates schedules"*/
+/*"Create schedules.  Assures that the output object writes the data when needed and checks to see if the required number of time steps has been completed"*/
 -buildActions
 {
   [super buildActions];
@@ -110,7 +112,7 @@
   return [[self getActivity] getStatus];
 }
   
-
+/*"tell the top level swarm to terminate the simulation"*/
 -stopRunning
 {
   [getTopLevelActivity() terminate];

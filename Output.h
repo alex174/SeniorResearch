@@ -14,25 +14,24 @@
 @interface Output: SwarmObject
 {
   @private
-  BOOL dataFileExists;
+    BOOL dataFileExists; /*"Indicator that dataFile initialization has alreadyoccurred"*/
 
-  World * outputWorld;
-  Specialist * outputSpecialist;
-  id archiver, dataArchiver;
+  World * outputWorld;  /*"Reference to the world, where we can get data!"*/
+  Specialist * outputSpecialist; /*" Reference to the Specialist object, where we can get data!"*/
+  id archiver, dataArchiver; /*"hdf5 or LISP objects, depending on the CPP flags"*/
   
-  // FILE * paramOutputFile;
-  time_t runTime;
-  char timeString[100];
-
-  FILE * dataOutputFile;
-  id <EZGraph> hdfWriter;
-  id <HDF5> hdf5container;
-
+  time_t runTime; /*"Return from the systems time() function"*/
+  char timeString[100];/*"a verbose description of current time"*/
+  
+  FILE * dataOutputFile; /*"FILE handle for output from C style fprintf"*/
+  id <EZGraph> hdfWriter; /*"EZGraph object that is used only to create hdf5 formatted output"*/
+  id <HDF5> hdf5container; /*"HDF5 data container object used by hdfWriter"*/
+  
   @public
-  int currentTime;
-  double price;
-  double dividend;
-  double volume;
+    int currentTime; /*"current time of simulation"*/
+  double price; /*"current price"*/
+  double dividend; /*"current dividend"*/
+  double volume; /*"current volume"*/
 
 }
 

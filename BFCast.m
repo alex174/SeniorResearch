@@ -126,8 +126,6 @@
 
 -(void) maskConditionsbit: (int) bit
 {
-  // conditions[WORD(bit)] &= NMASK[bit];	
-  // specificity --;
   [conditions maskConditionsbit: bit];
 }
 
@@ -139,38 +137,45 @@
   [conditions switchConditionsbit: bit];
 }
 
+/*"Set a coefficient from demand equation"*/
 -(void) setAval: (double) x
 {
   a=x;
 }
 
+/*"Set b coefficient from demand equation"*/
 -(void) setBval: (double) x
 {
   b=x;
 }
 
+/*"Set c coefficient from demand equation"*/
 -(void) setCval: (double) x
 { 
   c=x;
 }
 
-
+/*"Return a coefficient from demand equation"*/
 - (double) getAval
 {
   return a;
 }
 
-
+/*"Return b coefficient from demand equation"*/
 - (double) getBval
 {
   return b;
 }
 
+/*"Return c coefficient from demand equation"*/
 - (double) getCval
 {
   return c;
 }
 
+/*"Update the spec factor of this forecast. That means calculate:
+specfactor= (condbits - nnulls - specificity)* bitcost
+"*/
 -(void) updateSpecfactor
 {
   //was in BFagent: specfactor = 1.0/(1.0 + x*specificity);
@@ -179,113 +184,127 @@
   
 }
 
+/*"Set the specfactor value of this forecast"*/
 -(void) setSpecfactor: (double) x
 {
   specfactor=x;
 };
 
-
+/*"Return the specfactor value of this forecast"*/
 - (double) getSpecfactor
 {
   return specfactor;
 }
 
-
+/*"Raise the specificity value of this forecast by one unit"*/
 -(void) incrSpecificity
 {
   ++ specificity;
 }
 
-
+/*"Reduce the specificity value of this forecast by one unit"*/
 -(void) decrSpecificity
 {
   --specificity;
 }
 
-
+/*"Set the specificity of this forecast"*/
 -(void) setSpecificity: (int) x
 {
   specificity=x;
 }
 
+/*"Return the specificity of this forecast"*/
 -(int) getSpecificity
 {
   return specificity;
 }
 
+/*"Set the variance of this forecast"*/
 -(void) setVariance: (double) x
 {
   variance=x;
 }
 
+/*"Return the variance of this forecast"*/
 -(double) getVariance
 {
   return variance;
 }
 
 
+/*"Set the time on which this forecast was last active to an input value"*/
 -(void) setLastactive: (int) x
 {
   lastactive=x;
 }
 
+/*"Return the time on which this forecast was last active"*/
 -(int) getLastactive
 {
   return lastactive;
 
 }
 
+/*"Return the value of count"*/
 - (int) getCnt
 {
   return count;
 }
 
 
+/*"Set the count variable to an inputted value"*/
 -(void) setCnt: (int) x
 {
   count = x;
 
 }
 
+/*"Increment this forecast's count variable"*/
 - (int) incrCount;
 {
   return ++count;
 }
 
+/*"Return strength of this forecast"*/
 - (double)  getStrength
 {
   return strength;
 }
 
 
+/*"Set the strength value to an inputted value"*/
 -(void) setStrength: (double) x
 {
   strength=x;
 }
 
-
+/*"Set the previous forecast of this object to an inputted value"*/
 -(void)  setLforecast: (double) x
 {
   lforecast=x;
 }
 
+/*"Get forecast from the previous time period"*/
 - (double) getLforecast
 {
   return lforecast;
 }
 
 
-
+/*"Set the forecast of this object to an inputted value"*/
 -(void)  setForecast: (double) x
 {
   forecast=x;
 }
 
+/*"Return forecast from this object"*/
 - (double) getForecast
 {
   return forecast;
 }
 
+/*"Calculate new forecast on basis of price and dividend information"*/
 -(double) updateForecastPrice: (double) price Dividend: (double) dividend
 {
   lforecast=forecast;
@@ -294,6 +313,8 @@
 }
 
 
+/*"Given an input forecast object, systematically ask it for
+  all its IVARs and replace current settings with them."*/
 - copyEverythingFrom: (BFCast *) from
 {
  forecast= [from getForecast];
@@ -311,6 +332,8 @@
  return self;
 }
 
+/*"Return some disgnostic information about the status of
+  variables inside this forecast to the terminal"*/
 - print
 {
   int word;

@@ -153,6 +153,12 @@ complicated and hard to understand.  I succeeded in a major simplicification
 and cleanup and have verified the numerical results are identical. This is
 explained in the beginning of ASMModelSwarm.m
 
+There was also a "procedural" cleanup of the code in World.m.  The old
+version had a lot of callocs and other memory magic because it was keeping
+moving averages "by hand".  This has been changed. There is now a MovingAverage
+class that is used to do that magic, so the code in World.m is much easier to read. 
+There is much less low level math floating around.
+
 -------original readme follows
 This is the port to Swarm of the original NeXTstep version of
 the Brian Arthur, John Holland, Blake LeBaron, Richard Palmer, and

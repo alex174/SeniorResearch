@@ -6,16 +6,16 @@
 
 @interface ASMBatchSwarm: Swarm
 {
-  int loggingFrequency;
-  int experimentDuration;
+  int loggingFrequency; /*"how often to write data "*/
+  int experimentDuration;/*"how long should a run last"*/
 
-  id displayActions;
-  id displaySchedule;
-  id stopSchedule;
+  id <ActionGroup> displayActions;/*"Set of actions that update output"*/
+  id <Schedule> displaySchedule;/*"Schedule for periodic actions"*/
+  id <Schedule> stopSchedule; /*"Schedule which checks to see if the simulation has completed its requisite number of timesteps"*/
 
-  ASMModelSwarm * asmModelSwarm;
+  ASMModelSwarm * asmModelSwarm;/*"Instance of ASMModelSwarm, where agents and the world are created and scheduled"*/
  
-  id output;
+  id output; /*"Reference to instance of Output class, the place where data file output is controlled"*/
 }
 
 + createBegin: aZone;

@@ -2,6 +2,84 @@
 
 #include <misc.h> // stdio, time
 
+
+
+/*"
+To show the possible data output tools, I have 3
+different ways of saving the output time streams from the model.  All
+three should be similar/equivalent representations of the numbers.
+
+1) Text output of data streams.
+2) HDF5 or LISP format output of object dumps from a "putShallow"
+   call to a data archiver object. This dumps full snapshots of
+   the world and the specialist into a LISP on hdf5 archive.
+3) HDF5 output EZGraph which writes one vector per plotted line
+   into an hdf5 file.
+
+This code has a preprocessor flag to control the behavior of data
+storage. If compile without any CPP flags, then the data files are
+saved in the .scm format, which is "scheme".  Otherwise, use the flag
+NO_LISP, and it uses hdf5 format. In Swarm, that means you type the
+make command:
+
+ make EXTRACPPFLAGS=-DNO_LISP
+
+
+The buttons in the ASMObserverSwarm display turn on data saving.  Look
+for "writeSimulationParams" and the other "toggleDataWrite".  These
+were in the original ASM Swarm model, but I've replaced the
+functionality with the newer storage methods.  The data is saved only
+if you turn on the writeData option. If "toggleDataWrite" is empty or
+false, hit that button and it shows "true". When the model runs,
+output will be created. If you run the program in batch mode, it
+automatically turns on the data writing.
+
+Please note that if you want the simulation to save your parameter
+values to a file, you can click the GUI button
+"writeSimulationParams." If you push that button, the system writes
+the parameter values into a file, such as
+
+guiSettingsThu_Jun_28_23_48_00_2001.scm
+
+
+if you did not compile with the NO_LISP flag.  Otherwise you get a
+.hdf file.  One key change from the old ASM is that you can push that
+button at time 0, and it will save a snap at that time, and any time
+you stop the model, you can change parameters and punch the button
+again, and it will also save a snapshot at quit time.  I believe this
+works fine now, but it was a little tricky making sure the objects are
+created in the right order and early enough to allow this to work.
+
+Now, just a word about data formatting.  Because it is familiar and
+compatible with existing programs, I often prefer to save data in raw
+ASCII format.  In case you want text output, this shows you how to do it.
+I think filenames that have the date in them are good to
+help remember when they were originally created, for example.  It
+creates an ASCII file, for example,
+
+output.data_Thu_Jun_28_23_48_00_2001
+
+
+However, I understand the reasons others are pushing to use more
+refined formats.  Many people are digging into hdf5 format for data
+storage, and I've taken a look at that too.  I took the easy road and
+just dumped the whole world and specialist class with swarm's
+archiver. It seems to work great?!  The output file is called
+something like
+
+swarmDataArchiveFri_Jun_29_16_29_25_2001.hdf
+or
+swarmDataArchiveFri_Jun_29_16_22_59_2001.scm
+
+You note here that output uses the current time and date to write the
+output file names. Today I ran an example and ended up with these
+three files of output:
+
+output.dataWed_Oct_24_11_30_18_2001
+swarmDataArchiveWed_Oct_24_11_30_18_2001.scm
+hdfGraphWed_Oct_24_11_30_18_2001.hdf
+"*/
+
 @implementation Output
 
 - createEnd
@@ -145,6 +223,8 @@
     fprintf (dataOutputFile, "currentTime\t price\t\t dividend\t volume\n\n");
     dataFileExists = YES;
   }
+
+
 
 
   return self;

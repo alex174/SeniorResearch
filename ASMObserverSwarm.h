@@ -9,36 +9,31 @@
 
 @interface ASMObserverSwarm: GUISwarm
 {
-  int displayFrequency;
+  int displayFrequency; /*"update frequency for graphs"*/
 
-  id displayActions;
-  id displaySchedule;
+  id <ActionGroup> displayActions; /*"set of actions necessary to keep display up to date"*/
+  id <Schedule> displaySchedule; /*"Schedule that causes the displayActions to be carried out"*/
 
-  ASMModelSwarm *asmModelSwarm;
-  BOOL writeParams;
-  BOOL writeData;
+  ASMModelSwarm *asmModelSwarm; /*"Instance of ASMModelSwarm, where agents and the world are created and scheduled"*/
+  BOOL writeParams; /*"Indicator that files including parameter values should be written"*/
+  BOOL writeData;/*"Indicator that files including output values should be written"*/
 
-  id <EZGraph> priceGraph;
+  id <EZGraph> priceGraph; /*"Time plot of risk neutral and observed market price"*/
  
-  id <EZGraph> volumeGraph;
+  id <EZGraph> volumeGraph; /*"Time plot of market trading volume"*/
  
 
-  id <Histogram> positionHisto;
+  id <Histogram> positionHisto;/*"Histogram showing amount of stock held by each individual agent"*/
   //Histo *cashHisto; //A histogram for agent cash holdings.
-  id <Histogram> relativeWealthHisto;
+  id <Histogram> relativeWealthHisto;/*"Histogram showing wealth of agents"*/
 
   //This is for comparing different agents.  But since there is 
   //currently only one agent this is not implemented.
-  id <Graph> deviationGraph;
-  id <Averager> deviationAverager;
-  id <GraphElement> deviationData;
+  id <Graph> deviationGraph; /*"As of ASM-2.0, this was commented out in ASMObserverSwarm.m"*/
+  id <Averager> deviationAverager; /*"ditto"*/
+  id <GraphElement> deviationData;/*"ditto"*/
   
-  id <ActiveGraph> deviationGrapher;
-  
-  //double *position;
-  // double *wealth;
-  //double * cash;
-  //double *relativeWealth;
+  id <ActiveGraph> deviationGrapher;/*"ditto"*/
 }  
 
 + createBegin: aZone;

@@ -31,6 +31,7 @@ static struct keytable specialbits[] =
   {NULL,  NOTFOUND}
 };
 
+
 int ReadBitname(const char *variable, const struct keytable *table);
 
 id
@@ -60,6 +61,26 @@ getInt (id obj, const char *ivarName)
   return ret;
 }
 
+
+/*"BFParams is a class that holds parameter values that might be
+needed by several classes, principally, BFagent, BFCast, or BitVector.
+This class is currently designed so that, if one wants the values of
+the variables here to be individualized, then each agent can be
+created with its own instance of BFParams.
+
+It got to be tedious and boring to maintain getX methods, one for each
+instance variable, so if other classes want values out of this class,
+they can use either of 2 routes. Both are used in BFagent.m, just to
+keep up the variety. One way is the standard Objective-C method to
+obtain instance variable values, the -> operator. Look for usages like
+"privateParams->lambda". The other is a more Swarm oriented probe
+mechanism. Notice the functions at the top of the file BFParams.m,
+like getInt() and getDouble().  To get the lambda parameter, one can say
+getDouble(privateParams,"lambda").  Either of these works, and it
+frees us from the need to constantly add and edit get methods when we
+add or change instance variables in here.
+
+"*/
 
 @implementation BFParams
 

@@ -5,25 +5,23 @@
 
 @interface BFCast: SwarmObject
 {
-  double forecast;	// this forecast of return
-  double lforecast;	// previous forecast
-  double variance;	// variance of this forecast
-  double strength;
-  double a;		// (price + dividend) coefficient
-  double b;		// dividend coefficient
-  double c;		// constant term
-  double specfactor;	// specificity factor; strength=specfactor/variance
-  double bitcost;
+  double forecast;	/*" this forecast of return"*/
+  double lforecast;	/*" previous forecast"*/
+  double variance;	/*" variance of this forecast"*/
+  double strength;      /*"strength=maxdev - variance +specfactor. This was the original sfsm specification, not the ASM-2.0 specification"*/
+  double a;		/*" (price + dividend) coefficient"*/
+  double b;		/*" dividend coefficient "*/
+  double c;		/*" constant term"*/
+  double specfactor;	/*" specificty=(condbits - nnulls - specificity)* bitcost. "*/
+  double bitcost; /*" cost of using bits in forecasts"*/
 
-//    struct BF_fcast *next;	// linked list of ACTIVE forecasts
-//    struct BF_fcast *lnext;
-  BitVector *conditions;
-  int lastactive;
-  int specificity;
-  int count;
-  int condwords;
-  int condbits;
-  int nnulls;
+  BitVector *conditions; /*" a BitVector object that holds records on which conditions in the world are being monitored by this forecast object"*/
+  int lastactive;  /*" last time period in which this forecast was active"*/
+  int specificity; /*" specificity "*/
+  int count; /*" number of times this forecast has been active"*/
+  int condwords; /*"number of words of memory needed to hold the conditions"*/
+  int condbits; /*"number of bits of information monitored by this forecast"*/
+  int nnulls; /*"number of 'unused' bits that remain in the allocated vector after the 'condbits' bits have been used"*/
 };
 
 
