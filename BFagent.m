@@ -64,11 +64,18 @@
 // 
 
 #import "BFagent.h"
-#import "random.h"
+#import <random.h>
 #import "World.h"
 #include <misc.h>
 
 extern World *worldForAgent;
+
+//pj:
+//convenience macros to replace stuff from ASM random with Swarm random stuff
+
+#define drand()    [uniformDblRand getDoubleWithMin: 0 withMax: 1]
+#define urand()  [uniformDblRand getDoubleWithMin: -1 withMax: 1]
+#define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1] 
 
 //Macros for bittables
 #define WORD(bit)	(bit>>4)

@@ -1,0 +1,4 @@
+2000-05-07  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
+
+	* ASMModelSwarm.m ([ASMModelSwarm +createBegin:]): This is the first official entry of the Changelog.  Before Brandon Weber released the ASM code, I was working against a copy of the code from the SFI's cvs.  There are some slight differences, and figuring them out was not too tough.  Anyway, the major idea is to get rid of as many "ad hoc" do-it-yourself components, replacing them with off-the-shelf Swarm things.  The patch file "ASMpatch1-pj.txt" implements the changes that bring the random number usage "up to date" with Swarm.
+

@@ -38,8 +38,8 @@
 
 
 #import "Dividend.h"
-#import "random.h"
-
+//#import "random.h"
+#import <random.h>  //swarm library to get NormalDist
 #include <math.h>
 #include <misc.h>
 
@@ -49,7 +49,15 @@
 
 @implementation Dividend
 
-//All set members take parameters from the ASMModelSwarm upon creation.
+//pj: new method 
+- initNormal
+{
+  
+  normal=[NormalDist  create: [self getZone]  setGenerator: randomGenerator setMean: 0 setVariance: 1];
+
+  return self;
+}
+
 -setBaseline: (double)theBaseline
 {
   baseline = theBaseline;
@@ -104,8 +112,9 @@
   rho = exp(-1.0/((double)period));
   rho = 0.0001*rint(10000.0*rho);	
   gauss = deviation*sqrt(1.0-rho*rho);
-  dvdnd = baseline + gauss*normal();
-  
+  //pj:
+  //dvdnd = baseline + gauss*normal();
+  dvdnd = baseline + gauss*[normal getDoubleSample];
   return self;
 }
 
@@ -118,8 +127,9 @@
  * introduced to maintain phase when certain parameters are changed.
  */
 {
-  dvdnd = baseline + rho*(dvdnd - baseline) + gauss*normal();
-    
+  //pj:
+  // dvdnd = baseline + rho*(dvdnd - baseline) + gauss*normal();
+    dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[normal getDoubleSample]; 
   if (dvdnd < mindividend) 
     dvdnd = mindividend;
   if (dvdnd > maxdividend) 

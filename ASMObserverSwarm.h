@@ -28,7 +28,7 @@
   id <ActiveGraph> volumeGrapher;
 
   id <Histogram> positionHisto;
-  //Histo *cashHisto; //A hisogram for agent cash holdings.
+  //Histo *cashHisto; //A histogram for agent cash holdings.
   id <Histogram> relativeWealthHisto;
 
   //This is for comparing different agents.  But since there is 

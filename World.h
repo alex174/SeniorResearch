@@ -40,7 +40,6 @@
 +(const char *)nameOfBit: (int)n;
 +(int)bitNumberOf: (const char *)name;
 
-//Set member functions take parameters from ASMModelSwarm.
 -setintrate: (double)rate;
 -setExponentialMAs: (BOOL)aBool;
 -(int)getNumWorldBits;

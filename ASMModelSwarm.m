@@ -1,7 +1,8 @@
 #import "ASMModelSwarm.h"
 #import <simtools.h>
 #import "Output.h"
-#import "random.h"
+//#import "random.h"
+#import <random.h>
 
 #include <misc.h>
 
@@ -39,7 +40,7 @@
   obj->reb = 2.0;
   obj->randomSeed = 0;
  
-  //The BFagent sets these internally.
+  //BFagent lambda and initvar set internally
   obj->tauv = 50.0;
   obj->lambda = 0.3;               
   obj->maxbid = 10.0;
@@ -210,10 +211,16 @@
   int i;
 
 /* Initialise random number stream (0 means set randomly) */
-  randomSeed = randset(randomSeed);	// returns actual seed if 0
+  //pj
+  //randomSeed = randset(randomSeed);	// returns actual seed if 0
+
+   if(randomSeed != 0) [randomGenerator setStateFromSeed: randomSeed];
+   //pj: note I'm making this like other swarm apps. Same each time, new seeds only if precautions taken.
+
   
 /* Initialize the dividend, specialist, and world (order is crucial) */
   dividendProcess = [Dividend createBegin: [self getZone]];
+  [dividendProcess initNormal];
   [dividendProcess setBaseline: baseline];
   [dividendProcess setmindividend: mindividend];
   [dividendProcess setmaxdividend: maxdividend];
@@ -393,7 +400,6 @@ void warmUp (id warmupSchedule)
       
   while ([[warmupSwarm getSwarmActivity] run] != Completed);
 }
-
 
 void initPeriod (id initPeriodSchedule)
 {

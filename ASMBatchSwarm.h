@@ -2,10 +2,7 @@
 #import <activity.h>
 #import <collections.h>
 #import <simtools.h>
-#import <stdio.h>
-#import <activity/Schedule.h>
 #import "ASMModelSwarm.h"
-
 
 @interface ASMBatchSwarm: Swarm
 {
@@ -20,12 +17,12 @@
   id output;
 }
 
-+createBegin: (id)aZone;
--buildObjects;
--buildActions;
--activateIn: (id)swarmContext;
--go;
--stopRunning;
++ createBegin: aZone;
+- buildObjects;
+- buildActions;
+- activateIn: swarmContext;
+- go;
+- stopRunning;
 
 @end
 

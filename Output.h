@@ -1,5 +1,4 @@
 // Artificial Stock Market Swarm Version Output File Interface
-// This could use some help.
 
 #import <stdio.h>
 #import <stdarg.h>

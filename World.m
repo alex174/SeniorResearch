@@ -105,7 +105,7 @@
 
 
 #import "World.h"
-#import "random.h"
+#import <random.h>
 
 #include <math.h>
 #include <misc.h>
@@ -115,6 +115,13 @@
 // 1. Their computation in -makebitvector in this file.
 // 2. The PUPDOWBITNUM value.
 // 3. The NAMES documentation file -- do "market -n > NAMES".
+
+//pj:
+//convenience macros to replace stuff from ASM random with Swarm random stuff
+
+#define drand()    [uniformDblRand getDoubleSample]
+#define urand()  [uniformDblRand getDoubleWithMin: -1 withMax: 1]
+#define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1] 
 
 static struct bitnamestruct 
 {
