@@ -2,7 +2,7 @@
 #include <math.h>
 
 @implementation MovingAverage
-
+/*"This is a general purpose class for creating Moving Averages, either flat "equally weighted" moving averages or exponentially weighted moving averages"*/
 
 - initWidth: (int)w
 {

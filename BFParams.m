@@ -62,6 +62,8 @@ getInt (id obj, const char *ivarName)
 }
 
 
+@implementation BFParams
+
 /*"BFParams is a class that holds parameter values that might be
 needed by several classes, principally, BFagent, BFCast, or BitVector.
 This class is currently designed so that, if one wants the values of
@@ -81,8 +83,6 @@ frees us from the need to constantly add and edit get methods when we
 add or change instance variables in here.
 
 "*/
-
-@implementation BFParams
 
 -(int)lastgatime
 {

@@ -1,27 +1,5 @@
 // The Santa Fe Stockmarket -- Implementation of Specialist class
 
-// One instance of this class is used to manage the trading and
-// set the stock price.  It also manages the market-level parameters.
-
-// -init
-//      Initializes other values besides the parameters.
-//
-// -(double)performTrading
-//	This is the core method that sets a succession of trial prices
-//	and asks the agents for their bids or offer at each, generally
-//	adjusting the price towards reducing |bids - offers|.
-//
-// -completeTrades
-//	Updates the agents cash and position to consummate the trades
-//	previously negotiated in -performTrading, with rationing if
-//	necessary.
-//
-// -(double)getVolume
-//      Relayed to ASMObserverSwarm for graphical interface (and data output).
-//
-// double price, dividend, profitperunit
-//	Global market variables in World.
-
 
 #import "Specialist.h"
 #import "BFagent.h"
@@ -31,14 +9,19 @@
 
 @implementation Specialist
 
-//All set member functions take parameters from the ASMModelSwarm.
+
+/*" One instance of this class is used to manage the trading and
+  set the stock price.  It also manages the market-level parameters."*/
+
+
+/*" Sets a list of agents who are in the market "*/
 -setAgentList: (id)aList
 {
   agentList = aList;
   return self;
 }
 
-
+/*" Sets a reference to the world, where price and dividend information is kept"*/
 -setWorld: (World *)myWorld;
 {
   worldForSpec = myWorld;
@@ -68,6 +51,10 @@
 }
 
 
+
+/*"The specialist can be set to type 0, 1, or 2. If this variable is
+set to any other value, the model will set the Specialist to type 1
+and give a warning in the terminal"*/
 -setSPtype: (int)i
 {
   if(i != 0 && i != 1 && i != 2)
@@ -80,7 +67,7 @@
   return self;
 }
 
-
+/*" Set the maximum number of interations to be done while looking for a market clearing price"*/
 -setMaxIterations: (int)someIterations
 {
   maxiterations = someIterations;
@@ -120,17 +107,20 @@
 
 
 -(double)performTrading
-/*
- * Performs the trading, getting bids and offers from the agents and
- * adjusting the price.  Returns the final trading price, which becomes
- * the next market price.  Various methods are implemented, but all
- * have the structure:
- *  1. Set a trial price
- *  2. Send each agent a -getDemandAndSlope:forPrice: message and
- *     accumulate the total number of bids and offers at that price.
- *  3. [In some cases] go to 1.
- *  4. Return the last trial price.
- */
+/*" This is the core method that sets a succession of trial prices and
+ *  asks the agents for their bids or offer at each, generally
+ *  adjusting the price towards reducing |bids - offers|.  * It gets
+ *  bids and offers from the agents and * adjuss the price.  Returns
+ *  the final trading price, which becomes * the next market price.
+ *  Various methods are implemented, but all * have the structure:
+ *  1. Set a trial price 
+
+    2. Send each agent a -getDemandAndSlope:forPrice: message and accumulate the total
+ *  number of bids and offers at that price.  
+
+    3. [In some cases] go to  1.  
+
+    4. Return the last trial price.  "*/
 {
   int mcount;
   BOOL done;
@@ -234,7 +224,7 @@
   return trialprice;
 }
 
-
+/*"Returns the volume of trade to anybody that wants, such as the observer or output objects"*/
 -(double)getVolume
 {
   return volume;
@@ -242,7 +232,10 @@
 
 
 -completeTrades
-/*
+/*"Updates the agents cash and position to consummate the trades
+  previously negotiated in -performTrading, with rationing if
+  necessary.
+
  * Makes the actual trades at the last trial price (which is now the
  * market price), by adjusting the agents' holdings and cash.  The
  * actual purchase/sale my be less than that requested if rationing
@@ -251,7 +244,7 @@
  *
  * This could easiliy be done by the agents themselves, but we let
  * the specialist do it for efficiency.
- */
+ "*/
 {
   Agent * agent;
   id index;
@@ -294,6 +287,8 @@
 
 
 @end
+
+
 
 
 

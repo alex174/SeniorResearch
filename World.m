@@ -413,17 +413,17 @@ a global variable. "*/
 
 
 - makebitvector
-/*
- * Set all the world bits, based on the current dividend, price, and
- * their moving averages and histories.
- */
+/*"  Set all the world bits, based on the current dividend, price,
+and  their moving averages and histories.  This moves through the
+realworld array, bit by bit, setting the values to 0, 1 or 2,
+according to the data that has been observed.  Note the pointer math, such as realworld[i++], that steps the integer i through the array.   Note that "i" increases monotonically throughout this routine, always
+being the next bit to assign.  It is crucial that the order here is the
+same as in bitnamelist[]. "*/
 {
   register int i, j, k, temp;
   double multiple;
 
-// Note that "i" increases monotonically throughout this routine, always
-// being the next bit to assign.  It is crucial that the order here is the
-// same as in bitnamelist[].
+
   i = 0;
     
   realworld[i++] = 1;
@@ -498,7 +498,7 @@ a global variable. "*/
   return self;
 }
 
-/*" Returns the real world string of bits.  Used by BFagent to compare
+/*" Returns the real world array of bits.  Used by BFagent to compare
   their worlds to the real world."*/
 - getRealWorld: (int *)anArray
 {

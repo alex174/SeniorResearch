@@ -1,0 +1,5 @@
+rm -fr ASM-Docs
+mkdir ASM-Docs 
+autodoc -destination ASM-Docs/ -project ../ -format html
+cp index.html ASM1.png ASM-Docs
+

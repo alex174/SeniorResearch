@@ -22,14 +22,14 @@ typedef enum
   double reb;
   double bidfrac;
   double offerfrac;
-  int maxiterations;
-  id agentList;
-  double volume;
+  int maxiterations; /*" maximum passes while adjusting trade conditions"*/
+  id agentList; /*" set of traders whose demands must be reconciled"*/
+  double volume; /*" volume of trades conducted"*/
   double taupdecay;
   double taupnew;
   @private
-  World * worldForSpec;
-  SpecialistType sptype;
+    World * worldForSpec; /*" reference to World object that keeps data"*/
+  SpecialistType sptype; /*" an enumerated type indicating the sort of Specialist is being used, valued 0, 1, or 2"*/
 }
 
 // Methods to set parameters
@@ -50,7 +50,7 @@ typedef enum
 -(double)performTrading;
 -(double)getVolume;
 -completeTrades;
-
+y
 
 @end
 

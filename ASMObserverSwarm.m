@@ -4,7 +4,26 @@
 
 #include <misc.h>
 
+
 @implementation ASMObserverSwarm
+
+/*" The ASMObserverSwarm is a Swarm with a graphical user interface
+  (GUI).  It follows the prototype Swarm model, in that the Observer
+  Swarm is thought of an entity that can describe or report on the
+  state of a simulation, but not interact with it.  The Observer
+  causes the ASMModelSwarm to be created, and it monitors various
+  variables by checking directly with the agents.
+
+  Note that the ASMObserverSwarm has a set of "standard" methods that
+  Swarms have--buildObjects:, buildActions, activateIn:--and inside
+  each one it makes sure that the next-lower level, the ASMModelSwarm,
+  is sent the same message.
+
+  If you don't want to watch the GUI, run the model in batch mode,
+  meaning you use the -b flag on the command line.
+
+  "*/
+
 
 + createBegin: aZone 
 {
@@ -42,6 +61,8 @@
 }
 
 #if 0
+
+/*"This is a legacy method. We need to update Swarm if it is ever to work again"*/
 - printPriceGraph
 {
   [globalTkInterp eval: 
@@ -51,6 +72,7 @@
 }
 
 
+/*"This is a legacy method. We need to update Swarm if it is ever to work again"*/
 - printVolumeGraph
 {
   [globalTkInterp eval: 
@@ -59,6 +81,7 @@
   return self;
 }
 
+/*"This is a legacy method. We need to update Swarm if it is ever to work again"*/
 - printDeviationGraph
 {
   [globalTkInterp eval: 
@@ -67,7 +90,7 @@
   return self;
 }
 
-
+/*"This is a legacy method. We need to update Swarm if it is ever to work again"*/
 - printRelWealthHisto
 {
   [globalTkInterp eval: 
@@ -82,7 +105,12 @@
   return [super createEnd];
 }
 
-
+/*"This creates the model swarm, and then creates a number of
+  monitoring objects, such a graphs which show the price trends,
+  volume of stock trade, and some excellent bar charts which show the
+  holdings and wealth of the agents.  These bar charts (histograms)
+  are available in very few other Swarm programs and if you want to
+  know how it can be done, feel free to take a look!"*/
 - buildObjects 
 {
   int numagents;
@@ -188,6 +216,8 @@
   return self;
 }
 
+
+/*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
 - priceGraphDeath_ : caller
 {
   [priceGraph drop];
@@ -195,6 +225,7 @@
   return self;
 }
 
+/*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
 - volumeGraphDeath_ : caller
 {
   [volumeGraph drop];
@@ -202,6 +233,9 @@
   return self;
 }
 
+/*" This method gathers data about the agents, puts it into arrays,
+  and then passes those arrays to the histogram objects. As soon as we
+  tell the histograms to draw themselves, we will see the result"*/
 - updateHistos
 {
   id index;
@@ -229,7 +263,10 @@
   return self;
 }
    
-
+/*"This causes the system to save a copy of the current parameter
+  settings.  It can be turned on by hitting a button in the probe
+  display that shows at the outset of the model run, or any time
+  thereafter."*/
 - writeSimulationParams
 {
   writeParams = 1;
@@ -238,47 +275,51 @@
   return self;
 }
 
-
+/*"If the writeParams variable is set to YES, then this method cause
+  the system to save a snapshot of the parameters after the system's
+  run ends."*/
 - expostParamWrite
 {
-  // [asmModelSwarm initOutputForParamWrite];
   if (writeParams == 1)
     [[asmModelSwarm getOutput] writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: getCurrentTime()]; 
   return self;
 }
 
-
+/*"Returns the condition of the writeParams variable, an indicator
+  that parameters should be written to files"*/
 - (BOOL)ifParamWrite
 {
   return writeParams;
 }
 
+/*"This toggles data writing features. It can be accessed by punching
+  a button in a probe display that is shown on the screen when the simulation begins"*/
 
--(BOOL) toggleDataWrite
-{
-   if(writeData != YES)
-     {
-       [[asmModelSwarm getOutput] prepareOutputFile];
-	 writeData = YES;
-     }
-   else
-     writeData = NO;
+-(BOOL)toggleDataWrite { 
+  if(writeData != YES) 
+    { 
+      [[asmModelSwarm getOutput]  prepareOutputFile]; 
+      writeData = YES; 
+    } 
+  else writeData = NO;
 
-   return writeData;
+  return writeData;
 }
 
 
-
+/*"If data logging is turned on, this cause data to be written whenever it is called"*/
 - _writeRawData_
 {
   if (writeData == YES)
-    [[asmModelSwarm getOutput] writeData];
-  //   fprintf(stderr,"getcurrent %ld modeltime %ld",getCurrentTime(),[asmModelSwarm getModelTime]);
+    [[asmModelSwarm getOutput] writeData];  
   return self;
 }
 
 
-
+/*" Create actions and schedules onto which the actions are put.
+  Since this is an observer, the actions are intended to make sure
+  data is collected, displayed to the screen, and written to files
+  where appropriate"*/
 - buildActions 
 {
   [super buildActions];
@@ -307,6 +348,12 @@
   return self;
 }
 
+
+/*"This method activates the model swarm within the context of this
+  observer, and then it activated the observer's schedules.  This
+  makes sure that the actions inserted at time t inside the model are
+  placed into the overall time sequence before the observer scheduled
+  actions that update graphs which describe the results"*/
 - activateIn: swarmContext 
 {
   [super activateIn: swarmContext];
@@ -317,6 +364,12 @@
   return [self getSwarmActivity];
 }
 
+
+/*"In order to make sure that the data is actually written to disk, it
+  is necessary to pass a "drop" message down the hierarchy so that all
+  data writers know it is time to finish up their work. This drop
+  method is called at the end of the main.m file and it propogates
+  down to all objects created in asmModelSwarm"*/
 -(void) drop
 {
   [asmModelSwarm drop];

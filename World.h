@@ -16,31 +16,33 @@
 
 @interface World: SwarmObject
 {
-  double intrate;
-  double dividendscale;
-  double saveddividend;
-  double savedprice;
+  double intrate; /*" interest rate"*/
+  double dividendscale; /*" The baseline dividend that is set by initWithBaseline: "*/
+
   int pupdown[UPDOWNLOOKBACK];	       /*" array, dimension UPDOWNLOOKBACK "*/
   int dupdown[UPDOWNLOOKBACK];	       /*" array, dimension UPDOWNLOOKBACK "*/
   double divhistory[MAXHISTORY];       /*" dividend history array, goes back MAXHISTORY points"*/
   double pricehistory[MAXHISTORY];     /*" price history array "*/
  
   int history_top;                     /*" index value of current input into history arrays "*/
-  int updown_top;
-  double price;
-  double oldprice;
-  double dividend;
-  double olddividend;
-  double riskNeutral;
-  double profitperunit;
-  double returnratio;
+  int updown_top;     /*"number of time steps to look back to form pupdown and dupdown bits"*/
+  double price;     /*"market clearning price"*/
+  double oldprice;  /*" previous price "*/
+  double dividend;   /*" dividend "*/ 
+  double olddividend; /*"previous dividend"*/
+  double saveddividend; /* copy of olddividend, used for some
+                           double-checking on object integrity"*/
+  double savedprice; /* copy of oldprice, used for some
+                        double-checking on object integrity"*/
+  double riskNeutral;   /*"dividend/intrate"*/;
+  double profitperunit; /*"price - oldprice + dividend"*/
+  double returnratio;   /*"profitperunit/oldprice"*/
 
-  int nmas;
-  int malength[NMAS];     /*" For each MA, we must specify the length. This array has one integer for each of the moving averages we plan to keep, and it is used to set the widths covered by the moving averages."*/
+  int malength[NMAS];     /*" For each MA, we must specify the length over which the average is calculated. This array has one integer for each of the moving averages we plan to keep, and it is used to set the widths covered by the moving averages."*/
  
-  int nworldbits;
-  int * realworld;
-  BOOL exponentialMAs;
+  int nworldbits; /*"The number of aspects of the world that are recorded as bits"*/
+  int * realworld; /*"An array (dynamically allocated, sorry) of ints, one for each bit being monitored. This is kept up-to-date. There's a lot of pointer math going on with this and I don't feel so glad about it (PJ: 2001-11-01)"*/
+  BOOL exponentialMAs; /*"Indicator variable, YES if the World is supposed to report back exponentially weighted moving averages"*/
   id priceMA[NMAS];  /*" MovingAverage objects which hold price information. There are NMAS of these, and have various widths for the moving averages "*/
   id divMA[NMAS];   /*"  MovingAverage objects which hold dividend moving averages. "*/
   id oldpriceMA[NMAS]; /*" MovingAverage objects which hold lagged price moving averages "*/

@@ -79,9 +79,14 @@ output.dataWed_Oct_24_11_30_18_2001
 swarmDataArchiveWed_Oct_24_11_30_18_2001.scm
 hdfGraphWed_Oct_24_11_30_18_2001.hdf
 "*/
-
 @implementation Output
 
+
+/*"createEnd does a lot of specific things that make the data output
+  objects work. It gets the system time, uses that to fashion a
+  filename that includes the time, then where necessary it creates
+  archivers which will later be called on to get readings on the
+  system and record them."*/
 - createEnd
 {
   int i;
@@ -156,7 +161,7 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   return self;
 }
 
-
+/*"The output object needs to have a reference to a Specialist object, from whom it can gather data on the volume of trade."*/
 - setSpecialist: (Specialist *)theSpec
 {
   outputSpecialist = theSpec;
@@ -167,6 +172,7 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   return self;
 }
 
+/*"The output object must have a reference to a World object, from which it can get price, dividend, or any other information it wants"*/
 - setWorld: (World *)theWorld;
 {
   outputWorld = theWorld;
@@ -183,6 +189,8 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   return self;
 }
 
+/*"This flushes a snapshot of the current parameter settings from
+  both the ASMModelParams and BFAgentParams into a file"*/
 - writeParams: modelParam BFAgent: bfParms Time: (long int) t
 {
   char modelKey[20];
@@ -206,7 +214,11 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 
 
 
-//Setup the output file.
+/*"Because it is possible for users to turn on data writing during a
+  run of the simulation, it is necessary to have this method which can
+  initialize the data output files. Each time this is called, it
+  checks to see if the files have already been initialized. That way
+  it does not initialize everything twice."*/
 - prepareOutputFile
 {
   char outputFile[256];
@@ -223,14 +235,11 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
     fprintf (dataOutputFile, "currentTime\t price\t\t dividend\t volume\n\n");
     dataFileExists = YES;
   }
-
-
-
-
   return self;
 }
 
 
+/*"The write data method dumps out measures of the price, dividend, and volume indicators into several formats"*/
 -writeData
 {
 
@@ -274,9 +283,12 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
    return self;
 }
 
-
+/*"It is necessary to drop the data writing objects in order to make
+sure they finish their work.
+"*/
 -(void) drop
 {
+  fclose(dataOutputFile);
   [hdfWriter drop];
   [archiver drop];
   [dataArchiver drop];
@@ -286,3 +298,6 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 
 
 @end
+
+
+
