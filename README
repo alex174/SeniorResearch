@@ -143,6 +143,16 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 
 
 
+ASM-2.2 November 2001
+
+This work was mainly aimed at documentation, inserting Autodoc markers so I can build nicer looking documentation.
+
+The only big substantive cleanup was in ASMModelSwarm.  I had been avoiding 
+this for a long time because the scheduling that was used was very
+complicated and hard to understand.  I succeeded in a major simplicification
+and cleanup and have verified the numerical results are identical. This is
+explained in the beginning of ASMModelSwarm.m
+
 -------original readme follows
 This is the port to Swarm of the original NeXTstep version of
 the Brian Arthur, John Holland, Blake LeBaron, Richard Palmer, and
