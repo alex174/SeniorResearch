@@ -416,12 +416,14 @@ a global variable. "*/
 
 
 - makebitvector
-/*"  Set all the world bits, based on the current dividend, price,
-and  their moving averages and histories.  This moves through the
-realworld array, bit by bit, setting the values to 0, 1 or 2,
-according to the data that has been observed.  Note the pointer math, such as realworld[i++], that steps the integer i through the array.   Note that "i" increases monotonically throughout this routine, always
-being the next bit to assign.  It is crucial that the order here is the
-same as in bitnamelist[]. "*/
+/*" Set all the world bits, based on the current dividend, price, and
+their moving averages and histories.  This moves through the realworld
+array, bit by bit, setting the values to 0, 1 or 2, according to the
+data that has been observed.  Note the pointer math, such as
+realworld[i++], that steps the integer i through the array.  Note that
+"i" increases monotonically throughout this routine, always being the
+next bit to assign.  It is crucial that the order here is the same as
+in bitnamelist[]. "*/
 {
   register int i, j, k, temp;
   double multiple;
@@ -451,8 +453,6 @@ same as in bitnamelist[]. "*/
   for (j = 0; j < NMAS-1; j++)
     for (k = j+1; k < NMAS; k++)
       realworld[i++] = (GETMA(divMA,j)) > (GETMA(divMA,k));
-      //  realworld[i++] = exponentialMAs ? [divMA[j] getEWMA]:[divMA[j] getMA]  > exponentialMAs ? [divMA[k] getEWMA]:[divMA[k] getMA];
-      //realworld[i++] = dmav[j] > dmav[k];
 
   /* Dividend as multiple of meandividend */
   multiple = dividend/dividendscale;
@@ -478,8 +478,6 @@ same as in bitnamelist[]. "*/
   /* Price > MA[j] */
   for (j = 0; j < NMAS; j++)
      realworld[i++] = price > (GETMA(priceMA,j));
-    //  realworld[i++] = price > exponentialMAs ? [priceMA[j] getEWMA]:[priceMA[j] getMA];
-  // realworld[i++] = price > pmav[j];
 
   /* Price MA[j] > price MA[k] */
   for (j = 0; j < NMAS-1; j++)

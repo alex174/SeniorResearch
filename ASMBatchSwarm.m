@@ -11,13 +11,7 @@
 +createBegin: (id)aZone
 {
   ASMBatchSwarm * obj;
-
-  obj = [super createBegin: aZone];
-
-  //overridden by settings from scm file
-  // obj->loggingFrequency = 1;
-  //obj->experimentDuration = 500;
-	
+  obj = [super createBegin: aZone];	
   return obj;
 }
 
@@ -39,11 +33,6 @@ instructed to write results"*/
 
   [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
 
-  //ObjectLoader: is deprecated
-  //: [ObjectLoader load: self fromAppDataFileNamed: "batch.setup"];
-
-  //pj:  [ObjectLoader load: asmModelSwarm fromAppDataFileNamed: "param.data"];
- 
   [asmModelSwarm buildObjects];
 
   output = [asmModelSwarm getOutput];
@@ -56,18 +45,17 @@ instructed to write results"*/
 /*"Create schedules.  Assures that the output object writes the data when needed and checks to see if the required number of time steps has been completed"*/
 - buildActions
 { 
-  id agentlist; //BaT 11.09.2002
+  id agentlist;
   [super buildActions];
   
   [asmModelSwarm buildActions];
 
   if(loggingFrequency)
     {
-      agentlist = [asmModelSwarm getAgentList]; //BaT 11.09.2002
+      agentlist = [asmModelSwarm getAgentList];
        
       displayActions = [ActionGroup create: [self getZone]];
-      //[displayActions createActionTo: output message: M(writeData)];
-      [displayActions createActionTo: output message: M(writeData:):agentlist];//BaT 11.09.2002
+      [displayActions createActionTo: output message: M(writeData:):agentlist];
 					    
       displaySchedule = [Schedule createBegin: [self getZone]];
       [displaySchedule setRepeatInterval: loggingFrequency];

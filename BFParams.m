@@ -184,11 +184,6 @@ add or change instance variables in here.
 
   condwords = (condbits+15)/16;
 
-  //  myworld = [[self getZone] allocBlock: condwords* sizeof(unsigned int)];
-
-  //   for (i=0; i< condwords; i++)
-  //      myworld[i] = 0;
-
   // Check bitcost isn't too negative
   if (1.0+bitcost*(condbits-nnulls) <= 0.0)
     printf("The bitcost is too negative.");
@@ -206,7 +201,7 @@ add or change instance variables in here.
   if (npool > npoolmax) npoolmax = npool;
   if (nnew > nnewmax) nnewmax = nnew;
   if (condwords > ncondmax) ncondmax = condwords;
-  //  fprintf(stderr,"BFParams init complete");
+
   return [super createEnd];
 }
 

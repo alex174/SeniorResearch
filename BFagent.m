@@ -676,7 +676,6 @@ same bitlist."*/
 #endif
 
      //pj??? There ought to be a "default" action here for other cases.
-  printf ("strongest bfcast is worth %f",[strongestBFCast getStrength]);
 
   return self;
 }

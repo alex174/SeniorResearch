@@ -67,7 +67,7 @@
     {
       movingAverage = (double)sumOfInputs / (double) width;
     }
-  //printf( "Object: ma=%f  sumOfInput: %f numInputs: %d \n",movingAverage, sumOfInputs, numInputs);
+
   return movingAverage;
 }
 

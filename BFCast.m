@@ -178,17 +178,14 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 "*/
 - (void)updateSpecfactor
 {
-  //was in BFagent: specfactor = 1.0/(1.0 + x*specificity);
-  //but the bfagent.m way is so much nicer
-  specfactor = (condbits - nnulls - specificity)* bitcost; //follows bfagent.m
-  
+  specfactor = (condbits - nnulls - specificity)* bitcost;
 }
 
 /*"Set the specfactor value of this forecast"*/
 - (void)setSpecfactor: (double)x
 {
   specfactor = x;
-};
+}
 
 /*"Return the specfactor value of this forecast"*/
 - (double)getSpecfactor
@@ -350,8 +347,6 @@ specfactor= (condbits - nnulls - specificity)* bitcost
   [conditions printcond: word];
   return self;
 }
-
-
 
 
 @end

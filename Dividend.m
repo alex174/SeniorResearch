@@ -5,7 +5,6 @@
 
 
 #import "Dividend.h"
-//#import "random.h"
 #import <random.h>  //swarm library to get NormalDist
 #include <math.h>
 #include <misc.h>
@@ -89,8 +88,6 @@
   rho = exp(-1.0/((double)period));
   rho = 0.0001*rint(10000.0*rho);	
   gauss = deviation*sqrt(1.0-rho*rho);
-  //pj:
-  //dvdnd = baseline + gauss*normal();
   dvdnd = baseline + gauss*[normal getDoubleSample];
   return self;
 }
@@ -104,15 +101,11 @@
 
 -(double)dividend
 {
-  //pj:
-  // dvdnd = baseline + rho*(dvdnd - baseline) + gauss*normal();
     dvdnd = baseline + rho*(dvdnd - baseline) + gauss*[normal getDoubleSample]; 
   if (dvdnd < mindividend) 
     dvdnd = mindividend;
   if (dvdnd > maxdividend) 
     dvdnd = maxdividend;
-
-  //   printf(" \n \n World dividend %f baseline %f rho %f max %f min  %f\n \n", dvdnd, baseline, rho, maxdividend, mindividend);
 
   return dvdnd;
 }

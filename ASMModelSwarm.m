@@ -154,14 +154,13 @@
 {
   int i;
 
-  //  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n", asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
-
   if(asmModelParams->randomSeed != 0) 
     [randomGenerator setStateFromSeed: asmModelParams->randomSeed];
   else
     asmModelParams->randomSeed = [randomGenerator getInitialSeed];
   
-  //pj: note I'm making this like other swarm apps. Same each time, new seeds only if precautions taken.
+  //pj: note I'm making this like other swarm apps. Same each time,
+  //new seeds only if precautions taken.
 
  
   /* Initialize the dividend, specialist, and world (order is crucial) */
@@ -243,115 +242,41 @@
 {
   [super buildActions];
 
- //Define the actual period's actions.  
+  //Define the actual period's actions.  
   periodActions = [ActionGroup create: [self getZone]];
 
-//Set the new dividend.  This method is defined below. 
-  [periodActions createActionTo:     self
+  //Set the new dividend.  This method is defined below. 
+  [periodActions createActionTo: self  
 		 message: M(periodStepDividend)];
 
   // Tell agents to credit their earnings and pay taxes.
-  // There are 3 ways you might do this
-  // 1. The FAction way: fastest Swarm way, replaces old 
-  // createActionForEach.  
-/*  {
+  [periodActions createActionTo: self 
+		 message: M(creditAgentEarningsAndPayTaxes)];
 
-    id call =
-      [FCall create: self
-             target: [agentList getFirst]
-             selector: M(creditEarningsAndPayTaxes)
-             arguments:
-               [[[FArguments createBegin: self]
-                  setSelector: M(creditEarningsAndPayTaxes)]
-                 createEnd]];
-                                                                                
-    
-      [periodActions createFActionForEachHomogeneous: agentList call: call];
-
-
-  }
-*/
-  // 2. write a loop method in self to go through agents. Just as fast as
-  // method 1, perhaps simpler.
-  [periodActions createActionTo: self message: M(creditAgentEarningsAndPayTaxes)];
-
-
-  // 3. The old, slow way is Swarm's createActionForEach.
-//  [periodActions createActionForEach:    agentList     
-//		 message: M(creditEarningsAndPayTaxes)];
-
-// Update world -- moving averages, bits, etc
-  [periodActions createActionTo:     world     
+  [periodActions createActionTo: world  
 		 message: M(updateWorld)];
 
-// Tell BFagents to get ready for trading (they may run GAs here)
+  // Tell BFagents to get ready for trading (they may run GAs here)
+  [periodActions createActionTo: self 
+		 message: M(prepareAgentsForTrading)];
 
-/*  {
-
-    id call =
-      [FCall create: self
-             target: [agentList getFirst]
-             selector: M(prepareForTrading)
-             arguments:
-               [[[FArguments createBegin: self]
-                  setSelector: M(prepareForTrading)]
-                 createEnd]];
-                                                                                
-    
-      [periodActions createFActionForEachHomogeneous: agentList call: call];
-
-
-  }
-*/
-
-  [periodActions createActionTo: self message: M(prepareAgentsForTrading)];
-
-
-  // [periodActions createActionForEach:     agentList
-  //		   message: M(prepareForTrading)];
-
-// Do the trading -- agents make bids/offers at one or more trial prices
-// and price is set.  This is defined below.
+  // Do the trading -- agents make bids/offers at one or more trial
+  // prices and price is set.  This is defined below.
   [periodActions createActionTo:     self
 		 message: M(periodStepPrice)];
 
-// Complete the trades -- change agents' position, cash, and profit
+  // Complete the trades -- change agents' position, cash, and profit
   [periodActions createActionTo:     specialist     
 		 message: M(completeTrades:Market:):agentList:world];
 
-  // One way To Tell the agents to update their performance
-  /*
-    {
-    
-    id call =
-    [FCall create: self
-    target: [agentList getFirst]
-    selector: M(updatePerformance)
-    arguments:
-    [[[FArguments createBegin: self]
-    setSelector: M(updatePerformance)]
-    createEnd]];
-    
-    
-    [periodActions createFActionForEachHomogeneous: agentList call: call];
-    
-    
-    }
-  */
   
   // Another way to tell agents to update their performance, equally fast
-  [periodActions createActionTo: self message: M(updateAgentPerformance)];
+  [periodActions createActionTo: self 
+		 message: M(updateAgentPerformance)];
 
 
-  // The really slow old way to tell agents to update their performance
-  //  [periodActions createActionForEach: agentList     
-  //		 message: M(updatePerformance)];
-
-// Create the model schedule
-
-
+  // Create the model schedule
   startupSchedule = [Schedule create: [self getZone] setAutoDrop: YES];
-
 
  
   //force the system to do 501 "warmup steps" at the beginning of the

@@ -1,13 +1,49 @@
+2003-03-27    <Anwender@BANK99> T.Badegruber
+
+	* ASMModelSwarm.m deleted comments and examples of previous
+	versions
+
+	* World.m: also deleted comments.
+
+	* Dividend.m ([Dividend -initNormal]): also deleted comments.
+
+	* BFCast.m: also deleted comments.
+
+	* ASMBatchSwarm.m ([ASMBatchSwarm +createBegin:]): deleted
+	legacies of older versions that were already commented out.
+
+	* BFagent.m ([BFagent -performGA]): removed lastgatime variable,
+	because it is of no use
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): inserted
+	"if ([controlPanel getState] == ControlStateQuit) return self;" to
+	fix troubles when pressing Quit on controlpanel. fixed error in
+	enableDestroyNotification for volumeGraph
+	([ASMObserverSwarm -drop]): inserted
+	[priceGraph drop];
+	[volumeGraph drop];
+	[positionHisto drop];
+	[relativeWealthHisto drop]; to fix trouble at shutdown in Windows
+
+	* BFagent.m: got rid of all unneccessary comments and explanations
+	of previous versions of the market in BFagent.m, eliminated
+	WEIGHTED == 1 part, since it did not work. deleted alternative
+	implementation to create activelist. removed empty methods that
+	were designed for ANNagents. gotten rid of av, bv ignoring BLs
+	comment in updatePerformance, used a, b that are based on tauv
+	instead. usefulnes of global_mean seriously in doubt since it is
+	only used at start when new forecasts are created. removed
+	lastgatime variable and method because its of no use
+
+
 2003-03-26  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
-	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): remember randomSeed 
-	in asmModelParams. This means if a randomSeed is not entered by the
-	user, the one chosen by Swarm will be recorded.
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): remember
+	randomSeed in asmModelParams. This means if a randomSeed is not
+	entered by the user, the one chosen by Swarm will be recorded.
 
 	* asmModelParamsrandomSeed variable will equal the GUI input,
 	otherwise it will equal the value used by the default or the CLI.
-
-	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): 
 
 	* BFagent.m ([BFagent -MakePool:From:]): fix bug where only
 	npool-1 rules were created. iterate from 1 to n, not 1 to n-1.

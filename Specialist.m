@@ -119,11 +119,6 @@ and give a warning in the terminal"*/
 
   volume = 0.0;
 
-// Save previous values
-  //oldbidtotal = bidtotal;  //pj: old variables were never used anywhere
-  //oldoffertotal = offertotal;
-  //oldvolume = volume;
-
   dividend = [worldForSpec getDividend];
 // Main loop on {set price, get demand}
   for (mcount = 0, done = NO; mcount < maxiterations && !done; mcount++) 

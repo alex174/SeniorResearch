@@ -2,7 +2,7 @@
 
 #include <misc.h> // stdio, time
 #import "BFagent.h" 
-#import "BFCast.h" //BaT 11.09.2002 for bitDist
+#import "BFCast.h" //for bitDist
 
 /*"
 To show the possible data output tools, I have 3

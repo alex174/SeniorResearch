@@ -289,7 +289,6 @@
       double initcash=[(id)arguments getModelParams]->initialcash;
       position[i] = [agent getAgentPosition];
       relativeWealth[i] = [agent getWealth]/initcash;
-      //cash[i] = [agent getCash];
     }
   [index drop];
   [positionHisto drawHistogramWithDouble: position];

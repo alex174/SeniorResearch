@@ -10,7 +10,7 @@
 //************************************************************************
 - (BOOL)PickParents: (BFCast *)aNewForecast
 {
-  double psocial = 0.5;
+  double psocial = -0.1;
   BFCast * parent1, * parent2;
   id agent,index = 0;
   BOOL changed = NO;
@@ -44,12 +44,10 @@
     {
      
       index = [agentList begin: [self getZone]];
-      int num = [agentList getCount];
-      ;
-      printf("number of agents=%d \n", num);
+ 
       while ((agent = [index next]))
 	{
-	  printf("Agent number %3d\n",[agent getID]);
+	  //	  printf("Agent number %3d\n",[agent getID]);
 	}
     }
   return changed;
