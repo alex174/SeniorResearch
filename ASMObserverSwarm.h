@@ -3,7 +3,6 @@
 #import <simtoolsgui.h>
 #import <gui.h>
 #import "ASMModelSwarm.h"
-
 #import "ASMModelParams.h"
 #import <misc.h>
 
@@ -19,12 +18,12 @@
   BOOL writeParams;
   BOOL writeData;
 
-  id <Graph> priceGraph;
-  id <GraphElement> priceData;
-  id <GraphElement> riskNeutralData;
+  id <EZGraph> priceGraph;
+  // id <GraphElement> priceData;
+  // id <GraphElement> riskNeutralData;
 
-  id <ActiveGraph> priceGrapher;
-  id <ActiveGraph> riskNeutralGrapher;
+  // id <ActiveGraph> priceGrapher;
+  //id <ActiveGraph> riskNeutralGrapher;
 
   id <Graph> volumeGraph;
   id <GraphElement> volumeData;
@@ -62,6 +61,8 @@
 - _writeRawData_;
 
 - buildObjects;
+
+- priceGraphDeath_ : caller;
 - updateHistos;
 - writeSimulationParams;
 - (BOOL)ifParamWrite;

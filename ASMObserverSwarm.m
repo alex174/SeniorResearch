@@ -111,34 +111,48 @@
   //cash = xcalloc (numagents, sizeof (double));
   relativeWealth = xcalloc (numagents, sizeof (double));
 
-  priceGraph = [Graph createBegin: self ];
-  SET_WINDOW_GEOMETRY_RECORD_NAME (priceGraph);
-  priceGraph = [priceGraph createEnd];
+ //   priceGraph = [Graph createBegin: self ];
+//    SET_WINDOW_GEOMETRY_RECORD_NAME (priceGraph);
+//    priceGraph = [priceGraph createEnd];
 
-  [priceGraph setTitle: "Price v. time"];
-  [priceGraph setAxisLabelsX: "time" Y: "price"];
-  [priceGraph setRangesYMin: 0.0 Max: 200.0];
-  [priceGraph pack];
+//    [priceGraph setTitle: "Price v. time"];
+//    [priceGraph setAxisLabelsX: "time" Y: "price"];
+//    [priceGraph setRangesYMin: 0.0 Max: 200.0];
+//    [priceGraph pack];
   
-  priceData = [priceGraph createElement];
-  [priceData setLabel: "actualprice"];
-  [priceData setColor: "blue"];
+//    priceData = [priceGraph createElement];
+//    [priceData setLabel: "actualprice"];
+//    [priceData setColor: "blue"];
   
-  priceGrapher = [ActiveGraph createBegin: [self getZone]];
-  [priceGrapher setElement: priceData];
-  [priceGrapher setDataFeed: [asmModelSwarm getWorld]];
-  [priceGrapher setProbedSelector: M(getPrice)];
-  priceGrapher = [priceGrapher createEnd];
+//    priceGrapher = [ActiveGraph createBegin: [self getZone]];
+//    [priceGrapher setElement: priceData];
+//    [priceGrapher setDataFeed: [asmModelSwarm getWorld]];
+//    [priceGrapher setProbedSelector: M(getPrice)];
+//    priceGrapher = [priceGrapher createEnd];
 
-  riskNeutralData = [priceGraph createElement];
-  [riskNeutralData setLabel: "risk neutral price"];
-  [riskNeutralData setColor: "black"];
+//    riskNeutralData = [priceGraph createElement];
+//    [riskNeutralData setLabel: "risk neutral price"];
+//    [riskNeutralData setColor: "black"];
    
-  riskNeutralGrapher = [ActiveGraph createBegin: [self getZone]];
-  [riskNeutralGrapher setElement: riskNeutralData];
-  [riskNeutralGrapher setDataFeed: [asmModelSwarm getWorld]];
-  [riskNeutralGrapher setProbedSelector: M(getRiskNeutral)];
-  riskNeutralGrapher = [riskNeutralGrapher createEnd];
+//    riskNeutralGrapher = [ActiveGraph createBegin: [self getZone]];
+//    [riskNeutralGrapher setElement: riskNeutralData];
+//    [riskNeutralGrapher setDataFeed: [asmModelSwarm getWorld]];
+//    [riskNeutralGrapher setProbedSelector: M(getRiskNeutral)];
+//    riskNeutralGrapher = [riskNeutralGrapher createEnd];
+
+  priceGraph = [EZGraph create: self setTitle: "Price v. Time"
+			setAxisLabelsX: "time" Y: "price"
+			setWindowGeometryRecordName: "priceGraph"];
+  [priceGraph enableDestroyNotification: self
+	      notificationMethod: @selector (_priceGraphDeath_:)];
+  [priceGraph createSequence: "actual price" 
+	      withFeedFrom: [asmModelSwarm getWorld]
+	      andSelector: M(getPrice)];
+  [priceGraph createSequence: "risk neutral price"
+	      withFeedFrom: [asmModelSwarm getWorld]
+	      andSelector: M(getRiskNeutral)];
+  
+
 
   volumeGraph = [Graph createBegin: [self getZone]];
   SET_WINDOW_GEOMETRY_RECORD_NAME (volumeGraph);
@@ -216,6 +230,14 @@
     
   return self;
 }
+
+- priceGraphDeath_ : caller
+{
+  [priceGraph drop];
+  priceGraph = nil;
+  return self;
+}
+
 
 - updateHistos
 {
@@ -302,8 +324,8 @@
   [displayActions createActionTo: self 
 		    message: M(_writeRawData_)];
   [displayActions createActionTo: self             message: M(updateHistos)];
-  [displayActions createActionTo: priceGrapher     message: M(step)];
-  [displayActions createActionTo: riskNeutralGrapher     message: M(step)];
+  [displayActions createActionTo: priceGraph    message: M(step)];
+  //  [displayActions createActionTo: riskNeutralGrapher     message: M(step)];
   [displayActions createActionTo: volumeGrapher    message: M(step)];
   //[displayActions createActionTo: deviationAverager     message: M(update)];
   //[displayActions createActionTo: deviationGrapher     message: M(step)];

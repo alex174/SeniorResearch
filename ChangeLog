@@ -1,3 +1,9 @@
+2001-10-23  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): Convert
+	Graph to EZGraphs, create _priceGraphDeath_: method for destroy
+	notification.
+
 2001-06-29  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* BFParams.m ([BFParams -createEnd]): init method name changed to
