@@ -84,14 +84,21 @@
 
 - buildObjects 
 {
-  id modelZone;
-  
+  int numagents;
+  ASMModelParams * asmModelParams;
+
   [super buildObjects];
 
-  modelZone = [Zone create: [self getZone]];
-  asmModelSwarm = [ASMModelSwarm create: modelZone];
+  asmModelSwarm = [ ASMModelSwarm create: self ];
 
-  CREATE_ARCHIVED_PROBE_DISPLAY (asmModelSwarm);
+ if ((asmModelParams =
+       [lispAppArchiver getWithZone: self key: "asmModelParams"]) == nil)
+    raiseEvent(InvalidOperation,
+               "Can't find the modelSwarm parameters");
+
+ [asmModelSwarm setParamObject: asmModelParams];
+
+  CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
   CREATE_ARCHIVED_PROBE_DISPLAY (self);
 
   [actionCache waitForControlEvent];
@@ -100,13 +107,14 @@
 
   [asmModelSwarm buildObjects];
   
-  numagents = [asmModelSwarm getNumBFagents];
+  // numagents = [asmModelSwarm getNumBFagents];
+  numagents = asmModelParams->numBFagents;
   position = xcalloc (numagents, sizeof (double));
   wealth = xcalloc (numagents, sizeof (double));
   //cash = xcalloc (numagents, sizeof (double));
   relativeWealth = xcalloc (numagents, sizeof (double));
 
-  priceGraph = [Graph createBegin: [self getZone]];
+  priceGraph = [Graph createBegin: self ];
   SET_WINDOW_GEOMETRY_RECORD_NAME (priceGraph);
   priceGraph = [priceGraph createEnd];
 
@@ -244,8 +252,8 @@
 
 - expostParamWrite
 {
-  [asmModelSwarm initOutputForParamWrite];
-  [[asmModelSwarm getOutput] writeParams];
+  // [asmModelSwarm initOutputForParamWrite];
+  // [[asmModelSwarm getOutput] writeParams];
   return self;
 }
 

@@ -4,47 +4,49 @@
 #import "Dividend.h"
 #import "World.h"
 #import "Output.h"
+#import "ASMModelParams.h"
+
 
 @interface ASMModelSwarm: Swarm
 {
-  //Agent parameters
-  int numBFagents;
-  float initholding;
-  double initialcash;
-  double minholding;
-  double mincash;
-  double intrate;
+//    //Agent parameters
+//    int numBFagents;
+//    float initholding;
+//    double initialcash;
+//    double minholding;
+//    double mincash;
+//    double intrate;
 
-  //Dividend parameters
-  double baseline;   //Also used by World.
-  double mindividend;
-  double maxdividend;
-  double amplitude;
-  int period;
+//    //Dividend parameters
+//    double baseline;   //Also used by World.
+//    double mindividend;
+//    double maxdividend;
+//    double amplitude;
+//    int period;
 
-  //Specialist parameters
-  double maxprice;
-  double minprice;
-  double taup;
-  BOOL exponentialMAs;   //Also used by World.
-  int sptype;
-  int maxiterations;
-  double minexcess;
-  double eta;
-  double etamax;
-  double etamin;
-  double rea;
-  double reb;
+//    //Specialist parameters
+//    double maxprice;
+//    double minprice;
+//    double taup;
+//    BOOL exponentialMAs;   //Also used by World.
+//    int sptype;
+//    int maxiterations;
+//    double minexcess;
+//    double eta;
+//    double etamax;
+//    double etamin;
+//    double rea;
+//    double reb;
 
-  int randomSeed;
+//    int randomSeed;
 
   //Agent parameters overridden by the BFagent.  
   //These might be used for other agents that a user implements. 
-  double tauv;          
-  double lambda;
-  double maxbid; 
-  double initvar;
-  double maxdev;	
+ //   double tauv;          
+//    double lambda;
+//    double maxbid; 
+//    double initvar;
+//    double maxdev;	
 
   id warmupActions;
   id periodActions;
@@ -59,12 +61,19 @@
   id world;
   id output;
   BOOL setOutputForData;
+
+
+  ASMModelParams * asmModelParams;  //pj: the parameter object
+  id archiver;                     //pj: archiver instance
 }
 
 
 
-+createBegin: (id)aZone;
+//+createBegin: (id)aZone;
 -createEnd;
+
+
+- setParamObject: (ASMModelParams *) modelParams;  //pj: new param receiver 
 
 -getAgentList;
 -(int)getNumBFagents;
@@ -76,7 +85,7 @@
 
 -buildObjects;
 -initOutputForDataWrite;
--initOutputForParamWrite;
+//pj: -initOutputForParamWrite;
 -buildActions;
 -activateIn: (id)swarmContext;
 
@@ -88,6 +97,7 @@ void initPeriod(id  initPeriodSchedule);
 -periodStepDividend;
 //-prepareBFagentForTrading;
 -periodStepPrice;
+
 
 
 @end

@@ -4,6 +4,9 @@
 #import <gui.h>
 #import "ASMModelSwarm.h"
 
+#import "ASMModelParams.h"
+
+
 @interface ASMObserverSwarm: GUISwarm
 {
   int displayFrequency;
@@ -43,7 +46,6 @@
   double *wealth;
   //double * cash;
   double *relativeWealth;
-  int numagents;
 }  
 
 + createBegin: aZone;

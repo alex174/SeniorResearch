@@ -16,179 +16,179 @@
   return self;
 }
 
-- setNumBFagents: (int)BFagents
-{
-  numBFagents = BFagents;
-  return self;
-}
+//  - setNumBFagents: (int)BFagents
+//  {
+//    numBFagents = BFagents;
+//    return self;
+//  }
 
-- setInitHolding: (float)Holding
-{
-  initholding = Holding;
-  return self;
-}
+//  - setInitHolding: (float)Holding
+//  {
+//    initholding = Holding;
+//    return self;
+//  }
 
-- setInitialCash: (double)initcash;
-{
-  initialcash = initcash;
-  return self;
-}
+//  - setInitialCash: (double)initcash;
+//  {
+//    initialcash = initcash;
+//    return self;
+//  }
 
-- setminHolding: (double)holding   minCash: (double)minimumcash
-{
-  minholding = holding;
-  mincash = minimumcash;
-  return self;
-}
+//  - setminHolding: (double)holding   minCash: (double)minimumcash
+//  {
+//    minholding = holding;
+//    mincash = minimumcash;
+//    return self;
+//  }
 
-- setIntRate: (double)Rate
-{
-  intrate = Rate;
-  return self;
-}
+//  - setIntRate: (double)Rate
+//  {
+//    intrate = Rate;
+//    return self;
+//  }
 
-- setBaseline: (double)theBaseline
-{
-  baseline = theBaseline;
-  return self;
-}
+//  - setBaseline: (double)theBaseline
+//  {
+//    baseline = theBaseline;
+//    return self;
+//  }
 
-- setmindividend: (double)minimumDividend
-{
-  mindividend = minimumDividend;
-  return self;
-}
+//  - setmindividend: (double)minimumDividend
+//  {
+//    mindividend = minimumDividend;
+//    return self;
+//  }
 
-- setmaxdividend: (double)maximumDividend
-{
-  maxdividend = maximumDividend;
-  return self;
-}
+//  - setmaxdividend: (double)maximumDividend
+//  {
+//    maxdividend = maximumDividend;
+//    return self;
+//  }
 
-- setTheAmplitude: (double)theAmplitude
-{
-  amplitude = theAmplitude;
-  return self;
-}
+//  - setTheAmplitude: (double)theAmplitude
+//  {
+//    amplitude = theAmplitude;
+//    return self;
+//  }
 
-- setThePeriod: (int)thePeriod
-{
-  period = thePeriod;
-  return self;
-}
+//  - setThePeriod: (int)thePeriod
+//  {
+//    period = thePeriod;
+//    return self;
+//  }
 
-- setExponentialMAs: (BOOL)aBool
-{
-  exponentialMAs = aBool;
-  return self;
-}
+//  - setExponentialMAs: (BOOL)aBool
+//  {
+//    exponentialMAs = aBool;
+//    return self;
+//  }
 
-- setMaxPrice: (double)maximumPrice
-{
-  maxprice = maximumPrice;
-  return self;
-}
+//  - setMaxPrice: (double)maximumPrice
+//  {
+//    maxprice = maximumPrice;
+//    return self;
+//  }
 
-- setMinPrice: (double)minimumPrice
-{
-  minprice = minimumPrice;
-  return self;
-}
+//  - setMinPrice: (double)minimumPrice
+//  {
+//    minprice = minimumPrice;
+//    return self;
+//  }
 
-- setTaup: (double)aTaup
-{
-  taup = aTaup;
-  return self;
-}
+//  - setTaup: (double)aTaup
+//  {
+//    taup = aTaup;
+//    return self;
+//  }
 
-- setSPtype: (int)i
-{
-  sptype = i;
-  return self;
-}
+//  - setSPtype: (int)i
+//  {
+//    sptype = i;
+//    return self;
+//  }
 
-- setMaxIterations: (int)someIterations
-{
-  maxiterations = someIterations;
-  return self;
-}
+//  - setMaxIterations: (int)someIterations
+//  {
+//    maxiterations = someIterations;
+//    return self;
+//  }
 
-- setMinExcess: (double)minimumExcess
-{
-  minexcess = minimumExcess;
-  return self;
-}
+//  - setMinExcess: (double)minimumExcess
+//  {
+//    minexcess = minimumExcess;
+//    return self;
+//  }
 
-- setETA: (double)ETA
-{
-  eta = ETA;
-  return self;
-}
+//  - setETA: (double)ETA
+//  {
+//    eta = ETA;
+//    return self;
+//  }
 
-- setETAmin: (double)ETAmin
-{
-  etamin = ETAmin;
-  return self;
-}
+//  - setETAmin: (double)ETAmin
+//  {
+//    etamin = ETAmin;
+//    return self;
+//  }
 
-- setETAmax: (double) ETAmax
-{
-  etamax = ETAmax;
-  return self;
-}
+//  - setETAmax: (double) ETAmax
+//  {
+//    etamax = ETAmax;
+//    return self;
+//  }
 
-- setREA: (double)REA
-{
-  rea = REA;
-  return self;
-}
+//  - setREA: (double)REA
+//  {
+//    rea = REA;
+//    return self;
+//  }
 
-- setREB: (double)REB
-{
-  reb = REB;
-  return self;
-}
+//  - setREB: (double)REB
+//  {
+//    reb = REB;
+//    return self;
+//  }
 
-- setSeed: (int)aSeed;
-{
-  seed = aSeed;
-  return self;
+//  - setSeed: (int)aSeed;
+//  {
+//    seed = aSeed;
+//    return self;
 
-}
+//  }
 
-- setTauv: (double)aTauv
-{
-  tauv = aTauv;
-  return self;
-}
-
-
-- setLambda: (double)aLambda
-{
-  lambda = aLambda;
-  return self;
-}
+//  - setTauv: (double)aTauv
+//  {
+//    tauv = aTauv;
+//    return self;
+//  }
 
 
-- setMaxBid: (double)maximumBid
-{
-  maxbid = maximumBid;
-  return self;
-}
+//  - setLambda: (double)aLambda
+//  {
+//    lambda = aLambda;
+//    return self;
+//  }
 
 
-- setInitVar: (double)initialVar
-{
-  initvar = initialVar; 
-  return self;
-}
+//  - setMaxBid: (double)maximumBid
+//  {
+//    maxbid = maximumBid;
+//    return self;
+//  }
 
 
-- setMaxDev: (double)maximumDev
-{
-  maxdev = maximumDev;
-  return self;
-}
+//  - setInitVar: (double)initialVar
+//  {
+//    initvar = initialVar; 
+//    return self;
+//  }
+
+
+//  - setMaxDev: (double)maximumDev
+//  {
+//    maxdev = maximumDev;
+//    return self;
+//  }
 
 
 - writeParams
@@ -215,40 +215,40 @@
     abort();
 
   fprintf (paramOutputFile, "@begin\n");
-  fprintf (paramOutputFile, "numBFagents %d\n",numBFagents);
-  fprintf (paramOutputFile, "initholding %f\n",initholding);
-  fprintf (paramOutputFile, "initialcash %f\n",initialcash);
-  fprintf (paramOutputFile, "minholding %f\n",minholding);
-  fprintf (paramOutputFile, "mincash %f\n",minholding);
-  fprintf (paramOutputFile, "intrate %f\n",intrate);
+//    fprintf (paramOutputFile, "numBFagents %d\n",numBFagents);
+//    fprintf (paramOutputFile, "initholding %f\n",initholding);
+//    fprintf (paramOutputFile, "initialcash %f\n",initialcash);
+//    fprintf (paramOutputFile, "minholding %f\n",minholding);
+//    fprintf (paramOutputFile, "mincash %f\n",minholding);
+//    fprintf (paramOutputFile, "intrate %f\n",intrate);
   
-  fprintf (paramOutputFile, "baseline %f\n",baseline);
-  fprintf (paramOutputFile, "mindividend %f\n",mindividend);
-  fprintf (paramOutputFile, "maxdividend %f\n",maxdividend);
-  fprintf (paramOutputFile, "amplitude %f\n",amplitude);
-  fprintf (paramOutputFile, "period %d\n",period);
+//    fprintf (paramOutputFile, "baseline %f\n",baseline);
+//    fprintf (paramOutputFile, "mindividend %f\n",mindividend);
+//    fprintf (paramOutputFile, "maxdividend %f\n",maxdividend);
+//    fprintf (paramOutputFile, "amplitude %f\n",amplitude);
+//    fprintf (paramOutputFile, "period %d\n",period);
 
-  fprintf (paramOutputFile, "exponentialMAs %d\n",exponentialMAs);
+//    fprintf (paramOutputFile, "exponentialMAs %d\n",exponentialMAs);
 
-  fprintf (paramOutputFile, "maxprice %f\n",maxprice);
-  fprintf (paramOutputFile, "minprice %f\n",minprice);
-  fprintf (paramOutputFile, "taup %f\n",taup);
-  fprintf (paramOutputFile, "sptype %d\n",sptype);
-  fprintf (paramOutputFile, "maxiterations %d\n",maxiterations);
-  fprintf (paramOutputFile, "minexcess %f\n",minexcess);
-  fprintf (paramOutputFile, "eta %f\n",eta);
-  fprintf (paramOutputFile, "etamax %f\n",etamax);
-  fprintf (paramOutputFile, "etamin %f\n",etamin);
-  fprintf (paramOutputFile, "rea %f\n",rea);
-  fprintf (paramOutputFile, "reb %f\n",reb);
+//    fprintf (paramOutputFile, "maxprice %f\n",maxprice);
+//    fprintf (paramOutputFile, "minprice %f\n",minprice);
+//    fprintf (paramOutputFile, "taup %f\n",taup);
+//    fprintf (paramOutputFile, "sptype %d\n",sptype);
+//    fprintf (paramOutputFile, "maxiterations %d\n",maxiterations);
+//    fprintf (paramOutputFile, "minexcess %f\n",minexcess);
+//    fprintf (paramOutputFile, "eta %f\n",eta);
+//    fprintf (paramOutputFile, "etamax %f\n",etamax);
+//    fprintf (paramOutputFile, "etamin %f\n",etamin);
+//    fprintf (paramOutputFile, "rea %f\n",rea);
+//    fprintf (paramOutputFile, "reb %f\n",reb);
 
-  fprintf (paramOutputFile, "randomSeed %d\n",seed);
+//    fprintf (paramOutputFile, "randomSeed %d\n",seed);
 
-  fprintf (paramOutputFile, "tauv %f\n",tauv);
-  fprintf (paramOutputFile, "lambda %f\n",lambda);
-  fprintf (paramOutputFile, "maxbid %f\n",maxbid);
-  fprintf (paramOutputFile, "initvar %f\n",initvar);
-  fprintf (paramOutputFile, "maxdev %f\n",maxdev);
+//    fprintf (paramOutputFile, "tauv %f\n",tauv);
+//    fprintf (paramOutputFile, "lambda %f\n",lambda);
+//    fprintf (paramOutputFile, "maxbid %f\n",maxbid);
+//    fprintf (paramOutputFile, "initvar %f\n",initvar);
+//    fprintf (paramOutputFile, "maxdev %f\n",maxdev);
   fprintf (paramOutputFile, "@end\n");
 
   fclose(paramOutputFile);

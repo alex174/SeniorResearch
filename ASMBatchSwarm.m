@@ -27,9 +27,9 @@
   [ObjectLoader load: self fromAppDataFileNamed: "batch.setup"];
   [ObjectLoader load: asmModelSwarm fromAppDataFileNamed: "param.data"];
 
-  [asmModelSwarm initOutputForDataWrite];
+  // [asmModelSwarm initOutputForDataWrite];
   [asmModelSwarm buildObjects];
-  [asmModelSwarm initOutputForParamWrite];
+  //[asmModelSwarm initOutputForParamWrite];
 
   output = [asmModelSwarm getOutput];
   [output writeParams];

@@ -6,7 +6,9 @@ BUGADDRESS=pauljohn@ukans.edu
 APPLICATION = asm
 OBJECTS = Agent.o Dividend.o World.o \
 	  Specialist.o Output.o ASMModelSwarm.o \
-	  ASMObserverSwarm.o ASMBatchSwarm.o main.o BFParams.o BFCast.o BFagent.o BitVector.o
+	  ASMObserverSwarm.o ASMBatchSwarm.o main.o BFParams.o BFCast.o BFagent.o BitVector.o \
+	  ASMModelParams.o
+
 OTHERCLEAN =  param.data_* output.data* 
 DATAFILES = batch.setup param.data
 
@@ -25,4 +27,5 @@ ASMObserverSwarm.o: ASMObserverSwarm.h ASMObserverSwarm.m
 ASMBatchSwarm.o: ASMBatchSwarm.h ASMBatchSwarm.m 
 BFParams.o: BFParams.h BFParams.m World.h
 BFCast.o: BFCast.h BFCast.m BitVector.h
-BitVector.o: BitVector.h
+BitVector.o: BitVector.h BitVector.m
+ASMModelParams.o: ASMModelParams.h  ASMModelParams.m

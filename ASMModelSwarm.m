@@ -4,163 +4,34 @@
 //#import "random.h"
 #import "BFParams.h"
 #import "BFCast.h"
-
 #import <random.h>
 
 #include <misc.h>
+#include <defobj.h>  //for archiver
 
 
 
 @implementation ASMModelSwarm
 
-+createBegin: (id)aZone
-{
-  ASMModelSwarm * obj;
-  id <ProbeMap> probeMap;
+//  +createBegin: (id)aZone
+//  {
+//    ASMModelSwarm * obj;
+//    //  id <ProbeMap> probeMap;
 
-  obj = [super createBegin: aZone];
-
-  obj->numBFagents = 30;
-  obj->initholding = 1;
-  obj->initialcash = 10000;
-  obj->minholding = 0;
-  obj->mincash = 0;
-  obj->intrate = 0.1;
-  obj->baseline = 10;
-  obj->mindividend = 0.00005;
-  obj->maxdividend = 100;
-  obj->amplitude = 0.14178;
-  obj->period = .99;
-  obj->maxprice = 500;
-  obj->minprice = 0.001;
-  obj->taup = 50.0;
-  obj->exponentialMAs = 1;
-  obj->sptype = 2;                   //0 = REE, 1 = SLOPE, 2 = ETA
-  obj->maxiterations = 10;
-  obj->minexcess = 0.01;
-  obj->eta = 0.0005;
-  obj->etamax = 0.05;
-  obj->etamin = 0.00001;
-  obj->rea = 9.0;
-  obj->reb = 2.0;
-  obj->randomSeed = 0;
+//    obj = [super createBegin: aZone];
  
-  //BFagent lambda and initvar set internally
-  obj->tauv = 50.0;
-  obj->lambda = 0.3;               
-  obj->maxbid = 10.0;
-  obj->initvar = .4000212;
-  obj->maxdev = 100;
-    
-// Build probes here.
-  probeMap = [EmptyProbeMap createBegin: aZone];
-  [probeMap setProbedClass: [self class]];
-  probeMap = [probeMap createEnd];
-  
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "numBFagents"
-				    inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "initholding"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "initialcash"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "minholding"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "mincash"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "intrate"
-  			            inClass: [self class]]];
 
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "baseline"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "mindividend"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "maxdividend"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "amplitude"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "period"
-  			            inClass: [self class]]];
-
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "maxprice"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "minprice"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "taup"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "exponentialMAs" 
-				    inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "sptype"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "maxiterations" 
-				    inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "minexcess"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "eta"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "etamin"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "etamax"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "rea"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "reb"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "randomSeed"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "tauv"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "lambda"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "maxbid"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "initvar"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "maxdev"
-  			            inClass: [self class]]];
-  [probeLibrary setProbeMap: probeMap For: [self class]];
    
-  return obj;
-}  
+//    return obj;
+//  }  
 
-
--initOutputForParamWrite
+- setParamObject: (ASMModelParams *) modelParams
 {
-  [output setNumBFagents: numBFagents];
-  [output setInitHolding: initholding];
-  [output setInitialCash: initialcash];
-  [output setminHolding: minholding   minCash: mincash];
-  [output setIntRate: intrate];
-
-  [output setBaseline: baseline];
-  [output setmindividend: mindividend];
-  [output setmaxdividend: maxdividend];
-  [output setTheAmplitude: amplitude];
-  [output setThePeriod: period];
-
-  [output setExponentialMAs: exponentialMAs];
-
-  [output setMaxPrice: maxprice];
-  [output setMinPrice: minprice];
-  [output setTaup: taup];
-  [output setSPtype: sptype];
-  [output setMaxIterations: maxiterations];
-  [output setMinExcess: minexcess];
-  [output setETA: eta];
-  [output setETAmin: etamin];
-  [output setETAmax: etamax];
-  [output setREA: rea];
-  [output setREB: reb];
-  [output setSeed: randomSeed];
-
-  [output setTauv: tauv];
-  [output setLambda: lambda];
-  [output setMaxBid: maxbid];
-  [output setInitVar: initvar];
-  [output setMaxDev: maxdev];
-  
+  asmModelParams=modelParams;
+  fprintf(stderr,"Param object %d ",asmModelParams->numBFagents);
   return self;
 }
-  
+
 
 -createEnd
 {
@@ -170,13 +41,13 @@
 
 -(int)getNumBFagents
 {
-  return numBFagents;
+  return asmModelParams->numBFagents;
 }
 
 
 -(double)getInitialCash
 {
-  return initialcash;
+  return asmModelParams->initialcash;
 }
   
 
@@ -188,6 +59,7 @@
 
 -(World *)getWorld
 {
+  if (world == nil) printf("Empty world!");
   return world;
 }
 
@@ -206,7 +78,8 @@
 
 -setBatchRandomSeed: (int)newSeed
 {
-  randomSeed = newSeed;
+  
+  asmModelParams->randomSeed = newSeed;
   return self;
 }
 
@@ -216,43 +89,62 @@
   int i;
   id bfParams;
 
-/* Initialise random number stream (0 means set randomly) */
   //pj
   //randomSeed = randset(randomSeed);	// returns actual seed if 0
 
-   if(randomSeed != 0) [randomGenerator setStateFromSeed: randomSeed];
+  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n",
+	  asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
+
+ 
+#ifndef USE_LISP
+  unlink ("output.hdf");
+  archiver = [HDF5Archiver create: self setPath: "output.hdf"];
+#else
+  unlink ("output.scm");
+  archiver = [LispArchiver create: self setPath: "output.scm"];
+#endif
+
+  asmModelParams->exponentialMAs = 1; 
+
+   if(asmModelParams->randomSeed != 0) [randomGenerator setStateFromSeed: asmModelParams->randomSeed];
    //pj: note I'm making this like other swarm apps. Same each time, new seeds only if precautions taken.
+
+
+   [archiver putShallow: "someModelOutput" object: asmModelParams];
+#ifdef USE_LISP
+   [archiver sync];
+#endif
 
   
 /* Initialize the dividend, specialist, and world (order is crucial) */
   dividendProcess = [Dividend createBegin: [self getZone]];
   [dividendProcess initNormal];
-  [dividendProcess setBaseline: baseline];
-  [dividendProcess setmindividend: mindividend];
-  [dividendProcess setmaxdividend: maxdividend];
-  [dividendProcess setAmplitude: amplitude];
-  [dividendProcess setPeriod: period];
+  [dividendProcess setBaseline: asmModelParams->baseline];
+  [dividendProcess setmindividend: asmModelParams->mindividend];
+  [dividendProcess setmaxdividend: asmModelParams->maxdividend];
+  [dividendProcess setAmplitude: asmModelParams->amplitude];
+  [dividendProcess setPeriod:asmModelParams-> period];
   [dividendProcess setDerivedParams];
   dividendProcess = [dividendProcess createEnd];
 
   world = [World createBegin: [self getZone]];
-  [world setintrate: intrate];
-  [world setExponentialMAs: exponentialMAs];
-  [world initWithBaseline: baseline];
+  [world setintrate: asmModelParams->intrate];
+  [world setExponentialMAs: asmModelParams->exponentialMAs];
+  [world initWithBaseline:asmModelParams-> baseline];
   world = [world createEnd];
 
   specialist = [Specialist createBegin: [self getZone]];
-  [specialist setMaxPrice: maxprice];
-  [specialist setMinPrice: minprice];
-  [specialist setTaup: taup];
-  [specialist setSPtype: sptype];
-  [specialist setMaxIterations: maxiterations];
-  [specialist setMinExcess: minexcess];
-  [specialist setETA: eta];
-  [specialist setETAmin: etamin];
-  [specialist setETAmax: etamax];
-  [specialist setREA: rea];
-  [specialist setREB: reb];
+  [specialist setMaxPrice: asmModelParams->maxprice];
+  [specialist setMinPrice: asmModelParams-> minprice];
+  [specialist setTaup:asmModelParams-> taup];
+  [specialist setSPtype: asmModelParams-> sptype];
+  [specialist setMaxIterations: asmModelParams-> maxiterations];
+  [specialist setMinExcess: asmModelParams->minexcess];
+  [specialist setETA: asmModelParams-> eta];
+  [specialist setETAmin: asmModelParams-> etamin];
+  [specialist setETAmax: asmModelParams->etamax];
+  [specialist setREA: asmModelParams-> rea];
+  [specialist setREB: asmModelParams->reb];
   [specialist init];
   [specialist setWorld: world];
   specialist = [specialist createEnd];
@@ -266,34 +158,34 @@
     }
 /* Initialize the agent modules and create the agents */
   agentList = [List create: [self getZone]];  //create list for agents
-
   
   if ((bfParams =
        [lispAppArchiver getWithZone: self key: "bfParams"]) == nil)
     raiseEvent(InvalidOperation,
-               "Can't find the modelSwarm parameters");
+               "Can't find the BFParam's parameters");
    [bfParams init];
 
    [BFagent init];
 
    [BFagent setBFParameterObject: bfParams];
-   //[BFagent init];
+
    [BFagent setWorld: world];
     
 //nowObject create the agents themselves
-      for (i = 0; i < numBFagents; i++) 
+      for (i = 0; i < asmModelParams->numBFagents; i++) 
 	{
 	  BFagent * agent;
 	  agent = [BFagent createBegin: [self getZone]];
 	  [agent setID: i];
-	  [agent setintrate: intrate];
-	  [agent setminHolding: minholding   minCash: mincash];
-	  [agent setInitialCash: initialcash];
+	  [agent setintrate: asmModelParams->intrate];
+	  [agent setminHolding: asmModelParams->minholding   minCash:asmModelParams-> mincash];
+	  [agent setInitialCash: asmModelParams->initialcash];
 	  [agent setInitialHoldings];
-	  [agent setPosition: initholding];
+	  [agent setPosition: asmModelParams->initholding];
 	  [agent initForecasts];
 	  agent = [agent createEnd];
 	  [agentList addLast: agent];
+	  fprintf(stderr,"birthed %d",i);
 	}
       
       //  [BFagent didInitialize];
@@ -444,7 +336,13 @@ void initPeriod (id initPeriodSchedule)
 
 -warmupStepPrice 
 {
-  [world setPrice: [world getDividend]/intrate];
+  fprintf(stderr," Dividend %f \n", [world getDividend]);
+  fprintf(stderr," setPrice %f \n", [world getDividend]/asmModelParams->intrate );
+
+  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n",
+	  asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
+
+  [world setPrice: ([world getDividend]/(double)asmModelParams->intrate )];
   return self;
 }	 
 

@@ -60,6 +60,9 @@
 
 -setBaseline: (double)theBaseline
 {
+
+  printf(" \n \n World set baseline %f \n \n", theBaseline);
+
   baseline = theBaseline;
   return self;
 }
@@ -134,7 +137,9 @@
     dvdnd = mindividend;
   if (dvdnd > maxdividend) 
     dvdnd = maxdividend;
-  
+
+   printf(" \n \n World dividend %f baseline %f rho %f max %f min  %f\n \n", dvdnd, baseline, rho, maxdividend, mindividend);
+
   return dvdnd;
 }
 
