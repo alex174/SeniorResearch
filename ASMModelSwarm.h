@@ -86,7 +86,7 @@ void initPeriod(id  initPeriodSchedule);
 -warmupStepDividend;
 -warmupStepPrice;
 -periodStepDividend;
--prepareBFagentForTrading;
+//-prepareBFagentForTrading;
 -periodStepPrice;
 
 

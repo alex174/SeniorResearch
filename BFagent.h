@@ -43,12 +43,15 @@
 
   id <List> activeList;
   id <List> oldActiveList;
+
+  id <List> newList ; //to collect the new forecasts; 
+  id <Array> rejectList ; 
 }
 
 +(void)setBFParameterObject: x;
 +(void)init;
 //+didInitialize;
-+prepareForTrading;
+//+prepareForTrading;
 //+(int)lastgatime;
 +setRealWorld: (int *)array;
 +(int)setNumWorldBits;
@@ -61,6 +64,9 @@
 -setConditionsRandomly: (BFCast *) fcastObject; //apply to forecast
 //-free;
 -prepareForTrading;
+-(BitVector *) collectWorldData: aZone;
+-updateActiveList: (BitVector *) worldvalues;
+
 -getInputValues;  //does nothing, used only if their are ANNagents
 -feedForward;     //does nothing, used only if their are ANNagents
 -(double)getDemandAndSlope:(double *)slope forPrice:(double)trialprice;
@@ -76,11 +82,12 @@
 
 - copyList: list To: outputList;
 
-//-(int)bitDistribution:(int *(*)[4])countptr cumulative:(BOOL)cum;
-//pj:-(int)fMoments: (double *)moment cumulative: (BOOL)cum;
-//pj:-(const char *)descriptionOfBit:(int)bit;
+-(int)bitDistribution:(int *(*)[4])countptr cumulative:(BOOL)cum;
+-(int)fMoments: (double *)moment cumulative: (BOOL)cum;
+-(const char *)descriptionOfBit:(int)bit;
 
 @end
+
 
 
 

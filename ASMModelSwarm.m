@@ -274,7 +274,7 @@
                "Can't find the modelSwarm parameters");
    [bfParams init];
 
-   [BFCast init];
+   [BFagent init];
 
    [BFagent setBFParameterObject: bfParams];
    //[BFagent init];
@@ -351,8 +351,8 @@
 		 message: M(updateWorld)];
 
 // Tell BFagent class to prepare for trading
-  [periodActions createActionTo:     self    
-		   message: M(prepareBFagentForTrading)];
+  //pj:   [periodActions createActionTo:     self    
+  //pj:		   message: M(prepareBFagentForTrading)];
 
 // Tell BFagents to get ready for trading (they may run GAs here)
   [periodActions createActionForEach:     agentList
@@ -368,7 +368,7 @@
 		 message: M(completeTrades)];
 
 // Tell the agents to update their performance
-  [periodActions createActionForEach:     agentList     
+  [periodActions createActionForEach: agentList     
 		 message: M(updatePerformance)];
 
 // Create the model schedule
@@ -456,11 +456,11 @@ void initPeriod (id initPeriodSchedule)
 }
 
 
--prepareBFagentForTrading
-{
-  [BFagent prepareForTrading];
-  return self;
-}
+//-prepareBFagentForTrading
+//pj:{
+  //pj:[BFagent prepareForTrading];
+//pj:  return self;
+//pj:}
 
 
 -periodStepPrice 

@@ -1,6 +1,6 @@
 ASM-new.  note from Paul Johnson April 2, 2000
 
-SNAP1:
+SNAP1: May 7, 2000
 In ASM-new-snap1, I've removed the random.h and random.m from this
 program, and replaced their functionality with Swarm library
 calls. Contrary to the statements below, this program should now
@@ -8,6 +8,11 @@ behave like a Swarm app. Every time you run it,  you get the same
 random seed, unless you use the command line switch or input a
 randomSeed of your own.	
 
+
+ASM 20000602 June 2, 2000
+Thorough workover of BFagent class, creating three new classes (BitVector,
+BFParams, and BFCast)  and a massive reorganization of BFagent itself.
+See long comment in BFagent.m.
 
 -------original readme follows
 This is the port to Swarm of the original NeXTstep version of

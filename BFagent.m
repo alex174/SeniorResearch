@@ -8,20 +8,13 @@
 //     Tells the agent class object that initialization (including creation
 //     of agents) is finished.
 //
-// +prepareForTrading
-//	Sent for each type of this class, announcing the start of a new
-//	trading period.  The class object can use this to set up any common
-//	information for use by getDemandandSlope:forPrice: etc.  The
-//	pointer to "params" identifies the particular type.  These class
-//	messages are follwed by -prepareForTrading messages to each
-//	enabled instance.
-//
+// +prepareForTrading //deleted by pj May 1, 2000
+
 // +(BOOL)lastgatime
 //	Returns the most recent time at which a GA ran for any agent of
 //	this type.  
 //
-// -free
-//      frees space used by forecast lists
+// -free  //now handled by "drop" method in "BFCast.m"
 //
 // -(int *(*)[4])bitDistribution;
 //	Returns a pointer to an array of 4 pointers to arrays containing the
@@ -65,41 +58,117 @@
 /*
 pj: change comments May 30, 2000
 
-1. The BFCast class now has taken the place of the struct BF_cast.
-Any bit manipulation that needs to be done is done in there, in a way
-that is hidden from this class.  This class talks to forecast objects
-and tells them to set bits to certain values with messages like
-"setConditionsBit: 5 To: 2" and BFCast can handle the rest.
+I began with the code as released by the ASM research team through
+Brandon Weber in April, 2000.  Here is a summary of the vital changes
+that affect the BFagent class.
 
-2. The BFParams class now has taken the place of the struct BF_Params.
-This uses lispAppArchiver, see the initial values in asm.scm.  In the
-original ASM-2.0 code, there is a "global" variable params and there
-are private copies of this same thing. So far, I see no point in
-having a private copy, so the variables "privateParams" and "params"
-point to the same single object created by ASMModelSwarm, and
-parameters retrieved from either are thus the same.  Note further, I
-did not write "get" methods for every variable in the BFParams
-class. It just seemed onerous to do so.  There are 2
-alternatives. First, I declared the IVARS in BFParams to be public, so
-they can be retrieved with the symbol -> as if the parameter object
-were a pointer to a struct, as in: privateParams->condwords.  I hate
-doing that, and have the long term plan of replacing all of these
-usages with get messages, but in the short term I used the getDouble()
-and getInt() functions which can be used to do the same thing, as in
-getInt(privateParams,"condwords").
+0. New classes used in this version:
+    A. BFCast.[hm]
+    B. BFParams.[hm]
+    C. BitVector.[hm]
 
-3. The "homemade" linked lists, built with pointers and other C
-concepts, are replaced by Swarm collections.  Iteration now uses Swarm
-index objects.
+1. I am fully aware of confusion about the meaning of bit in this
+model. Bit does usually mean something that is 0 or 1, but in this
+model it means something else.  In the agent, a bit is what is often
+called a "trit", something that is valued 00, 01, 10, or 11. Trit
+means smallest thing that can hold three values.  In these agents, a
+trit has these meanings:
 
-4. Global pointers and lists and anything else has been replaced
-wherever possible by automatic variables (inside methods) or instance
-variables.
+  binary value    integer equivalent   meaning 
+  00                 0                  # or "don't care"
+  01                 1                  NO
+  10                 2                  YES
+  11                 3                  not in use, a place holder value 
 
-5. Genetic Algorithm now is written in Obj-C methods that pass
-whatever arguments are needed, rather than using C functions with a
-lot of global variables. Agent's don't share workspace for the GA.  
-*/
+GET READY for the big surprise. In World.m, the coding is reversed, so
+01 means yes and 10 means no.  This accelerates the comparision of the
+agent's bit vector against the state of the world.  Look for the & in
+the-updateActiveList: medthod and you'll see why.  I've written an
+alternative, more transparent algorithm.  I don't think it takes much
+more time, but perhaps your computer will tell differently.
+
+2. The bit math got frustrating enough that I have segregated it in a
+class I call "BitVector".  It is really a vector of "trits" but so
+much of the rest of this code uses the term bit that I didn't have the
+enthusiasm to change it.  When a "BitVector" instance is created, it
+has to be told how many bits, er trits, of information it is supposed
+to hold.  Whenever the agent needs to keep track of a bunch of bits,
+er trits, it can create a BitVector object to do it, and the interface
+allows values to be put in and retrieved in a relatively obvious way.
+
+Furthermore, when agents create the "forecast objects" using the
+BFCast class, then those forecast objects will contain within them
+BitVector objects that keep track of that forcast's object's bits.
+
+3. The BFCast class now has taken the place of the struct BF_cast that
+was in BFagent.h.  Any bit manipulation that needs to be done can be
+done by talking to an instance of that class. The bit manipulation is
+hidden from this BFagent class, so at some time in the future we could
+re-implement BFCast and as long as it had the right interface, the
+BFagent would not care.  The BFCast class talks to the forecast object
+that is inside it and tells it to set bits (er, trits) to certain
+values with messages like "setConditionsbit: 5 To: 2" and BFCast can
+handle the rest by passing on the news to the BitVector object.
+
+4. The BFParams class now has taken the place of the struct BF_Params
+that was in BFagent.  This change allows some significant upgrades in
+functionality.  First, the BFParams class uses the Swarm
+lispAppArchiver.  See the initial values in asm.scm.  Because the
+BFParams object contains some variables that are derived from the
+values in the archiver, it is necessary to send an "init" message
+after creating a BFParams object. Second, it is now possible to
+customize the agents by creating a customized BFParams object for each
+agent.  In the original ASM-2.0 code, there is a "global" variable
+params and all agents use that one set of parameters.  So far, I not
+done much to investigate the advantages of allowing agents to use
+different numbers of bits (er, trits), but I intend to.  Until I do
+that, the instance variable "privateParams" simply points to the same
+single BFParams object that is created by ASMModelSwarm, and
+parameters retrieved from either are thus the same.  
+
+<Apology mode> Note further, I did not write "get" methods for every
+variable in the BFParams class. It just seemed onerous to do so.
+There are 2 ways to get values out of BFParams.  First, use the ->.  I
+declared the IVARS in BFParams to be public, so they can be retrieved
+with the symbol -> as if the parameter object were a pointer to a
+struct, as in: privateParams->condwords.  I hate doing that, and have
+the long term plan of replacing all of these usages with get messages.
+Second, for the short term, I put in the getDouble() and getInt()
+functions which can be used to do get values. These will work even for
+private variables, so if you get concerned about declaring all those
+public IVARS in BFParams, you can get values in this way:
+getInt(privateParams,"condwords").  I used that a number of times in
+this file, but not everywhere, because I got tired of typing.
+</Apology mode>
+
+5. More object orientation.  The "homemade" linked lists, built with
+pointers and other C concepts, are replaced by Swarm collections.
+Iteration now uses Swarm index objects.  Many usages of C alloc and
+calloc are eliminated.  After a thorough removal of commented-out old
+code, this should approach a high level of readability.
+
+Usage of pointers to arrays is now minimized as well.  There used to
+be a class method called +prepareForTrading that would retrieve a copy
+of all the world's information and pick out what was needed for an
+agent of this class.  Then the result of that calculation would get
+stored in world.  While this had the advantage of doing the
+calculation once for all agents of the class, it has the disadvantage
+of restricting us to having identical bit vectors in all agent
+forecasts.  I've dropped this approach, instead creating a variable
+myworld in the agent's -prepareForTrading method, and each agent can
+look to the world and get the information it wants.
+
+
+6. Think locally, act locally.  Global pointers and lists and anything
+else have been replaced wherever possible by automatic variables
+(inside methods) or instance variables.  I created several new methods that
+take bits from bit methods/functions and do them in isolation (see -updateActiveList
+or -collectWorldData.
+
+7. Genetic Algorithm now is written in Obj-C methods that pass whatever 
+arguments are needed, rather than using C functions that access a lot 
+of global variables. Agent's don't share workspace for the GA, either, 
+each has its own memory.  */
 
 
 
@@ -109,6 +178,7 @@ lot of global variables. Agent's don't share workspace for the GA.
 #include <misc.h>
 #import "BFParams.h"
 #import "BFCast.h"
+#import "BitVector.h"
 
 extern World *worldForAgent;
 //pj: wish I could get rid of that one too, since each agent could just have a pointer
@@ -122,12 +192,11 @@ extern World *worldForAgent;
 #define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1]  
  
 //Macros for bit manipulation
-//pj: almost all of this stuff moved to BFCast, but this is needed once or twice here.
-#define WORD(bit)	(bit>>4)
-#define MAXCONDBITS	80
-
-#define extractvalue(variable, trit) ((variable[WORD(trit)] >> ((trit%16)*2))&3) 
-
+//pj: Sometimes I use these for diagnostic checking.
+//  #define WORD(bit)	(bit>>4)
+//  #define MAXCONDBITS	80
+//  #define extractvalue(variable, trit) ((variable[WORD(trit)] >> ((trit%16)*2))&3) 
+//  #define ifnilgetzero(variable, trit)  ((variable[WORD(trit)]& (3<<((trit%16)*2))))
 // Type of forecasting.  WEIGHTED forecasting is untested in its present form.
 //pj: bluntly, WEIGHTED does not work and is incomplete
 #define WEIGHTED 0
@@ -147,7 +216,6 @@ static BFParams *  params;
 //    static struct BF_fcast	**reject;	/* GA temporary storage */
 //    static struct BF_fcast	*newfcast;	/* GA temporary storage */
 
-//pj:  extern int ReadBitname(const char *variable, const struct keytable *table);
 //pj:  ReadBitname moved to BFParams
 
 
@@ -170,13 +238,16 @@ static BFParams *  params;
 
 @implementation BFagent
 
-+(void)setBFParameterObject: x
++(void) setBFParameterObject: x
 {
     params=x;
 }
 
-+(void)init
++(void) init
 {
+  [BFCast init]; //must pass along init statement to BFCast,then to
+  //BitVector from there.
+
   return;
 }
 
@@ -228,72 +299,58 @@ static BFParams *  params;
 //pj: Should be easy to rewrite so each agent can have own selection of bits
 //pj: to track and a instance variable "my world". This method would be rewritten.
 
-+prepareForTrading      //called at the start of each trading period
-{
-  int i, n;
-  int * myRealWorld=NULL;
-  int nworldbits;
-  int * bitlist;
-  //previously were global vars
-  int condbits;
-  int condwords;
-  unsigned int * myworld; //pj: was just int. Unsigned vital for bit math
-  BFParams * pp;
+//pj: As a matter of fact, I'm not calling this anymore. Each agent gets his own Condition
+//pj: object to set world values into. That's in -prepareForTrading.
 
-  //pj: The possibility is that pp could be set to some other thing, like an
-  //pj: IVAR privateParams, which could differentiate the conditions used by agents. 
-  pp = params;  //must refer to same object as params are gotten from below.
-  
-  condwords = getInt(pp,"condwords");
-  condbits = getInt(pp,"condbits");
-
-  //bitlist = pp->bitlist;
-  bitlist = [pp getBitListPtr];
-
-  //myworld = pp->myworld;
-  myworld = [pp getMyworldPtr];
-
-  for (i = 0; i < condwords; i++)
-    myworld[i] = 0;
-  //pj: nworldbits = [self setNumWorldBits];
-  //replace with:
-   nworldbits = [worldForAgent getNumWorldBits];
-
-   //pj: this was not freed in ASM-2.0
-    myRealWorld = calloc(nworldbits, sizeof(int));//was memcpy in other file, 
-    if(!myRealWorld)
-      printf("There was an error allocating space for myRealWorld.");
-    //pj: won't work in class method: myRealWorld = [[self getZone] alloc: nworldbits*sizeof(int)];
-
-  [worldForAgent getRealWorld: myRealWorld];
-
-  for (i=0; i < condbits; i++) 
-    {
-      if ((n = bitlist[i]) >= 0)
-	//	myworld[WORD(i)] |= myRealWorld[n] << SHIFT[i];
-	myworld[WORD(i)] |= myRealWorld[n] << ((i%16)*2);
-    }
-
-  for(i=0; i<condbits; i++)
-    {
-      n=bitlist[i];
-      //printf("diagnostic: Real/ME:%d, %d \n ",myRealWorld[n],(myworld[WORD(i)] >> ((i%16)*2))&3);
-    }
-
-  free(myRealWorld);
-  //pj: wont work in class method: [[self getZone] free: myRealWorld];
-
-  return self;
-}
-
-
-
-//Don't need a class method here for this.
-//  +(int)lastgatime
+//  +prepareForTrading      //called at the start of each trading period
 //  {
-//    //  pp = (struct BFparams *)params;
-//    //return pp->lastgatime;
-//    return params->lastgatime;
+ //   int i, n;
+//    int * myRealWorld=NULL;
+//    int nworldbits;
+//    int * bitlist;
+//    //previously were global vars
+//    int condbits;
+//    int condwords;
+//    unsigned int * myworld; //pj: was just int. Unsigned vital for bit math
+//    BFParams * pp;
+
+//    //pj: The possibility is that pp could be set to some other thing, like an
+//    //pj: IVAR privateParams, which could differentiate the conditions used by agents. 
+//    pp = params;  //must refer to same object as params are gotten from below.
+//    condwords = getInt(pp,"condwords");
+//    condbits = getInt(pp,"condbits");
+//    //bitlist = pp->bitlist;
+//    bitlist = [pp getBitListPtr];
+//    //myworld = pp->myworld;
+//    myworld = [pp getMyworldPtr];
+//    for (i = 0; i < condwords; i++)
+//      myworld[i] = 0;
+//     nworldbits = [worldForAgent getNumWorldBits];
+
+//     //pj: this was not freed in ASM-2.0
+//      myRealWorld = calloc(nworldbits, sizeof(int));//was memcpy in other file, 
+//      if(!myRealWorld)
+//        printf("There was an error allocating space for myRealWorld.");
+//    [worldForAgent getRealWorld: myRealWorld];
+
+//    for (i=0; i < condbits; i++) 
+//      {
+//        if ((n = bitlist[i]) >= 0)
+//  	//	myworld[WORD(i)] |= myRealWorld[n] << SHIFT[i];
+//  	myworld[WORD(i)] |= myRealWorld[n] << ((i%16)*2);
+//      }
+
+//    free(myRealWorld);
+//    return self;
+//  }
+
+
+
+//Don't need a class method here for this. If you need something like
+//it, put it in BFParams.  
+//+(int)lastgatime 
+//  {  pp = (struct BFparams *)params; 
+//   return pp->lastgatime; 
 //  }
 
 
@@ -315,88 +372,46 @@ static BFParams *  params;
 -createEnd
 {
 
-  //pj: this is moved from "didInitialize" because these are now IVARS.
-  //  struct BF_fcast *fptr, *topfptr;
-  //  unsigned int *conditions;
-  //  unsigned int *newconds;	
-
-
-// Allocate working space for GA
-//    int npoolmax = getDouble(params,"npoolmax");
-//    int nnewmax = getDouble(params,"nnewmax");
-//    int ncondmax = getDouble (params,"ncondmax");
-
- //   reject = calloc(npoolmax,sizeof(struct BF_fcast *));
-//    if(!reject)
-//      printf("There was an error allocating space for reject.");
-
-//    newfcast = calloc(nnewmax,sizeof(struct BF_fcast));
-//    if(!newfcast)
-//      printf("There was an error allocating space for newfcast.");
-    
-//    newconds = calloc(ncondmax*nnewmax,sizeof(unsigned int));
-//    if(!newconds)
-//      printf("There was an error allocating space for newconds.");
-
-  // Tie up pointers for conditions
-//    topfptr = newfcast + nnewmax;
-//    conditions = newconds;
-//    for (fptr = newfcast; fptr < topfptr; fptr++) 
-//      {
-//        fptr->conditions = conditions;
-//        conditions += ncondmax;
-//      }
+  //pj: container objects
   activeList=[List create: [self getZone]];
   oldActiveList=[List create: [self getZone]];
+
+  //pj: could be only in perforGA, but then would be recreated every time.
+  newList = [List create: [self getZone]]; //to collect the new forecasts; 
+  rejectList = [Array create: [self getZone] setCount: getInt(privateParams,"npoolmax")];
+
   return [super createEnd];
 }
 
 
-
-
 -initForecasts
 {
-  //struct BF_fcast *fptr, *topfptr;
-  //unsigned int *conditions, *cond;
-  //int word, 
-  //  int bit;
   int  sumspecificity = 0;
-  //  int condbits;
-  // int condwords;
-  //double *problist;
-  // double abase, bbase, cbase, asubrange, bsubrange, csubrange;
-  // double newfcastvar, bitcost;
-  //int *bitlist;
-
+ 
   //pj:new vars
   int i;
-  BFCast * aForecast; id index;
+  BFCast * aForecast; 
   int numfcasts;
+  id index;
 
 // Initialize our instance variables
 
   //pj: in the future, it may be good to have a separate parameter object for each BFagent.
   //pj: now it makes little sense, so I'm commenting out the creation code here and just setting
   //pj: privateParams equal to the global variable that is passed in.
- //    if ((privateParams =
-//           [lispAppArchiver getWithZone: [self getZone] key: "bfParams"]) == nil)
-//        raiseEvent(InvalidOperation,
-//                   "Can't find the BFParams parameters");
-//      [privateParams init];
+  //    if ((privateParams =
+  //           [lispAppArchiver getWithZone: [self getZone] key: "bfParams"]) == nil)
+  //        raiseEvent(InvalidOperation,
+  //                   "Can't find the BFParams parameters");
+  //      [privateParams init];
 
   privateParams= params;
-
-  // newfcast = [Array create: [self getZone] setCount: getInt(privateParams,"nnewmax")];
-
-  //newconds = [Array create: [self getZone] setCount: getInt(privateParams,"ncondmax")*getInt(privateParams,"nnewmax")];
 
   numfcasts=getInt(privateParams,"numfcasts");
 
   fcastList=[Array create: [self getZone] setCount: numfcasts];
 
   avspecificity = 0.0;
-  oldActiveList = activeList = nil;
-
   gacount = 0;
 
   variance = getDouble(privateParams, "initvar");
@@ -405,68 +420,8 @@ static BFParams *  params;
   global_mean = price + dividend;
   forecast = lforecast = global_mean;
 
-//  // Extract some things for rapid use
-//    // condwords = p->condwords;
-//    condwords = getInt (privateParams,"condwords");
-//    // condbits = p->condbits;
-//    condbits = getInt (privateParams,"condbits");
-//    // bitlist = p->bitlist;
-//    bitlist = [privateParams getBitListPtr];
-//    //problist = p->problist;
-//    problist = [privateParams getProbListPtr];
-//    newfcastvar = getDouble(privateParams,"newfcastvar");
-//    bitcost = getDouble (privateParams, "bitcost");
 
-// Allocate memory for forecasts and their conditions
-//    fcast = calloc(privateParams->numfcasts,sizeof(struct BF_fcast));
-//    if(!fcast)
-//      printf("There was an error allocating space for fcast.");
-
-//pj: now allocated inside BFCast objects  
-//    conditions = calloc(privateParams->numfcasts*condwords,sizeof(unsigned int));
-//    if(!conditions)
-//      printf("There was an error allocating space for conditions.");
-
-
-// Iniitialize the forecasts
-//    topfptr = fcast + privateParams->numfcasts;
-//    for (fptr = fcast; fptr < topfptr; fptr++) 
-//      {
-//        fptr->forecast = 0.0;
-//        fptr->lforecast = global_mean;
-//        fptr->count = 0;
-//        fptr->lastactive = 1;
-//        fptr->specificity = 0;
-//        fptr->next = fptr->lnext = NULL;
-
-   /* Allocate space for this forecast's conditions out of total allocation */
-//        fptr->conditions = conditions;
-//        conditions += condwords;
-
-  //   /* Initialise all conditions to don't care */
-//        cond = fptr->conditions;
-//        for (word = 0; word < condwords; word++)
-//  	cond[word] = 0;
-
-    /* Add non-zero bits as specified by probabilities */
-   //     if(fptr!=fcast) /* protect rule 0 */
-//  	for (bit = 0; bit < condbits; bit++) 
-//  	  {
-//  	    if (bitlist[bit] < 0)
-//  	      cond[WORD(bit)] |= MASK[bit];	/* Set spacing bits to 3 */
-//  	    else if (drand() < problist[bit]){
-//  	      cond[WORD(bit)] |= (irand(2)+1) << SHIFT[bit];
-//  	      ++fptr->specificity;
-//  	    }
-//  	  }
-  //      fptr->specfactor = 1.0/(1.0 + bitcost*fptr->specificity);
-  //    fptr->variance = newfcastvar;
-  //    fptr->strength = fptr->specfactor/fptr->variance;
-  //  }
-
-  //pj:??? note specfactor in bfagent is different: rptr->specfactor =
-  //(condbits - p->nnulls - rptr->specificity)*bitcost;
-
+// Iniitialize the forecasts, put them into Swarm Array
 
   //keep the 0'th forecast in a  "know nothing" condition
   [fcastList atOffset: 0 put: [self createNewForecast]];
@@ -476,44 +431,20 @@ static BFParams *  params;
     {
       id aForecast =[self createNewForecast] ;
       [self setConditionsRandomly: aForecast];
-      [fcastList atOffset: i put: aForecast];
+      [fcastList atOffset: i put: aForecast];//pj: put aForecast into Swarm array "fcastlist"
      }
 
 /* Compute average specificity */
- //   specificity = 0;
-//    for (fptr = fcast; fptr < topfptr; fptr++)
-//      specificity += fptr->specificity;
-//    avspecificity = ((double) specificity)/(double)privateParams->numfcasts;
 
-  //pj: Proper way to iterate over Swarm collections
+  //pj: Here is the proper way to iterate over Swarm collections
   index=[ fcastList begin: [self getZone] ];
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
     sumspecificity += [aForecast getSpecificity];
-    [aForecast  print];
+    //[aForecast  print];
     }
-  avspecificity = ((double) sumspecificity)/(double)numfcasts;
+  avspecificity = (double) sumspecificity/(double)numfcasts;
   [index drop];
-
-//  /* Set the forecasting parameters for each fcast to random values in a
-//   * fraction "subrange" of their range, centered at the midpoint.  For
-//   * subrange=1 this is the whole range (min to max).  For subrange=0.5,
-//   * values lie between 1/4 and 3/4 of this range.  subrange=0 gives
-//   * homogeneous agents, with values at the middle of their min-max range. 
-//   */
-//    abase = privateParams->a_min + 0.5*(1.-privateParams->subrange)*privateParams->a_range;
-//    bbase = privateParams->b_min + 0.5*(1.-privateParams->subrange)*privateParams->b_range;
-//    cbase = privateParams->c_min + 0.5*(1.-privateParams->subrange)*privateParams->c_range;
-//    asubrange = privateParams->subrange*privateParams->a_range;
-//    bsubrange = privateParams->subrange*privateParams->b_range;
-//    csubrange = privateParams->subrange*privateParams->c_range;
-//    for (fptr = fcast; fptr < topfptr; fptr++) 
-//      {
-//        fptr->a = abase + drand()*asubrange;
-//        fptr->b = bbase + drand()*bsubrange;
-//        fptr->c = cbase + drand()*csubrange;
-//      }
-  
   return self;
 }
 
@@ -526,10 +457,11 @@ static BFParams *  params;
 //  }
 
 
-//all condition bits are 0 here, "don't care for all"
+//pj: creates forecasts with all condition bits are 0 here, "don't care for all"
 - (BFCast *) createNewForecast
 {
   BFCast * aForecast;
+  //needed to set values of a,b,and c
   double abase = privateParams->a_min + 0.5*(1.0-privateParams->subrange)*privateParams->a_range;
   double bbase = privateParams->b_min + 0.5*(1.0-privateParams->subrange)*privateParams->b_range;
   double cbase = privateParams->c_min + 0.5*(1.0-privateParams->subrange)*privateParams->c_range;
@@ -543,17 +475,18 @@ static BFParams *  params;
   [aForecast setNNulls: privateParams->nnulls];
   [aForecast setBitcost: privateParams->bitcost];
   aForecast = [aForecast createEnd];
+  [aForecast setForecast: 0.0];
   [aForecast setLforecast: global_mean];
   //note aForecast has the forecast conditions=0 by its own createEnd.
   //also inside its createEnd, lastactive =1, specificity=0, variance=99999;
 
+  //pj: Controversy/confusion BFagent.m as originally distributed used
+  //definitions for variance and strength that did not match the
+  //bfagent.m file or the documentation. I'm following bfagent.m and
+  //the docs, ignoring what was in BFagent.m
 
-  [aForecast setVariance: privateParams->newfcastvar];  
-  [aForecast setStrength: [aForecast getSpecfactor] / [aForecast getVariance]];
-  //??? bfagent has:  rptr->specfactor = (condbits - p->nnulls - rptr->specificity)*bitcost;
-  //??? bfagent:  nr->variance = p->maxdev-nr->strength+nr->specfactor;
-  //        nr->strength = p->maxdev - (rule[0].variance - madv) +
-  //                                                          nr->specfactor;
+  [aForecast setVariance: privateParams->newfcastvar];  //same as bfagent's init  
+  [aForecast setStrength: 0.0];
      
   /* Set the forecasting parameters for each fcast to random values in a
    * fraction "subrange" of their range, centered at the midpoint.  For
@@ -598,7 +531,7 @@ static BFParams *  params;
 
 
 -prepareForTrading
-/*
+  /*
  * Set up a new active list for this agent's forecasts, and compute the
  * coefficients pdcoeff and offset in the equation
  *	forecast = pdcoeff*(trialprice+dividend) + offset
@@ -608,14 +541,14 @@ static BFParams *  params;
  */
 {
   //register struct BF_fcast *fptr, *topfptr, **nextptr;
-  unsigned int real0 = 0;
-  unsigned int real1, real2, real3, real4;
+  //unsigned int real0, real1, real2, real3, real4 = 0 ;
   double weight, countsum, forecastvar=0.0;
   int mincount;
 
-  int * myworld;
-
-  //pj new
+  //pj: for getting values from world
+  BitVector * myworld; 
+ 
+  //for using indexes of forecast objects
   BFCast *  aForecast;
   id <Index> index;
 
@@ -627,219 +560,30 @@ static BFParams *  params;
   double maxstrength;
 #endif
 
-  //topfptr = fcast + privateParams->numfcasts;
-  
-// First the genetic algorithm is run if due
-  currentTime = getCurrentTime( );
  
+  // First the genetic algorithm is run if due
+  currentTime = getCurrentTime( );
      
   if (currentTime >= privateParams->firstgatime && drand() < privateParams->gaprob) 
     {
       [self performGA]; 
       [activeList removeAll];
-      [oldActiveList removeAll];
-   }	    
-  else
-    {
-      [self copyList: activeList To: oldActiveList];
-      [activeList removeAll];  
-    }
-  //this is an IVar lforecast.
-   lforecast = forecast;
+    }	    
+
+  //this saves a copy of the agent's last as lforecast.
+  lforecast = forecast;
     
-//pj: list maintenance,
-//  for (fptr = activelist; fptr!=NULL; fptr = fptr->next) 
-//      {
-//        fptr->lnext = fptr->next;
-//        fptr->lforecast = fptr->forecast;
-//      }
-
-
-   index=[ oldActiveList begin: [self getZone] ];
-    for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-      {
-      [aForecast setLforecast: [aForecast getForecast]];
-      }
-    [index drop];
-
-
-// Main inner loop over forecasters.  We set this up separately for each
-// value of condwords, for speed.  It's ugly, but fast.  Don't mess with
-// it!  Taking out fptr->conditions will NOT make it faster!  The highest
-// condwords allowed for here sets the maximum number of condition bits
-// permitted (no matter how large MAXCONDBITS).
-
-  //pj:  nextptr = &activelist;	/* start of linked list */
-
-   //pj:  myworld = p->myworld;
-   myworld = [params  getMyworldPtr];// must refere to same param object.
-
-   //pj:  if(!myworld)  //I have no idea why this was here, BL didn't either.
-    real0 = myworld[0];
-  switch (privateParams->condwords) {
-  case 1:
-//pj:      for (fptr = fcast; fptr < topfptr; fptr++) 
-//pj:        {
-//pj:  	if (fptr->conditions[0] & real0) continue;
-//pj:  	*nextptr = fptr;
-//pj:  	nextptr = &fptr->next;
-//pj:        }
-
-//      index=[ fcastList begin: [self getZone]];
-//      for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-//      {
-//        printf("The value of (conditions:0 & real0)=%d.: \n", [aForecast getConditionsWord: 0] & real0  );
-//        [self printcond: [aForecast getConditionsWord: 0]];printf("  Conditions[0]\n");
-//        [self printcond: real0]; printf("  real0\n \n");
-//        if ( [aForecast getConditionsWord: 0] & real0 ) 
-//  	 {
-//  	   printf("The if statement says those two match value %d \n", [aForecast getConditionsWord: 0] & real0  );
-//   	   continue ;
-//  	 }
-//         [activeList addLast: aForecast];
-//      }
-//      [index drop];
-
-        index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-      unsigned int flag=0;
-      unsigned int trit;
-      unsigned int predictedvalue=999;
-     
-      trit=-1;
-      while ( flag == 0 && ++trit < privateParams-> condbits )
-	    {
-	      if ( (predictedvalue=[aForecast getConditionsbit: trit]) != 0 )
-		{
-		  if ( predictedvalue!= ((myworld[WORD(trit)] >> ((trit%16)*2))&3) )
-		    {
-		      flag=1;
-		    }
-		}
-	        		
-	   //       fprintf(stderr,"trit:%d flag: %d  predictionl=%d,  world=%d\n", 
-	      //  			trit, flag, predictedvalue,
-	      //  			extractvalue(myworld,trit) );  
-	         }
-     
-	    if ( flag!=1 )  [activeList addLast: aForecast];
-    
-        }
-    [index drop];
-
-
-    break;
+  myworld=[self collectWorldData: [self getZone] ];
   
-    case 2:
-      real1 = myworld[1];
+  [self updateActiveList: myworld];
 
-//      for (fptr = fcast; fptr < topfptr; fptr++) 
-//        {
-//  	if (fptr->conditions[0] & real0) continue;
-//  	if (fptr->conditions[1] & real1) continue;
-//  	*nextptr = fptr;
-//  	nextptr = &fptr->next;
-//        }
+  [myworld drop];
 
-   index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-       if ( [aForecast getConditionsWord: 0] & real0 ) continue ;
-       if ( [aForecast getConditionsWord: 1] & real1 ) continue ;
-       [activeList addLast: aForecast];
-    }
-    [index drop];
-
-      break;
-    case 3:
-      real1 = myworld[1];
-      real2 = myworld[2];
-//      for (fptr = fcast; fptr < topfptr; fptr++) 
-//        {
-//  	if (fptr->conditions[0] & real0) continue;
-//  	if (fptr->conditions[1] & real1) continue;
-//  	if (fptr->conditions[2] & real2) continue;
-//  	*nextptr = fptr;
-//  	nextptr = &fptr->next;
-//        }
-
-
-  index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-       if ( [aForecast getConditionsWord: 0] & real0 ) continue ;
-       if ( [aForecast getConditionsWord: 1] & real1 ) continue ;
-       if ( [aForecast getConditionsWord: 2] & real2 ) continue ;
-       [activeList addLast: aForecast];
-    }
-    [index drop];
-     break;
-    case 4:
-      real1 = myworld[1];
-      real2 = myworld[2];
-      real3 = myworld[3];
-//      for (fptr = fcast; fptr < topfptr; fptr++) 
-//        {
-//  	if (fptr->conditions[0] & real0) continue;
-//  	if (fptr->conditions[1] & real1) continue;
-//  	if (fptr->conditions[2] & real2) continue;
-//  	if (fptr->conditions[3] & real3) continue;
-//  	*nextptr = fptr;
-//  	nextptr = &fptr->next;
-//        }
-    index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-       if ( [aForecast getConditionsWord: 0] & real0 ) continue ;
-       if ( [aForecast getConditionsWord: 1] & real1 ) continue ;
-       if ( [aForecast getConditionsWord: 2] & real2 ) continue ;
-       if ( [aForecast getConditionsWord: 3] & real3 ) continue ;
-       [activeList addLast: aForecast];
-    }
-    [index drop];
-
-      break;
-    case 5:
-      real1 = myworld[1];
-      real2 = myworld[2];
-      real3 = myworld[3];
-      real4 = myworld[4];
-//      for (fptr = fcast; fptr < topfptr; fptr++) 
-//        {
-//  	if (fptr->conditions[0] & real0) continue;
-//  	if (fptr->conditions[1] & real1) continue;
-//  	if (fptr->conditions[2] & real2) continue;
-//  	if (fptr->conditions[3] & real3) continue;
-//  	if (fptr->conditions[4] & real4) continue;
-//  	*nextptr = fptr;
-//  	nextptr = &fptr->next;
-//        }
-    index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-       if ( [aForecast getConditionsWord: 0] & real0 ) continue ;
-       if ( [aForecast getConditionsWord: 1] & real1 ) continue ;
-       if ( [aForecast getConditionsWord: 2] & real2 ) continue ;
-       if ( [aForecast getConditionsWord: 3] & real3 ) continue ;
-       if ( [aForecast getConditionsWord: 4] & real4 ) continue ;
-       [activeList addLast: aForecast];
-    }
-    [index drop];
-      break;
-      //pj??? There ought to be a "default" action here for other cases.
-
-#if MAXCONDBITS > 5*16
-#error Too many condition bits (MAXCONDBITS)
-#endif
-
-  }
-  // *nextptr = NULL;	/* end of linked list */
-
+ 
 #if WEIGHTED == 1
-// Construct weighted-average forecast
-// The individual forecasts are:  p + d = a(p+d) + b(d) + c
-// We often lock b at 0 by setting b_min = b_max = 0.
+  // Construct weighted-average forecast
+  // The individual forecasts are:  p + d = a(p+d) + b(d) + c
+  // We often lock b at 0 by setting b_min = b_max = 0.
 
   //pj: note I started updating this code to match the rest, but then
   //pj: I realized it did not work as it was before, so I stopped
@@ -852,39 +596,24 @@ static BFParams *  params;
   sum = 0.0;
   nactive = 0;
   mincount = privateParams->mincount;
-//    for (fptr=activelist; fptr!=NULL; fptr=fptr->next) 
-//      {
-//        fptr->lastactive = t;
-//        if (++fptr->count >= mincount) 
-//  	{
-//  	  ++nactive;
-//  	  a += fptr->strength*fptr->a;
-//  	  b += fptr->strength*fptr->b;
-//  	  c += fptr->strength*fptr->c;
-//  	  sum += fptr->strength;
-//  	  sumv += fptr->variance;
-//  	}
-//      }
 
-  
   index=[ activeList begin: [self getZone] ];
-  if ( [activeList getCount]>0 )
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
       [aForecast setLastactive: t];
       if ( [aForecast incrCount] >= mincount )
-      {
-	double sumstrength;
-	double strength;
-	strength=[aForecast getStrength];
-	++nactive;
+	{
+	  double sumstrength;
+	  double strength;
+	  strength=[aForecast getStrength];
+	  ++nactive;
 
   	  a += strength*[aForecast getAval];
   	  b += strength*[aForecast getBval] ;
   	  c += strength*[aForecast getCval] ;
   	  sum += strength;
   	  sumv += [aForecast getVariance];
-      }
+	}
     }
   [index drop];
 
@@ -896,53 +625,54 @@ static BFParams *  params;
     }
 #else
 
-// Now go through the list and find best forecast
+  // Now go through the list and find best forecast
   maxstrength = -1e50;
   //bestfptf=NULL
   bestForecast = nil;
   nactive = 0;
   mincount = getInt(privateParams,"mincount");
-//    for (fptr=activelist; fptr!=NULL; fptr=fptr->next) 
-//      {
-//        fptr->lastactive = currentTime;
-//        if (++fptr->count >= mincount) 
-//  	{
-//  	  ++nactive;
-//  	  if (fptr->strength > maxstrength) 
-//  	    {
-//  	      maxstrength = fptr->strength;
-//  	      bestfptr = fptr;
-//  	    }
-//  	}
-//      }
+
+  //pj: Kept as example of "homemade list" 
+  //    for (fptr=activelist; fptr!=NULL; fptr=fptr->next) 
+  //      {
+  //        fptr->lastactive = currentTime;
+  //        if (++fptr->count >= mincount) 
+  //  	{
+  //  	  ++nactive;
+  //  	  if (fptr->strength > maxstrength) 
+  //  	    {
+  //  	      maxstrength = fptr->strength;
+  //  	      bestfptr = fptr;
+  //  	    }
+  //  	}
+  //      }
   
   index=[activeList begin: [self getZone]];
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
       [aForecast setLastactive: currentTime];
       if([aForecast incrCount] >= mincount)
-      {
-	double strength=[aForecast getStrength];
-	++nactive;
-	if (strength > maxstrength)
-	  {
-	    maxstrength = strength;
-	    bestForecast= aForecast;
-	  }
-      }
+	{
+	  double strength=[aForecast getStrength];
+	  ++nactive;
+	  if (strength > maxstrength)
+	    {
+	      maxstrength = strength;
+	      bestForecast= aForecast;
+	    }
+	}
     }
-  //printf("active list has %d \n",[activeList getCount]);
   [index drop];
 
 
-//    if (nactive) 
-//      {
-//        pdcoeff = bestfptr->a;
-//        offset = bestfptr->b*dividend + bestfptr->c;
-//        forecastvar = (privateParams->individual? bestfptr->variance :variance);
-//      }
+  //    if (nactive) 
+  //      {
+  //        pdcoeff = bestfptr->a;
+  //        offset = bestfptr->b*dividend + bestfptr->c;
+  //        forecastvar = (privateParams->individual? bestfptr->variance :variance);
+  //      }
 
-  fprintf(stderr,"nactive = %d  activeList getCount is %d\n",nactive, [activeList getCount]);
+  //fprintf(stderr,"nactive = %d pjactive %d  activeList getCount is %d\n",nactive,pjactivecount, [activeList getCount]);
   if (nactive)  // meaning that at least some forecasts are active
     {
       pdcoeff = [bestForecast getAval];
@@ -953,57 +683,227 @@ static BFParams *  params;
 #endif
   else  // meaning "nactive" zero, no forecasts are active 
     {
-      // No forecast!!
+      // No forecasts are minimally adequate!!
       // Use weighted (by count) average of all rules
       countsum = 0.0;
       pdcoeff = 0.0;
       offset = 0.0;
       mincount = getInt(privateParams,"mincount");
 
- //       for (fptr = fcast; fptr < topfptr; fptr++)
-//  	if (fptr->count >= mincount) 
-      // 	  {
-//  	    countsum += weight = (double)fptr->strength;
-//  	    offset += (fptr->b*dividend + fptr->c)*weight;
-//  	    pdcoeff += fptr->a*weight;
-//  	  }
- //     if (countsum > 0.0) 
-//  	{
-//  	  offset /= countsum;
-//  	  pdcoeff /= countsum;
-//  	}
-//        else
-//  	offset = global_mean;
-//        forecastvar = variance;
-//      }
 
-  index=[ fcastList begin: [self getZone]];
-  for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-      if ([aForecast getCnt] >= mincount)
-	{  
-      	    countsum += weight = [aForecast getStrength];
-	    offset += ([aForecast getBval]*dividend + [aForecast getCval])*weight;
-	    pdcoeff += [aForecast getAval]*weight;
-	}
+      index=[ fcastList begin: [self getZone]];
+      for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+	{
+	  if ([aForecast getCnt] >= mincount)
+	    {  
+	      countsum += weight = [aForecast getStrength];
+	      offset += ([aForecast getBval]*dividend + [aForecast getCval])*weight;
+	      pdcoeff += [aForecast getAval]*weight;
+	    }
   
-     if (countsum > 0.0) 
-	{
-	  offset /= countsum;
-	  pdcoeff /= countsum;
+	  if (countsum > 0.0) 
+	    {
+	      offset /= countsum;
+	      pdcoeff /= countsum;
+	    }
+	  else
+	    {
+	      offset = global_mean;
+	    }
+	  forecastvar = variance;
 	}
-      else
-	{
-	offset = global_mean;
-	}
-      forecastvar = variance;
-    }
- [index drop];
+      [index drop];
     }
 
-divisor = getDouble(privateParams,"lambda")*forecastvar;
+  divisor = getDouble(privateParams,"lambda")*forecastvar;
     
-return self;
+  return self;
+}
+
+
+-(BitVector *) collectWorldData: aZone;
+{ 
+  int i,n,nworldbits;
+  BitVector * world;
+  int * bitlist;
+  int * myRealWorld=NULL;
+
+  
+  world= [BitVector createBegin: aZone];
+  [world setCondwords: params->condwords];
+  [world setCondbits: params->condbits];
+  world=[world createEnd];
+    
+  bitlist = [params getBitListPtr];
+  nworldbits = [worldForAgent getNumWorldBits];
+
+  myRealWorld = [aZone alloc: nworldbits*sizeof(int)];
+  
+  [worldForAgent getRealWorld: myRealWorld];
+
+  for (i=0; i < params->condbits; i++) 
+    {
+      if ((n = bitlist[i]) >= 0)
+	//myworld[WORD(i)] |= myRealWorld[n] << ((i%16)*2);
+	[world setConditionsbit: i To: myRealWorld[n]]; 
+    }
+
+  [aZone free: myRealWorld];
+
+   return world;
+}
+
+
+//pj: here is the comment from BFagent about the next thing.
+// Main inner loop over forecasters.  We set this up separately for each
+// value of condwords, for speed.  It's ugly, but fast.  Don't mess with
+// it!  Taking out fptr->conditions will NOT make it faster!  The highest
+// condwords allowed for here sets the maximum number of condition bits
+// permitted (no matter how large MAXCONDBITS).
+
+-updateActiveList: (BitVector *) worldvalues
+{
+  id index;
+  BFCast * aForecast;
+ 
+  [self copyList: activeList To: oldActiveList]; 
+  //pj: note, if activeList is empty, then oldActiveList will be empty.
+  
+  [activeList removeAll];
+
+
+  //pj:copy forecasted values from objects in active to oldActiveList
+  index=[ oldActiveList begin: [self getZone] ];
+    for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+      {
+      [aForecast setLforecast: [aForecast getForecast]];
+      }
+    [index drop];
+
+
+  switch (privateParams->condwords) {
+  case 1:
+
+    index=[ fcastList begin: [self getZone]];
+    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+    {
+      if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0] ) 
+	 {
+ 	   continue ;
+	 }
+      [activeList addLast: aForecast];
+    }
+    [index drop];
+
+    break;
+  
+    case 2:
+      //pj: here is how it used to be
+//      real1 = worldvalues[1];
+
+//      for (fptr = fcast; fptr < topfptr; fptr++) 
+//        {
+//  	if (fptr->conditions[0] & real0) continue;
+//  	if (fptr->conditions[1] & real1) continue;
+//  	*nextptr = fptr;
+//  	nextptr = &fptr->next;
+//        }
+
+   index=[ fcastList begin: [self getZone]];
+    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+    {
+       if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0] ) continue ;
+       if ( [aForecast getConditionsWord: 1] & [worldvalues getConditionsWord: 1] ) continue ;
+       [activeList addLast: aForecast];
+    }
+    [index drop];
+
+      break;
+   
+ case 3:
+    
+  index=[ fcastList begin: [self getZone]];
+    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+    {
+       if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0] ) continue ;
+       if ( [aForecast getConditionsWord: 1] & [worldvalues getConditionsWord: 1] ) continue ;
+       if ( [aForecast getConditionsWord: 2] & [worldvalues getConditionsWord: 2] ) continue ;
+       [activeList addLast: aForecast];
+    }
+    [index drop];
+     break;
+    case 4:
+ 
+    index=[ fcastList begin: [self getZone]];
+    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+    {
+      if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0]) continue ;
+      if ( [aForecast getConditionsWord: 1] &  [worldvalues getConditionsWord: 1] ) continue ;
+      if ( [aForecast getConditionsWord: 2] &  [worldvalues getConditionsWord: 2] ) continue ;
+      if ( [aForecast getConditionsWord: 3] &  [worldvalues getConditionsWord: 3] ) continue ;
+       [activeList addLast: aForecast];
+    }
+    [index drop];
+
+      break;
+    case 5:
+ 
+    index=[ fcastList begin: [self getZone]];
+    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+    {
+       if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0] ) continue ;
+       if ( [aForecast getConditionsWord: 1] & [worldvalues getConditionsWord: 1] ) continue ;
+       if ( [aForecast getConditionsWord: 2] & [worldvalues getConditionsWord: 2] ) continue ;
+       if ( [aForecast getConditionsWord: 3] & [worldvalues getConditionsWord: 3] ) continue ;
+       if ( [aForecast getConditionsWord: 4] & [worldvalues getConditionsWord: 4] ) continue ;
+       [activeList addLast: aForecast];
+    }
+    [index drop];
+      break;
+        }
+
+#if MAXCONDBITS > 5*16
+#error Too many condition bits (MAXCONDBITS)
+#endif
+
+  
+   //pj??? There ought to be a "default" action here for other cases.
+
+
+  /*This is an alternative implementation of the same as preceeding.  Its so much cuter.
+I write it before I understood the fact that the World gives back 10 for yes and agent has 01 for yes. 
+  
+    index=[ fcastList begin: [self getZone]];
+    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+    {
+      unsigned int flag=0;
+      unsigned int trit;
+      unsigned int predictedvalue=999;
+     
+      trit=-1;
+      while ( flag == 0 && ++trit < privateParams-> condbits )
+	    {
+	      if ( (predictedvalue=[aForecast getConditionsbit: trit]) != 0 )
+		{
+		  //if ( predictedvalue == ((worldvalues[WORD(trit)] >> ((trit%16)*2))&3) )
+		  if (  predictedvalue == [worldvalues getConditionsbit: trit] )
+		    {
+		      flag=1;
+		    }
+		}
+	        		
+	   //       fprintf(stderr,"trit:%d flag: %d  predictionl=%d,  world=%d\n", 
+	      //  			trit, flag, predictedvalue,
+	      //  			extractvalue(worldvalues,trit) );  
+	         }
+     
+	    if ( flag!=1 )  [activeList addLast: aForecast];
+    
+        }
+    [index drop];
+  */
+
+  return self;
 }
 
 
@@ -1106,7 +1006,6 @@ return self;
   [self getPriceFromWorld];
   ftarget = price + dividend;
 
-
 // Update global mean (p+d) and our variance
     
   realDeviation = deviation = ftarget - lforecast;
@@ -1119,11 +1018,13 @@ return self;
   else
     variance = bv*variance + av*deviation*deviation;
 
- //??cant find anywhere in ASM-2.0 an update of the forecast's
+ //??cant find anywhere in ASM-2.0's BFagent.m an update of the forecast's
  //forecast. but it is clearly needed if you look at bfagent from the
  //objc version???
-  //??This seems to fix the strange time series properties too??//
+  //??This fixes the strange time series properties too??//
  
+  printf("active list has %d \n",[activeList getCount] );
+
   index = [ activeList begin: [self getZone]];
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
@@ -1131,7 +1032,7 @@ return self;
     }
   [index drop];
    
-
+  //pj: Here is the way it was
 // Update all the forecasters that were activated.
 //    if (currentTime > 0)
 //      for (fptr=lactivelist; fptr!=NULL; fptr=fptr->lnext) 
@@ -1175,7 +1076,6 @@ return self;
 	      [aForecast setVariance: (1.0 - c)*[aForecast getVariance] +
 			 c*deviation];
 	    }
-	  //[aForecast setStrength: [aForecast getSpecfactor] / [aForecast getVariance]];
 	  [aForecast setStrength: privateParams->maxdev - [aForecast getVariance] + [aForecast getSpecfactor]];  //based on bfagent.m
 	  // original  bfagent has this:
 	  //    rptr->strength = p->maxdev - rptr->variance + rptr->specfactor;
@@ -1221,49 +1121,57 @@ return self;
 }
 
 
-//pj: Never gets called. Worry about it later ??????????
-
-//  -(int)bitDistribution: (int *(*)[4])countptr cumulative: (BOOL)cum
-//  {
-//    struct BF_fcast *fptr, *topfptr;
-//    unsigned int *agntcond;
-//    int i;
-//    int condbits;
+//pj: Never gets called. ????
+-(int)bitDistribution: (int *(*)[4])countptr cumulative: (BOOL)cum
+{
+  BFCast * aForecast;
+  unsigned int *agntcond;
+  int i;
+  int condbits;
+  id index;
  
+  static int *count[4];	// Dynamically allocated 2-d array
+  static int countsize = -1;	// Current size/4 of count[]
+  static int prevsize = -1;
 
-//    static int *count[4];	// Dynamically allocated 2-d array
-//    static int countsize = -1;	// Current size/4 of count[]
-//    static int prevsize = -1;
+  condbits = getInt (privateParams, "condbits");
 
-//    condbits = getInt (privateParams, "condbits");
+  if (cum && condbits != prevsize)
+    printf("There is an error with an agent's condbits.");
+  prevsize = condbits;
 
-//    if (cum && condbits != prevsize)
-//      printf("There is an error with an agent's condbits.");
-//    prevsize = condbits;
-
-//  // For efficiency the static array can grow but never shrink
-//    if (condbits > countsize) 
-//      {
-//        if (countsize > 0) free(count[0]);
-//        count[0] = calloc(4*condbits,sizeof(int));
-//        if(!count[0])
-//  	printf("There was an error allocating space for count[0].");
-//        count[1] = count[0] + condbits;
-//        count[2] = count[1] + condbits;
-//        count[3] = count[2] + condbits;
-//        countsize = condbits;
-//      }
+// For efficiency the static array can grow but never shrink
+  if (condbits > countsize) 
+    {
+      if (countsize > 0) free(count[0]);
+      count[0] = calloc(4*condbits,sizeof(int));
+      if(!count[0])
+	printf("There was an error allocating space for count[0].");
+      count[1] = count[0] + condbits;
+      count[2] = count[1] + condbits;
+      count[3] = count[2] + condbits;
+      countsize = condbits;
+    }
   
-//    (*countptr)[0] = count[0];
-//    (*countptr)[1] = count[1];
-//    (*countptr)[2] = count[2];
-//    (*countptr)[3] = count[3];
+  (*countptr)[0] = count[0];
+  (*countptr)[1] = count[1];
+  (*countptr)[2] = count[2];
+  (*countptr)[3] = count[3];
 
-//    if (!cum)
-//      for(i=0;i<condbits;i++)
-//        count[0][i] = count[1][i] = count[2][i] = count[3][i] = 0;
+  if (!cum)
+    for(i=0;i<condbits;i++)
+      count[0][i] = count[1][i] = count[2][i] = count[3][i] = 0;
 
-//    topfptr = fcast + privateParams->numfcasts;
+ index=[ fcastList begin: [self getZone] ];  
+ for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+   {
+     agntcond = [aForecast getConditions];
+      for (i = 0; i < condbits; i++)
+	{
+	    count[ (int)[aForecast getConditionsbit: i]][i]++;
+	}
+   }
+
 //    for (fptr = fcast; fptr < topfptr; fptr++) 
 //      {
 //        agntcond = fptr->conditions;
@@ -1271,44 +1179,46 @@ return self;
 //  	count[(int)((agntcond[WORD(i)]>>SHIFT[i])&3)][i]++;
 //      }
 
-//    return condbits;
-//  }
+  return condbits;
+}
 
 //pj: this method was never called anywhere
-//  -(int)fMoments: (double *)moment cumulative: (BOOL)cum
-//  {
-//    struct BF_fcast *fptr, *topfptr;
-//    int i;
-//    int condbits;
+-(int)fMoments: (double *)moment cumulative: (BOOL)cum
+{
+  BFCast *aForecast ;
+  int i;
+  int condbits;
 
-//    condbits = getInt (privateParams, "condbits");
+  id index;
   
-//    if (!cum)
-//  	for(i=0;i<6;i++)
-//  	  moment[i] = 0;
+  condbits = getInt (privateParams, "condbits");
   
-//    topfptr = fcast + privateParams->numfcasts;
-//    for (fptr = fcast; fptr < topfptr; fptr++) 
-//      {
-//        moment[0] += fptr->a;
-//        moment[1] += fptr->a*fptr->a;
-//        moment[2] += fptr->b;
-//        moment[3] += fptr->b*fptr->b;
-//        moment[4] += fptr->c;
-//        moment[5] += fptr->c*fptr->c;
-//      }
+  if (!cum)
+	for(i=0;i<6;i++)
+	  moment[i] = 0;
+  
+ index=[ fcastList begin: [self getZone] ];  
+ for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+   {
+     moment[0] +=  [aForecast getAval];
+      moment[1] += [aForecast getAval]*[aForecast getAval];
+      moment[2] += [aForecast getBval];
+      moment[3] += [aForecast getBval]*[aForecast getBval];
+      moment[4] += [aForecast getCval];
+      moment[5] += [aForecast getAval]*[aForecast getAval];
+   }
     
-//    return privateParams->numfcasts;
-//  }
+  return privateParams->numfcasts;
+}
 
 //pj: this method is not called anywhere
-//  -(const char *)descriptionOfBit: (int)bit
-//  {
-//    if (bit < 0 || bit > getInt(privateParams,"condbits"))
-//      return "(Invalid condition bit)";
-//    else
-//      return [World descriptionOfBit:privateParams->bitlist[bit]];
-//  }
+-(const char *)descriptionOfBit: (int)bit
+{
+  if (bit < 0 || bit > getInt(privateParams,"condbits"))
+    return "(Invalid condition bit)";
+  else
+    return [World descriptionOfBit:privateParams->bitlist[bit]];
+}
 
 
 // Genetic algorithm
@@ -1359,13 +1269,13 @@ return self;
   BFCast * parent1, * parent2;
  
   double ava,avb,avc,sumc;
+  double madv=0.0; 
+  double meanv = 0.0;
   double temp;  //for holding values needed shortly
   //pj: previously declared as globals
   int * bitlist;
-  //int condbits;
-  //int condwords;
-  id newList = [List create: [self getZone]]; //to collect the new forecasts; 
-  id rejectList = [Array create: [self getZone] setCount: getInt(privateParams,"npoolmax")];
+ 
+
   static double avstrength,minstrength;	
 
   ++gacount;
@@ -1386,24 +1296,39 @@ return self;
 
   for (f=0; f < privateParams->numfcasts; f++) 
     {
+      BFCast * aForecast = [fcastList atOffset: f];
       double varvalue = 0;
-      if ( [[fcastList atOffset: f] getCnt] > 0)
+
+      varvalue= [ aForecast getVariance];
+      meanv += varvalue;
+      if ( [aForecast  getCnt] > 0)
 	{
-	  if ( (varvalue= [ [fcastList atOffset:f] getVariance]) !=0  )
+	  if ( varvalue !=0  )
 	    {
 	      avstrength += [ [ fcastList atOffset: f] getStrength];
 	      sumc += 1.0/ varvalue ;
-	      ava +=  [[fcastList atOffset: f] getAval] / varvalue ;
-	      avb +=  [[fcastList atOffset: f] getBval] / varvalue;
-	      avc +=  [[fcastList atOffset: f] getCval] / varvalue ;
+	      ava +=  [ aForecast getAval ] / varvalue ;
+	      avb +=  [ aForecast getBval ] / varvalue;
+	      avc +=  [ aForecast getCval ] / varvalue ;
 	    }
-	  if( (temp = [[fcastList atOffset: f] getStrength]) < minstrength)
+	  if( (temp = [ aForecast getStrength ]) < minstrength)
 	    minstrength = temp;
 	}
     }
+
+  meanv = meanv/ privateParams->numfcasts;
+
+  for (f=0; f < privateParams->numfcasts; f++) 
+    {
+      madv += fabs( [[fcastList atOffset:f] getVariance] - meanv); 
+    }
+
+  madv = madv/privateParams->numfcasts;
+
+
   //    ava /= sumc;
-  //        avb /= sumc;
-  //        avc /= sumc;
+  //    avb /= sumc;
+  //    avc /= sumc;
 
   /*
    * Set rule 0 (always all don't care) to inverse variance weight 
@@ -1426,46 +1351,30 @@ return self;
       // Loop used if we force diversity
       do 
 	{
+	  double varvalue, altvarvalue = 999999999;
 	  BFCast * aNewForecast=nil;
 
-   	  aNewForecast= [BFCast createBegin: [self getZone]]; 
-	  [aNewForecast setCondwords: privateParams->condwords];
-	  [aNewForecast setCondbits: privateParams->condbits];
-	  [aNewForecast setLforecast: global_mean];
-	  aNewForecast= [aNewForecast createEnd];
-	  //pj: ?? should set some initial values here. Lets try these for size:
-	  [aNewForecast setCnt: 0];
+	  aNewForecast = [ self createNewForecast ];
 	  [aNewForecast updateSpecfactor];
 	  [aNewForecast setStrength: avstrength];
-	  [aNewForecast setVariance: [aNewForecast getSpecfactor]/[aNewForecast getStrength]];
+   
+	  //BFagent.m had equivalent of:  [aNewForecast setVariance: [aNewForecast getSpecfactor]/[aNewForecast getStrength]];
           [aNewForecast setLastactive: currentTime];
-
-	  //?? bfagent had:   nr->variance = p->maxdev-nr->strength+nr->specfactor;
-	  ///  / If variance unreasonably low - move to reasonable level
-	  //                  if (nr->variance<(rule[0].variance-madv)) {
-	  //                      nr->variance = rule[0].variance-madv;
-	  //                      nr->strength = p->maxdev - (rule[0].variance - madv) +
-	  //                                                              nr->specfactor;
-	  //                  }
-	  //  //  If new rule variance is negative, move to median strength
-	  //                  if (nr->variance <= 0) {
-	  //                      nr->variance = p->maxdev - medianstrength + nr->specfactor;
-	  //                      nr->strength = medianstrength;
-	  //                  }
-	  //  // Initialize variables for new rule
-	  //                  nr->forecast = 0.0;
-	  //                  nr->oldforecast = global_mean;
-	  //                  nr->count = 0;
-	  //                  nr->birth = nr->lastused = nr->lastactive = t;
-	  //                  nr->next = nr->oldnext = NULL;
-	  //            }
-
-
-
+            //following bfagent.m:
+	  varvalue =  privateParams->maxdev-avstrength+[aNewForecast getSpecfactor];
+	  if (varvalue < 0 ) raiseEvent(WarningMessage, "varvalue  less than zero");
+	  [aNewForecast setVariance: varvalue];
+	  altvarvalue = [[fcastList atOffset: 0] getVariance]- madv;
+	  if ( varvalue < altvarvalue )
+	  {
+	    [aNewForecast setVariance: altvarvalue];
+	    [aNewForecast setStrength: privateParams->maxdev - altvarvalue + [aNewForecast getSpecfactor]];
+	   }
+	  [aNewForecast setLastactive: currentTime];
+	  
 	  [newList addLast: aNewForecast]; //?? were these not initialized in original?//
           
-	  printf("\n New Forecast diagnostic: \n");
-	  [aNewForecast print];
+	  //[aNewForecast print];
 
 	  // Pick first parent using touranment selection
 	  //pj: ??should this operate on all or only active forecasts???
@@ -1487,31 +1396,22 @@ return self;
 	    }
 	  else
 	    {
-	      //CopyRule(aNewForecast,parent1);
+	      //pj: CopyRule(aNewForecast,parent1);
 	      [self CopyRule: aNewForecast From: parent1];
 	      if(!aNewForecast)fprintf(stderr,"got nil back from CopyRule");
 	
 	      changed = [self Mutate: aNewForecast Status: changed];
 	    }
- 
-	  // Set strength and lastactive if it's really new
-	  if (changed) 
-	    {
-	      //    nr = newfcast + new;
-	      //    nr->strength = avstrength;
-	      //    nr->variance = nr->specfactor/nr->strength;
-	      //    nr->lastactive = currentTime;
-	      [aNewForecast setStrength: avstrength];
-	      [aNewForecast setVariance: [aNewForecast getSpecfactor]/[aNewForecast getStrength]];
-	      [aNewForecast setLastactive: currentTime];
-	    }
-	  [aNewForecast print];
+	  //It used to only do this if changed, but why not all??
+	 
+	    
+	  // [aNewForecast print];
 	} while (0);
       /* Replace while(0) with while(!changed) to force diversity */
     }
 
   // Replace nnew of the weakest old rules by the new ones
-  //TransferFcasts ( newList, fcastList , rejectList);
+  //pj: TransferFcasts ( newList, fcastList , rejectList);
 
   [self  TransferFcastsFrom: newList To: fcastList Replace: rejectList];
 
@@ -1533,9 +1433,13 @@ return self;
 
   }
 
-  [newList deleteAll]; 
-  [newList drop];
-  [rejectList drop];
+[newList deleteAll]; 
+
+ for (f = 0; f < privateParams->nnew; f++)
+   {
+    [ rejectList atOffset: f put: nil];
+   }
+
 
   return self;
 }
@@ -1547,17 +1451,7 @@ return self;
 /*------------------------------------------------------*/
 -(BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from
 {
-  //    unsigned int *conditions;
-  //    int i;
-
-      //    conditions = to->conditions;	// save pointer to conditions
-      //    *to = *from;			// copy whole fcast structure
-      //    to->conditions = conditions;	// restore pointer to conditions
-      //    for (i=0; i<condwords; i++)
-      //      conditions[i] = from->conditions[i];	// copy actual conditions
-      //    if(from->count==0)
-      //      to->strength = minstrength;
-
+  
   double minstrength = 1.0e20;
   [to setForecast: [from getForecast]];
   [to setLforecast: [from getLforecast]];
@@ -1584,31 +1478,7 @@ return self;
 /*------------------------------------------------------*/
 -(void) MakePool: rejects From: (id <Array>) list
 {
-  //    register int j, top;
-  //    register struct BF_fcast *fptr, *topfptr;
-  //  // Dumb bubble sort
-  //    topfptr = fcastinput + pp->npool;
-  //    top = -1;
-  //    for (fptr = fcastinput; fptr < topfptr; fptr++) 
-  //      {
-  //        for (j = top; j >= 0 && fptr->strength < reject[j]->strength; j--)
-  //  	reject[j+1] = reject[j];
-  //        reject[j+1] = fptr;
-  //        top++;
-  //      }
-  //    topfptr = fcastinput + pp->numfcasts;
-  //    for (; fptr < topfptr; fptr++) {
-  //      if (fptr->strength < reject[top]->strength) 
-  //        {
-  //  	for (j = top-1; j>=0 && fptr->strength < reject[j]->strength; j--)
-  //  	  reject[j+1] = reject[j];
-  //  	reject[j+1] = fptr;
-  //        }
-  //    }
-  //      /* protect all don't cares (first) from elimination - bl */
-  //    for(j=0;j<pp->npool;j++)
-  //      if (reject[j]==fcastinput) reject[j] = NULL;
-  //  /* Note that reject[npool-1]->strength gives the "dud threshold" */
+
   register int top;
   int i,j = 0 ;
   BFCast * aForecast;
@@ -1812,11 +1682,9 @@ return self;
       //[new setSpecFactorParam: privateParams->bitcost];
       [new updateSpecfactor];
     }
-  printf("We mutated \n");
+  printf("Mutated \n");
   return(changed);
 }
-
-
 
 
 
@@ -1838,25 +1706,12 @@ return self;
      * probability prandom, method 3 with probability 1-plinear-prandom.
      */
 {
-  //    register int bit;
-  //    unsigned int *cond1, *cond2, *newcond;
-  //    struct BF_fcast *nr = newfcast + new;
-  //    int word, parent, specificity;
-  //    double weight1, weight2, choice;
-  //    int bitparent;
-
   /* Uniform crossover of condition bits */
   register int bit;
   // unsigned int *cond1, *cond2, *newcond;
   int word;
   double weight1, weight2, choice;
       
-
-  //      newcond= [newForecast getConditions];
-
-  //  cond1 = [parent1 getConditions];
-  //    cond2 = [parent2 getConditions];
-
   [newForecast setSpecificity: 0];
 
   for (word = 0; word <privateParams->condwords; word++)
@@ -1864,8 +1719,7 @@ return self;
 
   for (bit = 0; bit < privateParams->condbits; bit++)
     {
-      //	newcond[WORD(bit)] |= (irand(2)?cond1:cond2)[WORD(bit)]&MASK[bit];
-      if ( irand(2) == 0)
+     if ( irand(2) == 0)
 	{
 	  int value=[parent1 getConditionsbit: bit];
 	  [newForecast setConditionsbit: bit FromZeroTo: value];
@@ -1938,36 +1792,35 @@ return self;
     }
 
   {  //This is just error checking!
-    int * newcond;
+    BitVector * newcond;
     int specificity=0;
-    /* Set miscellanaeous variables (but not lastactive, strength, variance) */
     [newForecast setCnt: 0 ];	// call it new in any case
-    //[newforecast setSpecficity = -pp->nnulls]; //?? omit this!!
-    newcond = [newForecast getConditions];
-    for (bit = 0; bit < privateParams->condbits; bit++)
-      //if ((newcond[WORD(bit)]&MASK[bit]) != 0)
-      if ((newcond[WORD(bit)]&( 3 << ((bit%16)*2))) != 0)
-	{
-	  specificity++;
-	}
-    //  nr->specificity = specificity;
-    printf("CrossoverDiagnostic: newforecast Specificity %d should equal %d \n", [newForecast getSpecificity],specificity);
-    //nr->specfactor = 1.0/(1.0 + pp->bitcost*nr->specificity);
-  }
- 
+    
   [newForecast updateSpecfactor];
-  //bfagent:  nr->strength = 0.5*(rule[parent1].strength+rule[parent2].strength);
 
   [newForecast setStrength :  0.5*([parent1 getStrength] + [parent2 getStrength])];
 
-  return newForecast;
+
+ //pj: next steps are purely diagnostic!
+   newcond = [newForecast getConditionsObject];
+
+    for (bit = 0; bit < privateParams->condbits; bit++)
+ 
+    //if ((newcond[WORD(bit)]& ( 3 << ((bit%16)*2))) != 0)
+    if ( [newcond getConditionsbit: bit] != 0 )
+	{
+	  specificity++;
+	}
+    printf("CrossoverDiagnostic: newforecast Specificity %d should equal %d \n", [newForecast getSpecificity],specificity);
+  }
+   return newForecast;
 }
 
 
 /*------------------------------------------------------*/
 /*	TransferFcasts					*/
 /*------------------------------------------------------*/
-- (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects 
+- (void) TransferFcastsFrom: newlist To:  forecastList Replace: rejects 
 {
   //register struct BF_fcast *fptr, *nr;
   //register int new;
@@ -1978,7 +1831,7 @@ return self;
 
       //nnew = pp->nnew;
  
-  ind = [newList begin: [self getZone]];
+  ind = [newlist begin: [self getZone]];
   for ( aForecast = [ind next]; [ind getLoc]==Member; aForecast=[ind next] )
     {
       //toDieForecast = GetMort(aForecast, rejects);

@@ -1,8 +1,21 @@
+2000-06-01  Paul Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m : Added BitVector usage, added methods -updateActiveList and
+	-collectWorldData.
+
+	* BitVector.h,m: Created this class, used in both BFagent.m and BFCast.m.
+
 2000-05-31  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
 
 	* BFagent.m:  Crossover:  added  calculation  of  new  forecast's
 	Strength,   based   on   bfagent   code.   Tried   to   sort   out
 	mistake/differences between bfagent and BFagent.
+
+	*BFagent.m: moved the "world getting" capability from
+	+prepareForTrading to -prepareForTrading. Each agent gets its own
+	copy of the world now. No more need to execute +prepareForTrading
+	anymore.
+
 
 	* BFagent.m: Use "updateSpecfactor" whenever conditions are changed in a
 	BFCast.

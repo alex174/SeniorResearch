@@ -1,4 +1,6 @@
 #import <objectbase/SwarmObject.h>
+#import "BitVector.h"
+
 
 
 @interface BFCast: SwarmObject
@@ -15,7 +17,7 @@
 
 //    struct BF_fcast *next;	// linked list of ACTIVE forecasts
 //    struct BF_fcast *lnext;
-  unsigned int *conditions;
+  BitVector *conditions;
   int lastactive;
   int specificity;
   int count;
@@ -39,6 +41,7 @@
 
 -(int *) getConditions;
 
+-(BitVector *) getConditionsObject;
 
 - (void) setNNulls: (int) x;
 
@@ -51,8 +54,6 @@
 -(void) setConditionsbit: (int) bit To: (int) x; //works for 0,1,2
 
 -(void) setConditionsbit: (int) bit FromZeroTo: (int) x;//faster if cond[bit]=0
-
--(void) setConditionsbitToThree: (int) bit;
 
 -(void) maskConditionsbit: (int) bit;
 
