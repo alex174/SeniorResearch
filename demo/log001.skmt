@@ -1,0 +1,153 @@
+# ====================================================================
+#	*** The Santa Fe Stockmarket ***
+#  Version 6.21.23B (Anwender@BANK99) - Apr 23 2003
+#  Run 1 (pauljohn@pjdell) - Wed Apr 23 11:17:12 2003
+# --------------------------------------------------------------------
+# File: marketcontrol
+
+# --- Control parameters ---
+0               # debugflags
+2538632         # rseed (originally 0)
+=               # dparamfilename (original file: dparams)
+=               # mparamfilename (original file: mparams)
+=               # agentlistfilename (original file: agentlist)
+=               # timefilename (original file: timelist)
+colors          # colorsfilename
+grays           # graysfilename
+"log###"        # logfilename (mapped to: log001.skmt)
+"agents###"     # agentstatfilename (mapped to: agents001)
+                # -- output stream specifications --
+                # -- stream 'prices' --
+prices          # streamname
+prices          # filename
+0               # headinginterval
+                # -- variables in stream 'prices' --
+t               # time
+p               # price
+d/r             # dividend/interest_rate
++v              # SUM OF volume
+random          # random on or off
+pr/d>7/8        # price*interest/dividend > 7/8
+p>p5            # price > 5-period MA
+p>p20           # price > 20-period MA
+p>p100          # price > 100-period MA
+p>p500          # price > 500-period MA
+end             # (end of variable list)
+                # -- stream 'pricesday' --
+pricesday       # streamname
+pricesday       # filename
+-1              # headinginterval
+                # -- variables in stream 'pricesday' --
+t               # time
+p               # price
+d/r             # dividend/interest_rate
++v              # SUM OF volume
+random          # random on or off
+pr/d>7/8        # price*interest/dividend > 7/8
+p>p5            # price > 5-period MA
+p>p20           # price > 20-period MA
+p>p100          # price > 100-period MA
+p>p500          # price > 500-period MA
+end             # (end of variable list)
+end             # (end of output stream specifications)
+
+# --- Dividend parameters ---
+# File: dparams
+ar1             # divtype
+10              # baseline
+5e-05           # mindividend
+100             # maxdividend
+0.1417          # amplitude
+100             # period
+0               # asymmetry
+0.5             # shocksize
+200             # shocktime
+# rho: 0.9900    gauss: 0.1999
+
+# --- Market parameters ---
+# File: mparams
+0.1             # intrate
+20000           # initialcash
+99999           # maxprice
+0.001           # minprice
+50              # taup
+-5              # minholding
+-2000           # mincash
+exponential     # matype
+                # -- specialist parameters --
+slope           # sptype
+20              # maxiterations
+0.01            # minexcess
+0.0005          # eta
+1e-07           # etaincrement
+0.05            # etamax
+1e-05           # etamin
+9               # rea
+2               # reb
+10              # taulpv
+0.1             # ldelpmax
+
+# --- Agent list ---
+# File: agentlist
+BF 50 1 =       # type BF (original file: bfparams)
+end             # (end of agent list)
+# 50 agents in all
+
+# --- Agent type BF parameters ---
+# File: bfparams
+60              # numfcasts
+50              # tauv
+0.5             # lambda
+10              # maxbid
+10              # mincount
+0               # subrange
+0.3             # a_min
+1.68            # a_max
+0               # b_min
+0               # b_max
+-100            # c_min
+101.8           # c_max
+4.00021         # newfcastvar
+4.00021         # initvar
+1e-05           # bitcost
+100             # maxdev
+yes             # individual
+0.1             # bitprob
+                # -- 16 condition bits --
+pr/d>1/4        # price*interest/dividend > 1/4
+pr/d>1/2        # price*interest/dividend > 1/2
+pr/d>3/4        # price*interest/dividend > 3/4
+pr/d>7/8        # price*interest/dividend > 7/8
+pr/d>1          # price*interest/dividend > 1
+pr/d>9/8        # price*interest/dividend > 9/8
+pr/d>5/4        # price*interest/dividend > 5/4
+pr/d>3/2        # price*interest/dividend > 3/2
+pr/d>2          # price*interest/dividend > 2
+pr/d>4          # price*interest/dividend > 4
+p>p5            # price > 5-period MA
+p>p20           # price > 20-period MA
+p>p100          # price > 100-period MA
+p>p500          # price > 500-period MA
+on              # dummy bit -- always on
+off             # dummy bit -- always off
+end             # (end of bit list)
+100             # gafrequency
+100             # firstgatime
+0.1             # poolfrac (npool = 6)
+0.05            # newfrac (nnew = 3)
+0.3             # pcrossover
+0.333           # plinear
+0.333           # prandom
+0.01            # pmutation
+0.25            # plong
+0.2             # pshort
+0.05            # nhood
+2000            # longtime
+0.1             # genfrac
+
+# --- Time schedule ---
+# File: timelist
+0 200000 10000 a
+0 200000 10000 w prices
+200000 210000 w pricesday
+# End of preprogrammed schedule

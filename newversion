@@ -1,0 +1,22 @@
+#!/bin/sh -e
+
+TMP=version.m.old
+
+cp version.m $TMP
+
+eval `sed -e '/^#define VERSIONNUMBER/!d' \
+	-e 's/.*"\(.*\)\./MAJOR="\1"; MINOR=/' -e 's/"$//' $TMP`
+MINOR=`expr $MINOR + 1`
+HOST=`hostname`
+SDIR=`pwd`
+USERNAME=`whoami`
+echo "Version $MAJOR.$MINOR ($USERNAME@$HOST)"
+
+sed -e '
+/^#define VERSIONNUMBER/s/".*"/"'"$MAJOR.$MINOR"'"/
+/^#define SOURCEDIR/s;".*";"'"$SDIR"'";
+/^#define COMPILEHOST/s/".*"/"'"$USERNAME@$HOST"'"/
+' $TMP > version.m
+
+rm -f $TMP
+

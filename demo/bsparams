@@ -1,0 +1,34 @@
+# Bitstring agent parameters for Santa Fe Stockmarket.
+# Parameters are recognized solely by position within file -- watch out
+
+# Rule-related parameters
+60	# numrules -- number of rules per agent
+1	# bidsize -- size of bid or offer
+100.0	# taus -- moving average healing time for rule strengths
+50.0	# maxrstrength -- maximum rule strength (25)
+0.5	# minrstrength -- minimum rule strength
+0.5	# initrstrength	-- initial strength for new rules
+0.1	# bitprob -- probability per bit of 0/1 bit initially
+
+# List of bits to be used in condition strings.  Either use "all", or give
+# a list of bit names terminated by "end".  The available bit names are
+# listed in the BITNAMES file.  "null" may be used within the list of
+# bits to separate them into groups visually.  You can use "p x" to
+# change the bitprob for subsequent bits to "x".
+
+# Examples:
+# all
+# pup pup1 pup2 pup3 pup4 null p 0.0 dup dup1 dup2 dup3 dup4 end
+
+all
+
+# GA parameters
+400	# gafrequency -- average time between GA runs (poisson process)
+1000	# firstgatime -- time at which GA is enabled
+0.2	# poolfrac -- fraction of rules chosen for possible replacement
+0.1	# newfrac -- fraction of rules actually replaced
+0.5	# pcrossover -- probability of crossover
+0.01	# pmutation -- mutation rate per bit
+0.5	# preverse -- probability of reversal for weak rules
+2000	# longtime -- generalise if rule unused for this length of time
+0.25	# genfrac -- fraction of 0/1 bits to make don't-care when generalising
