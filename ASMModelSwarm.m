@@ -16,7 +16,6 @@
   modelTime=0; 
   //need to create output so it exists from beginning
   output = [[Output createBegin: [self getZone]] createEnd];
-  fprintf(stderr,"ModelSwarm Create begin \n");
   return [super createEnd];
 }
 
@@ -80,7 +79,7 @@
 {
   int i;
 
-  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n", asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
+  //  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n", asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
 
   asmModelParams->exponentialMAs = 1; 
 
@@ -300,11 +299,11 @@ void initPeriod (id initPeriodSchedule)
 
 -warmupStepPrice 
 {
-  fprintf(stderr," Dividend %f \n", [world getDividend]);
-  fprintf(stderr," setPrice %f \n", [world getDividend]/asmModelParams->intrate );
+  // fprintf(stderr," Dividend %f \n", [world getDividend]);
+  // fprintf(stderr," setPrice %f \n", [world getDividend]/asmModelParams->intrate );
 
-  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n",
-	  asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
+  //  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n",
+  //	  asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
 
   [world setPrice: ([world getDividend]/(double)asmModelParams->intrate )];
   return self;
@@ -331,6 +330,15 @@ void initPeriod (id initPeriodSchedule)
   [startupSchedule activateIn: self];
   [periodSchedule activateIn: self];
   return [self getSwarmActivity];
+}
+
+-(void) drop
+{
+  [dividendProcess drop];
+  [world drop];
+  [specialist drop];
+  [output drop];
+  [super drop];
 }
 
 @end

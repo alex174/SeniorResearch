@@ -1,3 +1,18 @@
+2001-10-24  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMObserverSwarm.hm (GUISwarm): Found way to make histograms
+	work without using these IVARS *position, *wealth,and
+	*relativeWealth. That means no more need for calloc calls in the
+	"m" file and it also means that this model should respond well if
+	agents are removed or added (i.e., numagents need not be a
+	constant).
+
+	* Output.m ([Output -writeData]): hdfWriter is an EZGraph that
+	does not show on the screen, but it dumps its time series into a
+	file.  That means there are 3 data outputs: 1 text, 1 archiver
+	dump (either hdf5 or scm) and 1 hdf5.  This new EZGraph writer
+	requires a newish edition of swarm.
+
 2001-10-23    <pauljohn@dv01m45.lawrence.ks.us>
 
 	* ASMObserverSwarm.h (GUISwarm): Convert volumeGraph to EZGraph

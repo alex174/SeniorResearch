@@ -1745,7 +1745,7 @@ I write it before I understood the fact that the World gives back 10 for yes and
 	{
 	  specificity++;
 	}
-    printf("CrossoverDiagnostic: newforecast Specificity %d should equal %d \n", [newForecast getSpecificity],specificity);
+    //printf("CrossoverDiagnostic: newforecast Specificity %d should equal %d \n", [newForecast getSpecificity],specificity);
   }
    return newForecast;
 }

@@ -9,9 +9,11 @@
 #import "Specialist.h"
 #import <simtools.h>
 #import <defobj.h>
+#import <analysis.h>
 
 @interface Output: SwarmObject
 {
+  @private
   BOOL dataFileExists;
 
   World * outputWorld;
@@ -21,12 +23,17 @@
   // FILE * paramOutputFile;
   time_t runTime;
   char timeString[100];
+
+  FILE * dataOutputFile;
+  id <EZGraph> hdfWriter;
+  id <HDF5> hdf5container;
+
+  @public
   int currentTime;
   double price;
   double dividend;
   double volume;
-  FILE * dataOutputFile;
-  
+
 }
 
 -setSpecialist: (Specialist *)theSpec;
@@ -38,6 +45,8 @@
 -prepareOutputFile;
 
 -writeData;
+
+-(void) drop;
 
 @end
 

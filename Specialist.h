@@ -23,12 +23,13 @@ typedef enum
   double bidfrac;
   double offerfrac;
   int maxiterations;
-  SpecialistType sptype;
   id agentList;
-  World * worldForSpec;
   double volume;
   double taupdecay;
   double taupnew;
+  @private
+  World * worldForSpec;
+  SpecialistType sptype;
 }
 
 // Methods to set parameters

@@ -26,6 +26,6 @@
 - expostParamWrite;
 - go;
 - stopRunning;
-
+-(void) drop;
 @end
 

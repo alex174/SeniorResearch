@@ -135,7 +135,7 @@
   if (dvdnd > maxdividend) 
     dvdnd = maxdividend;
 
-   printf(" \n \n World dividend %f baseline %f rho %f max %f min  %f\n \n", dvdnd, baseline, rho, maxdividend, mindividend);
+  //   printf(" \n \n World dividend %f baseline %f rho %f max %f min  %f\n \n", dvdnd, baseline, rho, maxdividend, mindividend);
 
   return dvdnd;
 }

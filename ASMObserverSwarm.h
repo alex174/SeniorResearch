@@ -35,10 +35,10 @@
   
   id <ActiveGraph> deviationGrapher;
   
-  double *position;
-  double *wealth;
+  //double *position;
+  // double *wealth;
   //double * cash;
-  double *relativeWealth;
+  //double *relativeWealth;
 }  
 
 + createBegin: aZone;
@@ -65,6 +65,7 @@
 -(BOOL) toggleDataWrite;
 - buildActions;
 - activateIn: swarmContext;
+-(void) drop;
 
 @end
 

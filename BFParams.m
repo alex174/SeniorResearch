@@ -130,7 +130,7 @@ getInt (id obj, const char *ivarName)
   if (npool > npoolmax) npoolmax = npool;
   if (nnew > nnewmax) nnewmax = nnew;
   if (condwords > ncondmax) ncondmax = condwords;
-  fprintf(stderr,"BFParams init complete");
+  //  fprintf(stderr,"BFParams init complete");
   return [super createEnd];
 }
 

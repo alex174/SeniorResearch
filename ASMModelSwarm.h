@@ -102,4 +102,6 @@ void initPeriod(id  initPeriodSchedule);
 
 -(long int) getModelTime;
 
+-(void) drop;
+
 @end

@@ -90,9 +90,7 @@
   BFParams * bfParams = [(id)arguments getBFParams];
 
   [super buildObjects];
-
-  //asmModelSwarm = [[ASMModelSwarm createBegin: self ] createEnd];
-  
+ 
   asmModelSwarm = [ASMModelSwarm create: self];
   
   [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
@@ -104,12 +102,7 @@
   [controlPanel setStateStopped];
   [asmModelSwarm buildObjects];
 
-  // numagents = [asmModelSwarm getNumBFagents];
   numagents = asmModelParams->numBFagents;
-  position = xcalloc (numagents, sizeof (double));
-  wealth = xcalloc (numagents, sizeof (double));
-  //cash = xcalloc (numagents, sizeof (double));
-  relativeWealth = xcalloc (numagents, sizeof (double));
 
   priceGraph = [EZGraph create: self setTitle: "Price v. time"
 			setAxisLabelsX: "time" Y: "price"
@@ -214,21 +207,24 @@
   id index;
   id agent;
   int i;
-   
+  int numagents = [[asmModelSwarm getAgentList] getCount];
+  double position[numagents];
+  double relativeWealth[numagents];
+  //double cash[numagents];
+
   index = [[asmModelSwarm getAgentList] begin: [self getZone]];
     
   for(i=0; (agent = [index next]); i++)
     {
+      double initcash=[(id)arguments getModelParams]->initialcash;
       position[i] = [agent getAgentPosition];
-      wealth[i] = [agent getWealth];
+      relativeWealth[i] = [agent getWealth]/initcash;
       //cash[i] = [agent getCash];
-      relativeWealth[i] = wealth[i]/[asmModelSwarm getInitialCash];
-      //profit[i] = [agent getProfit];
     }
   [index drop];
   [positionHisto drawHistogramWithDouble: position];
-  //[cashHisto drawHistoWithDouble: cash];
   [relativeWealthHisto drawHistogramWithDouble: relativeWealth];
+  //[cashHisto drawHistoWithDouble: cash];
 
   return self;
 }
@@ -277,7 +273,7 @@
 {
   if (writeData == YES)
     [[asmModelSwarm getOutput] writeData];
-   fprintf(stderr,"getcurrent %ld modeltime %ld",getCurrentTime(),[asmModelSwarm getModelTime]);
+  //   fprintf(stderr,"getcurrent %ld modeltime %ld",getCurrentTime(),[asmModelSwarm getModelTime]);
   return self;
 }
 
@@ -320,6 +316,13 @@
 
   return [self getSwarmActivity];
 }
+
+-(void) drop
+{
+  [asmModelSwarm drop];
+  [super drop];
+}
+
 
 @end
 

@@ -41,6 +41,7 @@ main (int argc, const char **argv)
       [activity drop];
       if (swarmGUIMode == 0)
 	[theTopLevelSwarm expostParamWrite];
+      [theTopLevelSwarm drop];
       //if ( [[theTopLevelSwarm getControlPanel] setStateQuit] ) break;
        }
   // The toplevel swarm has finished processing, so it's time to quit.

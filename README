@@ -14,7 +14,7 @@ Thorough workover of BFagent class, creating three new classes (BitVector,
 BFParams, and BFCast)  and a massive reorganization of BFagent itself.
 See long comment in BFagent.m.
 
-SNAP3: ASM 2001070x July 2001
+SNAP3: ASM 20011024 October 2001
 
 The aim has been to bring this model into convenient Swarm standards.
 Actually, the real aim has been to make ASM an effective teaching
@@ -24,7 +24,12 @@ input of parameter values, and record keeping of parameter values, as
 well as the saving of data.  One of my pet peeves about Swarm is that
 we do not have a standard, idiot proof way to keep records on the
 settings and results are for a particular run.  We also don't have
-fool proof ways to interate models and run simulations over again.
+fool proof ways to interate models and run simulations over again.  
+The first problem is dealt with here in the Output class, and the
+second one is dealt with by the creation of a Parameter class, where
+we could manage command line parameters if we wanted to.
+
+1. Inputting Parameter Values.
 
 First, note the big parameter input file "asm.scm".  This has the
 initial values for three classes, bfParams, asmModelParms, and
@@ -47,50 +52,73 @@ seems logical enough a person could write a program to pump out an
 .scm file, then run the model, then write the .scm file, run the
 model, etc.
 
-It is more within my background, instead, to pass command line arguments
-to the model in order to vary parameters or get runs with different seeds.
-That's why I've introduced a Parameters class, which can handle both
-command line arguments and it also orchestrates the creation of objects
-for BFParams and ASMModelParams. If we ever wanted to set command line
-parameters with this model, we would do it here.
+It is more within my background, instead, to pass command line
+arguments to the model in order to vary parameters or get runs with
+different seeds.  That's why I've introduced a Parameters class, which
+can handle both command line arguments and it also orchestrates the
+creation of objects for BFParams and ASMModelParams. If we ever wanted
+to set command line parameters with this model, we would do it here.
   
 Both BFParams and the ASMModelParams classes are created in the
 Parameters class, and are then passed to the ASMObserverSwarm, and
 then into model swarm.  I did this to keep the user interface
 consistent with the original ASM-Swarm model.
 
-Now, about outputting results. I've done my best to consolidate and
-simplify all data writing in the Output class.
+2. Outputting Results.
+
+I've done my best to consolidate and simplify all data writing into
+the Output class. Simply put, nothing should get written unless Output
+handles it.  
+
+To show the possible data output tools, I have 3
+different ways of saving the output time streams from the model.  All
+three should be similar/equivalent representations of the numbers.
+
+1) Text output of data streams.
+2) HDF5 or LISP format output of object dumps from a "putShallow"
+   call to a data archiver object. This dumps full snapshots of
+   the world and the specialist into a LISP on hdf5 archive.
+3) HDF5 output EZGraph which writes one vector per plotted line
+   into an hdf5 file.
 
 This code has a preprocessor flag to control the behavior of data
-storage. If you use the flag USE_LISP, then the data files are saved
-in the .scm format, which is "scheme".  Otherwise, it uses hdf5
-format.
+storage. If compile without any CPP flags, then the data files are
+saved in the .scm format, which is "scheme".  Otherwise, use the flag
+NO_LISP, and it uses hdf5 format. In Swarm, that means you type the
+make command:
 
+ make EXTRACPPFLAGS=-DNO_LISP
 
-The ASMObserverSwarm has a probe display with 2 interesting
-buttons. One is "writeSimulationParams" and the other
-"toggleDataWrite".  These were in the original ASM Swarm model, but
-I've replaced the functionality with the newer storage methods.  The
-first causes the system to write the parameter values into a file,
-such as
+The buttons in the ASMObserverSwarm display turn on data saving.  Look
+for "writeSimulationParams" and the other "toggleDataWrite".  These
+were in the original ASM Swarm model, but I've replaced the
+functionality with the newer storage methods.  The data is saved only
+if you turn on the writeData option. If "toggleDataWrite" is empty or
+false, hit that button and it shows "true". When the model runs,
+output will be created. If you run the program in batch mode, it
+automatically turns on the data writing.
+ 
+Please note that if you want the simulation to save your parameter
+values to a file, you can click the GUI button
+"writeSimulationParams." If you push that button, the system writes
+the parameter values into a file, such as
 
-guiSettingsThu_Jun_28_23_48_00_2001.hdf
+guiSettingsThu_Jun_28_23_48_00_2001.scm
 
-if you did not compile with the USE_LISP flag.  Otherwise you get a
-.scm file.  One key change from the old ASM is that you can push that
+if you did not compile with the NO_LISP flag.  Otherwise you get a
+.hdf file.  One key change from the old ASM is that you can push that
 button at time 0, and it will save a snap at that time, and any time
 you stop the model, you can change parameters and punch the button
-again, and it will also save a snapshot at quit time.  It is a little
-tricky making sure the objects are created in the right order and
-early enough to allow this to work.
+again, and it will also save a snapshot at quit time.  I believe this
+works fine now, but it was a little tricky making sure the objects are
+created in the right order and early enough to allow this to work.
 
-I personally prefer to save data in raw ASCII format, for reasons of
-portability and permanence of access.  So this simulation creates a
-text file if you punch that button.  I think
-filenames that have the date in them are good to help remember when
-they were originally created, for example.  It creates an ASCII file,
-for example,
+Now, just a word about data formatting.  Because it is familiar and
+compatible with existing programs, I often prefer to save data in raw
+ASCII format.  In case you want text output, this shows you how to do it.
+I think filenames that have the date in them are good to
+help remember when they were originally created, for example.  It
+creates an ASCII file, for example,
 
 output.data_Thu_Jun_28_23_48_00_2001 
 
@@ -102,12 +130,17 @@ archiver. It seems to work great?!  The output file is called
 something like
 
 swarmDataArchiveFri_Jun_29_16_29_25_2001.hdf
-
-
+or
 swarmDataArchiveFri_Jun_29_16_22_59_2001.scm
 
+You note here that output uses the current time and date to write the
+output file names. Today I ran an example and ended up with these
+three files of output:
 
-  
+output.dataWed_Oct_24_11_30_18_2001
+swarmDataArchiveWed_Oct_24_11_30_18_2001.scm
+hdfGraphWed_Oct_24_11_30_18_2001.hdf 
+
 
 
 -------original readme follows

@@ -34,7 +34,6 @@
   //: [ObjectLoader load: self fromAppDataFileNamed: "batch.setup"];
 
   //pj:  [ObjectLoader load: asmModelSwarm fromAppDataFileNamed: "param.data"];
-
  
   [asmModelSwarm buildObjects];
 
@@ -108,6 +107,13 @@
 {
   [getTopLevelActivity() terminate];
   return self;
+}
+
+
+-(void) drop
+{
+  [asmModelSwarm drop];
+  [super drop];
 }
 
 @end

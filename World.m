@@ -117,7 +117,7 @@
 // 3. The NAMES documentation file -- do "market -n > NAMES".
 
 //pj:
-//convenience macros to replace stuff from ASM random with Swarm random stuff
+// These are convenience macros to replace stuff from ASM random with Swarm random stuff
 
 #define drand()    [uniformDblRand getDoubleSample]
 #define urand()  [uniformDblRand getDoubleWithMin: -1 withMax: 1]
@@ -420,8 +420,6 @@ static double ratios[] =
   return self;
 }
 
-
--setPrice: (double)p
 /*
  * Sets the current price to p.  Also computes profitperunit and
  * returnration.
@@ -429,6 +427,9 @@ static double ratios[] =
  * effective benefit of encapsulation with the simplicity of use of
  * a global variable.
  */
+
+-setPrice: (double)p
+
 {
   if (price != savedprice)
     printf("Price was changed illegally");
@@ -491,7 +492,7 @@ static double ratios[] =
 }
 
 
--updateWorld
+
 /*
  * Updates the history records, moving averages, and world bits to
  * reflect the current price and dividend.  Note that this is called
@@ -504,6 +505,7 @@ static double ratios[] =
  * could be argued that it should be the one before, to match price.
  * For the p*r/d bits we do use the old one.
  */
+-updateWorld
 {
   register int i;
   int r, rago;
