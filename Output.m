@@ -18,7 +18,7 @@
   else
     strcpy (paramFileName,"batchSettings");
   strcat (paramFileName, ctime (&runTime));
-  for (i = 0; i < 256; i++)
+  for (i = 0; i < 100; i++)
     {
       if (paramFileName[i] == ' ' || paramFileName[i] == ':')
 	paramFileName[i] = '_';
