@@ -9,10 +9,97 @@ random seed, unless you use the command line switch or input a
 randomSeed of your own.	
 
 
-ASM 20000602 June 2, 2000
+SNAP2: ASM 20000602 June 2, 2000
 Thorough workover of BFagent class, creating three new classes (BitVector,
 BFParams, and BFCast)  and a massive reorganization of BFagent itself.
 See long comment in BFagent.m.
+
+SNAP3: ASM 2001070x July 2001
+
+The aim has been to bring this model into convenient Swarm standards.
+Actually, the real aim has been to make ASM an effective teaching
+tool and an example of good simulation coding practice.
+Part of that is a modernization of the data handling, both the
+input of parameter values, and record keeping of parameter values, as
+well as the saving of data.  One of my pet peeves about Swarm is that
+we do not have a standard, idiot proof way to keep records on the
+settings and results are for a particular run.  We also don't have
+fool proof ways to interate models and run simulations over again.
+
+First, note the big parameter input file "asm.scm".  This has the
+initial values for three classes, bfParams, asmModelParms, and
+asmBatchParams.  This data is "called" to create the classes, you have
+to stare at it a while to get used to it.  Where we used to have the
+createBegin/createEnd routine for a class, now we've got this
+different thing that creates a class and initializes its ivars for us.
+
+asmModelParams =[lispAppArchiver getWithZone: self key: "asmModelParams"])
+
+The asmModelParms class is a new parameter-holding/setting class for
+the values of the model level. The BFParams class is parameters used 
+by the BFAgents.
+
+The advantage of putting these parameter settings in separate files is
+that those files can be edited and the model re-run without
+recompiling the program.  I've never seen a working example, but it
+seems logical enough a person could write a program to pump out an
+.scm file, then run the model, then write the .scm file, run the
+model, etc.
+
+It is more within my background, instead, to pass command line arguments
+to the model in order to vary parameters or get runs with different seeds.
+That's why I've introduced a Parameters class, which can handle both
+command line arguments and it also orchestrates the creation of objects
+for BFParams and ASMModelParams. If we ever wanted to set command line
+parameters with this model, we would do it here.
+  
+Both BFParams and the ASMModelParams classes are created in the
+Parameters class, and are then passed to the ASMObserverSwarm, and
+then into model swarm.  I did this to keep the user interface
+consistent with the original ASM-Swarm model.
+
+Now, about outputting results. I've done my best to consolidate and
+simplify all data writing in the Output class.
+
+This code has a preprocessor flag to control the behavior of data
+storage. If you use the flag USE_LISP, then the data files are saved
+in the .scm format, which is "scheme".  Otherwise, it uses hdf5
+format.
+
+
+The ASMObserverSwarm has a probe display with 2 interesting
+buttons. One is "writeSimulationParams" and the other
+"toggleDataWrite".  These were in the original ASM Swarm model, but
+I've replaced the functionality with the newer storage methods.  The
+first causes the system to write the parameter values into a file,
+such as
+
+guiSettingsThu_Jun_28_23_48_00_2001.hdf
+
+if you did not compile with the USE_LISP flag.  Otherwise you get a
+.scm file.  One key change from the old ASM is that you can push that
+button at time 0, and it will save a snap at that time, and any time
+you stop the model, you can change parameters and punch the button
+again, and it will also save a snapshot at quit time.  It is a little
+tricky making sure the objects are created in the right order and
+early enough to allow this to work.
+
+I personally prefer to save data in raw ASCII format, for reasons of
+portability and permanence of access.  So this simulation creates a
+text file if you punch that button.  I think
+filenames that have the date in them are good to help remember when
+they were originally created, for example.  It creates an ASCII file,
+for example,
+
+output.data_Thu_Jun_28_23_48_00_2001 
+
+However, I understand the reasons others are pushing to use more
+refined formats.  Many people are digging into hdf5 format for data
+storage, and I've taken a look at that too.  
+
+
+  
+
 
 -------original readme follows
 This is the port to Swarm of the original NeXTstep version of

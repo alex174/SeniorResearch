@@ -66,7 +66,7 @@ getInt (id obj, const char *ivarName);
 };
 
 
--init;
+- init;
 
 -(int*) getBitListPtr;
 

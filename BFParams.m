@@ -69,7 +69,7 @@ getInt (id obj, const char *ivarName)
 }
 
 
--init
+- init;
 {
   int i;
 
@@ -131,7 +131,7 @@ getInt (id obj, const char *ivarName)
   if (nnew > nnewmax) nnewmax = nnew;
   if (condwords > ncondmax) ncondmax = condwords;
   fprintf(stderr,"BFParams init complete");
-  return self;
+  return [super createEnd];
 }
 
 -(int*) getBitListPtr

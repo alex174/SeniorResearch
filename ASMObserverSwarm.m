@@ -1,5 +1,6 @@
 #import "ASMObserverSwarm.h"
 #import <simtoolsgui.h>
+#import "Parameters.h"
 
 #include <misc.h>
 
@@ -85,27 +86,23 @@
 - buildObjects 
 {
   int numagents;
-  ASMModelParams * asmModelParams;
+  ASMModelParams * asmModelParams = [(id)arguments getModelParams];
+  BFParams * bfParams = [(id)arguments getBFParams];
 
   [super buildObjects];
 
   //asmModelSwarm = [[ASMModelSwarm createBegin: self ] createEnd];
   
-  asmModelSwarm = [ASMModelSwarm create: self ];
+  asmModelSwarm = [ASMModelSwarm create: self];
+  
+  [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
 
-  if ((asmModelParams =
-       [lispAppArchiver getWithZone: self key: "asmModelParams"]) == nil)
-    raiseEvent(InvalidOperation,
-               "Can't find the modelSwarm parameters");
-
- [asmModelSwarm setParamObject: asmModelParams];
-
- CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
- CREATE_ARCHIVED_PROBE_DISPLAY (self);
+  CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
+  CREATE_ARCHIVED_PROBE_DISPLAY (self);
 
 
- [controlPanel setStateStopped];
- [asmModelSwarm buildObjects];
+  [controlPanel setStateStopped];
+  [asmModelSwarm buildObjects];
 
   // numagents = [asmModelSwarm getNumBFagents];
   numagents = asmModelParams->numBFagents;
@@ -124,7 +121,8 @@
   [priceGraph pack];
   
   priceData = [priceGraph createElement];
-  [[priceData setLabel: "actualprice"] setColor: "blue"];
+  [priceData setLabel: "actualprice"];
+  [priceData setColor: "blue"];
   
   priceGrapher = [ActiveGraph createBegin: [self getZone]];
   [priceGrapher setElement: priceData];
@@ -133,7 +131,8 @@
   priceGrapher = [priceGrapher createEnd];
 
   riskNeutralData = [priceGraph createElement];
-  [[riskNeutralData setLabel: "risk neutral price"] setColor: "black"];
+  [riskNeutralData setLabel: "risk neutral price"];
+  [riskNeutralData setColor: "black"];
    
   riskNeutralGrapher = [ActiveGraph createBegin: [self getZone]];
   [riskNeutralGrapher setElement: riskNeutralData];
@@ -246,7 +245,8 @@
 - writeSimulationParams
 {
   writeParams = 1;
-  [asmModelSwarm writeParams];
+  [[asmModelSwarm getOutput] writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: [asmModelSwarm getModelTime]];
+ 
   return self;
 }
 
@@ -255,7 +255,7 @@
 {
   // [asmModelSwarm initOutputForParamWrite];
   if (writeParams == 1)
-    [asmModelSwarm writeParams];
+    [[asmModelSwarm getOutput] writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: getCurrentTime()]; 
   return self;
 }
 
@@ -285,6 +285,7 @@
 {
   if (writeData == YES)
     [[asmModelSwarm getOutput] writeData];
+   fprintf(stderr,"getcurrent %ld modeltime %ld",getCurrentTime(),[asmModelSwarm getModelTime]);
   return self;
 }
 

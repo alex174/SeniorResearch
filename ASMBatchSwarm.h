@@ -14,7 +14,7 @@
   id stopSchedule;
 
   ASMModelSwarm * asmModelSwarm;
-  ASMModelParams * asmModelParams;
+ 
   id output;
 }
 
@@ -22,6 +22,8 @@
 - buildObjects;
 - buildActions;
 - activateIn: swarmContext;
+
+- expostParamWrite;
 - go;
 - stopRunning;
 

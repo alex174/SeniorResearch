@@ -1,3 +1,23 @@
+2001-06-29  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* BFParams.m ([BFParams -createEnd]): init method name changed to
+	createEnd, so that these settings are ready from the moment the
+	object is created.
+
+	* Output.hm (SwarmObject): new dataArchiver object, writes in hdf5
+	or lisp, according to cpp flag.
+
+	* Parameters.h: New class to collect up parameter creation
+
+	* Output.m ([Output -createEnd]): create timeString variable to
+	capture current time. Purify it. Use it in naming files
+
+2001-06-28  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): fix
+	coding for graphs to unrwap object creation because Swarm no
+	longer returns values from creating methods.
+
 2001-02-08  Paul E Johnson  <pauljohn@ukans.edu>
 
 	* Specialist.[hm]: removed setEtaMax/setEtaMin methods because
@@ -36,8 +56,8 @@
 	Model can tell it to do this and it will decide whether to use
 	Lisp or HDF5 and create a time-stamped parameter output file.
 
-	* Output.m([Output -createEnd]): runTime is now calculated at create time,
-	so that any output files can be time stamped.
+	* Output.m([Output -createEnd]): runTime is now calculated at
+	create time, so that any output files can be time stamped.
 
 	* main.m (main): Now it will dump parameter values at the end of
 	the run, whatever Output is supposed to dump, will get dumped,

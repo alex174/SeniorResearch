@@ -13,13 +13,16 @@
 
 - createEnd
 {
-  modelTime=0;
+  modelTime=0; 
+  //need to create output so it exists from beginning
+  output = [[Output createBegin: [self getZone]] createEnd];
   fprintf(stderr,"ModelSwarm Create begin \n");
   return [super createEnd];
 }
 
-- setParamObject: (ASMModelParams *) modelParams
+- setParamsModel: (ASMModelParams *) modelParams BF: (BFParams *) bfp 
 {
+  bfParams = bfp;
   asmModelParams=modelParams;
   fprintf(stderr,"Param object %d ",asmModelParams->numBFagents);
   return self;
@@ -116,18 +119,18 @@
   [specialist setWorld: world];
   specialist = [specialist createEnd];
 
-  output = [[Output createBegin: [self getZone]] createEnd];
+ 
   [output setWorld: world];
   [output setSpecialist: specialist];
   
   /* Initialize the agent modules and create the agents */
   agentList = [List create: [self getZone]];  //create list for agents
   
-  if ((bfParams =
-       [lispAppArchiver getWithZone: self key: "bfParams"]) == nil)
-    raiseEvent(InvalidOperation,
-               "Can't find the BFParam's parameters");
-  [bfParams init];
+ //   if ((bfParams =
+//         [lispAppArchiver getWithZone: self key: "bfParams"]) == nil)
+//      raiseEvent(InvalidOperation,
+//                 "Can't find the BFParam's parameters");
+//    [bfParams init];
 
   [BFagent init];
 

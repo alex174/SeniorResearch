@@ -74,9 +74,7 @@
 
 -createEnd;
 
-
-- setParamObject: (ASMModelParams *) modelParams;  //pj: new param receiver 
-
+- setParamsModel: (ASMModelParams *) modelParams BF: (BFParams *) bfp ;  //pj: new param receiver 
 -getAgentList;
 -(int)getNumBFagents;
 -(double)getInitialCash;
@@ -102,5 +100,6 @@ void initPeriod(id  initPeriodSchedule);
 -periodStepPrice;
 
 
+-(long int) getModelTime;
 
 @end

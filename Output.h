@@ -16,15 +16,17 @@
 
   World * outputWorld;
   Specialist * outputSpecialist;
-  id archiver;
+  id archiver, dataArchiver;
+  
   // FILE * paramOutputFile;
   time_t runTime;
-
+  char timeString[100];
   int currentTime;
   double price;
   double dividend;
   double volume;
   FILE * dataOutputFile;
+  
 }
 
 -setSpecialist: (Specialist *)theSpec;

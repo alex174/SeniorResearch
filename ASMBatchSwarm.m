@@ -1,5 +1,5 @@
 #import "ASMBatchSwarm.h"
-
+#import "Parameters.h"
 
 @implementation ASMBatchSwarm
 
@@ -8,8 +8,10 @@
   ASMBatchSwarm * obj;
 
   obj = [super createBegin: aZone];
-  obj->loggingFrequency = 1;
-  obj->experimentDuration = 500;
+
+  //overridden by settings from scm file
+  // obj->loggingFrequency = 1;
+  //obj->experimentDuration = 500;
 	
   return obj;
 }
@@ -18,29 +20,27 @@
 -buildObjects
 {
   id modelZone;
-   
+  BFParams * bfParams = [(id)arguments getBFParams];
+  ASMModelParams * asmModelParams = [(id)arguments getModelParams];
+
   [super buildObjects];
 
   modelZone = [Zone create: [self getZone]];
   asmModelSwarm = [ASMModelSwarm create: modelZone];
+ 
+  [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
 
-  //pj:can use same parameter object
-  if ((asmModelParams =
-       [lispAppArchiver getWithZone: globalZone key: "asmBatchParams"]) == nil)
-    raiseEvent(InvalidOperation,
-               "Can't find the batchModelSwarm parameters");
-  [asmModelSwarm setParamObject: asmModelParams];
-
-  //pj: [ObjectLoader load: self fromAppDataFileNamed: "batch.setup"];
+  //ObjectLoader: is deprecated
+  //: [ObjectLoader load: self fromAppDataFileNamed: "batch.setup"];
 
   //pj:  [ObjectLoader load: asmModelSwarm fromAppDataFileNamed: "param.data"];
 
-  // [asmModelSwarm initOutputForDataWrite];
+ 
   [asmModelSwarm buildObjects];
-  //[asmModelSwarm initOutputForParamWrite];
 
   output = [asmModelSwarm getOutput];
-  [output writeParams];
+  [output prepareOutputFile];
+  [output writeParams: asmModelParams BFAgent: bfParams Time: 0];
   
   return self;
 }
@@ -80,6 +80,14 @@
     [displaySchedule activateIn: self];
  
   return [self getSwarmActivity];
+}
+
+
+
+- expostParamWrite
+{
+ [[asmModelSwarm getOutput] writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: [asmModelSwarm getModelTime]]; 
+  return self;
 }
 
 
