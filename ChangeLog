@@ -1,8 +1,21 @@
 2001-10-26  Paul E Johnson  <pauljohn@ukans.edu>
 
-	* ASMModelSwarm.m ([ASMModelSwarm -initPeriod:]): note memory
-	leaks of undropped objects.
+	* ASMModelSwarm.h: delete warmupStepDividend and warmupStepPrice.
+	Delete the -initPeriod: method. It was superflous
 
+	* ASMModelSwarm.m ([ASMModelSwarm -initPeriod:]): This method is
+	unnecessary. It can be replaced by a createAction in time 0 to the
+	startupSchedule.  Note memory leaks of undropped objects in the
+	warmUp: method.
+	([ASMModelSwarm -doWarmupStep]): new method to replace the 3
+	separate methods, 
+
+	- warmupStepDividend; 
+	- warmupStepPrice;
+	
+	I verified that the simulation is exactly the same after this
+	change.
+	
 	* ASMModelSwarm.h: convert warmUp and initPeriod to methods. Don't
 	know why they were C functions before.  Did Autodoc documentation.
 

@@ -348,7 +348,7 @@ a global variable. "*/
   return self;
 }
 
-/*"Returns the dividend, used by many."*/
+/*"Returns the most recent dividend, used by many."*/
 - (double)getDividend
 {
   return dividend;

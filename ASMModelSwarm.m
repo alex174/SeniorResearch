@@ -40,12 +40,9 @@
   In ASM-2.0, there was another initial schedule called
   initPeriodSchedule.  After looking at it for a long time, I
   concluded it was doing nothing necessary, it was basically just
-  running the periodActions at time 0 only.  We might as well leave
-  that to the periodSchedule. The initPeriodSchedule stuff is
-  commented-out here, in case anybody wants to point out the need for
-  them.  It does demonstrate one way to have an action run only at
-  time 0.
-"*/
+  running the periodActions at time 0 only. We might as well just
+  schedule that action at time 0 in the startupSchedule. I have
+  verified that the model runs exactly the same (numerically identical). "*/
 
 - createEnd
 {
@@ -113,7 +110,7 @@
 /*"
   Returns the integer time-step of the current simulation. 
   "*/
--(long int) getModelTime
+- (long int)getModelTime
 {
   return modelTime;
 }
@@ -240,10 +237,6 @@
   [periodActions createActionTo:     world     
 		 message: M(updateWorld)];
 
-// Tell BFagent class to prepare for trading
-  //pj:   [periodActions createActionTo:     self    
-  //pj:		   message: M(prepareBFagentForTrading)];
-
 // Tell BFagents to get ready for trading (they may run GAs here)
   [periodActions createActionForEach:     agentList
 		   message: M(prepareForTrading)];
@@ -270,13 +263,8 @@
   startupSchedule = [Schedule create: [self getZone] setAutoDrop: YES];
   [startupSchedule at: 0 createActionTo: self message: M(warmUp:):warmupSchedule];
   
-  initPeriodSchedule = [Schedule createBegin: [self getZone]];
-  [initPeriodSchedule setRepeatInterval: 1];
-  initPeriodSchedule = [initPeriodSchedule createEnd];
-  [initPeriodSchedule at: 0 createAction: periodActions];
   
-  [startupSchedule at: 0 createActionTo: self 
-		   message: M(initPeriod:):initPeriodSchedule];
+  [startupSchedule at: 0 createAction: periodActions];
   	      
   periodSchedule = [Schedule createBegin: [self getZone]];
   [periodSchedule setRepeatInterval: 1];
@@ -286,7 +274,7 @@
   return self;
 }
 
-- (void) warmUp: x
+- (void)warmUp: x
 {
   id warmupSwarm;
   id warmupActivity;
@@ -316,52 +304,10 @@
   return self;
 }
 
-- (void)initPeriod: x
-{
-  id warmupSwarm;
-  id initPeriodActivity;
-  id terminateSchedule;
-
-  warmupSwarm = [Swarm create: globalZone];
-  [warmupSwarm activateIn: nil];
-  initPeriodActivity = [x activateIn: warmupSwarm];
-  
-  terminateSchedule = [Schedule create: globalZone];
-  [terminateSchedule activateIn: warmupSwarm];
-  [terminateSchedule at: 0 createActionTo:  initPeriodActivity
-		     message: M(terminate)];
-      
-  while ([[warmupSwarm getSwarmActivity] run] != Completed);
-  [warmupSwarm drop];
-  [terminateSchedule drop];
-}
-		
-
-
-
--warmupStepDividend 
-{
-  [world setDividend: [dividendProcess dividend]];
-  return self; 
-}
-
-
--warmupStepPrice 
-{
-  // fprintf(stderr," Dividend %f \n", [world getDividend]);
-  // fprintf(stderr," setPrice %f \n", [world getDividend]/asmModelParams->intrate );
-
-  //  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n",
-  //  asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
-
-  [world setPrice: ([world getDividend]/(double)asmModelParams->intrate )];
-  return self;
-}	 
-
 /*" Have the dividendProcess calculate a new dividend. Then tell the
   world about the dividendProcess output.  Also this increment the
   modelTime variable"*/
--periodStepDividend 
+- periodStepDividend 
 {
   modelTime++;
   [world setDividend: [dividendProcess dividend]];
@@ -369,7 +315,7 @@
 }
 
 /*"Have the Specialist perform the trading process. Then tell the world about the price that resulted from the Specialist's action."*/
--periodStepPrice 
+- periodStepPrice 
 {
   [world setPrice: [specialist performTrading]];
   return self;
@@ -379,7 +325,7 @@
   higher level Swarm activities. Basically, each time the higher level
   takes a step, this one will too, and the higher one won't step again
   until this one is finished with its turn."*/
--activateIn: (id)swarmContext
+- activateIn: (id)swarmContext
 {
   [super activateIn: swarmContext];
   [startupSchedule activateIn: self];
@@ -387,7 +333,7 @@
   return [self getSwarmActivity];
 }
 
--(void) drop
+- (void)drop
 {
   [dividendProcess drop];
   [world drop];

@@ -15,7 +15,7 @@
   id warmupSchedule;
   id periodSchedule;
   id startupSchedule;
-  id initPeriodSchedule;
+  // id initPeriodSchedule;
 
   id agentList;       /*"A Swarm collection of agents "*/
   id specialist;      /*"Specialist who clears the market   "*/
@@ -47,10 +47,6 @@
 - doWarmupStep;
 - (void)warmUp: x;
 
-- (void)initPeriod: x;
-
-- warmupStepDividend;
-- warmupStepPrice;
 - periodStepDividend;
 - periodStepPrice;
 
