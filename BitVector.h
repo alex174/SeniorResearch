@@ -12,32 +12,32 @@
 
 + init;
 
--(void) setCondwords: (int) x;
+- (void)setCondwords: (int)x;
 
--(void)  setCondbits: (int) x;
+- (void) setCondbits: (int)x;
 
--(void) setConditions: (int *) x;
+- (void)setConditions: (int *)x;
 
--(int *) getConditions;
+- (int *)getConditions;
 
--(void) setConditionsWord: (int) i To: (int) value;
+- (void)setConditionsWord: (int)i To: (int)value;
 
--(int) getConditionsWord: (int) i;
+- (int)getConditionsWord: (int)i;
 
--(void) setConditionsbit: (int) bit To: (int) x;
+- (void)setConditionsbit: (int)bit To: (int)x;
 
--(int) getConditionsbit: (int)bit;
+- (int)getConditionsbit: (int)bit;
 
--(void) setConditionsbitToThree: (int) bit;
+- (void)setConditionsbitToThree: (int)bit;
 
--(void) switchConditionsbit: (int) bit;
+- (void)switchConditionsbit: (int)bit;
 
--(void) setConditionsbit: (int) bit FromZeroTo: (int) x;
+- (void)setConditionsbit: (int)bit FromZeroTo: (int)x;
 
--(void) maskConditionsbit: (int) bit;
+- (void)maskConditionsbit: (int)bit;
 
-- (void) drop;
+- (void)drop;
 
-- printcond: (int) word;
+- printcond: (int)word;
 
 @end

@@ -68,7 +68,9 @@ getInt (id obj, const char *ivarName)
 needed by several classes, principally, BFagent, BFCast, or BitVector.
 This class is currently designed so that, if one wants the values of
 the variables here to be individualized, then each agent can be
-created with its own instance of BFParams.
+created with its own instance of BFParams.  A lot of the really
+complicated stuff that used to be in BFagent is now divided between
+this class and BitVector.
 
 It got to be tedious and boring to maintain getX methods, one for each
 instance variable, so if other classes want values out of this class,
@@ -81,10 +83,9 @@ like getInt() and getDouble().  To get the lambda parameter, one can say
 getDouble(privateParams,"lambda").  Either of these works, and it
 frees us from the need to constantly add and edit get methods when we
 add or change instance variables in here.
-
 "*/
 
--(int)lastgatime
+- (int)lastgatime
 {
   return lastgatime;
 }
@@ -117,7 +118,7 @@ add or change instance variables in here.
   bits[14] = ReadBitname("on", specialbits);
   bits[15] = ReadBitname("off", specialbits);
 
-   for (i=0; i < condbits; i++) 
+  for (i=0; i < condbits; i++) 
     {
       bitlist[i] = bits[i];
       //params->problist[i] = probs[i];
@@ -125,20 +126,20 @@ add or change instance variables in here.
     }
   
 
-// Allocate space for our world bits, clear initially
+  // Allocate space for our world bits, clear initially
 
-   condwords = (condbits+15)/16;
+  condwords = (condbits+15)/16;
 
-   myworld = [[self getZone] allocBlock: condwords* sizeof(unsigned int)];
+  myworld = [[self getZone] allocBlock: condwords* sizeof(unsigned int)];
 
   for (i=0; i< condwords; i++)
     myworld[i] = 0;
 
-// Check bitcost isn't too negative
+  // Check bitcost isn't too negative
   if (1.0+bitcost*(condbits-nnulls) <= 0.0)
     printf("The bitcost is too negative.");
 
-// Compute derived parameters
+  // Compute derived parameters
   gaprob = 1.0/(double)gafrequency;
   a_range = a_max - a_min;
   b_range = b_max - b_min;
@@ -147,7 +148,7 @@ add or change instance variables in here.
   npool = (int)(numfcasts*poolfrac + 0.5);
   nnew = (int)(numfcasts*newfrac + 0.5);
     
-// Record maxima needed for GA working space
+  // Record maxima needed for GA working space
   if (npool > npoolmax) npoolmax = npool;
   if (nnew > nnewmax) nnewmax = nnew;
   if (condwords > ncondmax) ncondmax = condwords;
@@ -155,17 +156,17 @@ add or change instance variables in here.
   return [super createEnd];
 }
 
--(int*) getBitListPtr
+- (int*)getBitListPtr
 {
   return bitlist;
 }
 
-- (double *) getProbListPtr
+- (double *)getProbListPtr
 {
   return problist;
 }
 
-- (int *) getMyworldPtr
+- (int *)getMyworldPtr
 {
   return myworld;
 }

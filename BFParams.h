@@ -18,13 +18,13 @@ getInt (id obj, const char *ivarName);
 
 @interface BFParams:  SwarmObject
 {
-@public
-  int numfcasts; /*"number of forecasts maintained by this agent"*/
- int condwords; /*"number of words of memory required to hold bits"*/
- int condbits; /*"number of conditions bits that exist"*/
- int mincount; /*"minimum number of times forecast must be used to become active"*/
- int gafrequency; /*"how often is genetic algorithm done?"*/
- int firstgatime; /*"after how many time steps is the genetic algorithm done"*/
+  @public
+    int numfcasts; /*"number of forecasts maintained by this agent"*/
+  int condwords; /*"number of words of memory required to hold bits"*/
+  int condbits; /*"number of conditions bits that exist"*/
+  int mincount; /*"minimum number of times forecast must be used to become active"*/
+  int gafrequency; /*"how often is genetic algorithm done?"*/
+  int firstgatime; /*"after how many time steps is the genetic algorithm done"*/
   int longtime;	/*" unused time before Generalize() in genetic algorithm"*/
   int individual;
   double tauv;
@@ -68,13 +68,13 @@ getInt (id obj, const char *ivarName);
 
 - init;
 
--(int*) getBitListPtr;
+- (int*)getBitListPtr;
 
-- (double *) getProbListPtr;
+- (double *)getProbListPtr;
 
-- (int *) getMyworldPtr;
+- (int *)getMyworldPtr;
 
--(int)lastgatime;
+- (int)lastgatime;
 
 
 @end

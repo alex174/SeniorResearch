@@ -37,43 +37,39 @@
   id <List> oldActiveList;    /*"A copy of the activeList from the previous time step"*/
 }
 
-+(void)setBFParameterObject: x;
-+(void)init;
-//+(int)lastgatime;
-//+setRealWorld: (int *)array;
-//+(int)setNumWorldBits;
++ (void)setBFParameterObject: x;
++ (void)init;
 
--createEnd;
--initForecasts;
+- createEnd;
+- initForecasts;
 
-- (BFCast *) createNewForecast;  //all conditions=0
+- (BFCast *)createNewForecast;  //all conditions=0
 
--setConditionsRandomly: (BFCast *) fcastObject; //apply to forecast
-//-free;
--prepareForTrading;
--(BitVector *) collectWorldData: aZone;
--updateActiveList: (BitVector *) worldvalues;
+- setConditionsRandomly: (BFCast *)fcastObject; //apply to forecast
+- prepareForTrading;
+- (BitVector *) collectWorldData: aZone;
+- updateActiveList: (BitVector *)worldvalues;
 
--getInputValues;  //does nothing, used only if their are ANNagents
--feedForward;     //does nothing, used only if their are ANNagents
--(double)getDemandAndSlope:(double *)slope forPrice:(double)trialprice;
--(double)getRealForecast;
--updatePerformance;
--(double)getDeviation;
--updateWeights;   //does nothing, used only if their are ANNagents
--(int)nbits;
--(int)nrules;
+- getInputValues;  //does nothing, used only if their are ANNagents
+- feedForward;     //does nothing, used only if their are ANNagents
+- (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice;
+- (double)getRealForecast;
+- updatePerformance;
+- (double)getDeviation;
+- updateWeights;   //does nothing, used only if their are ANNagents
+- (int)nbits;
+- (int)nrules;
 
 - performGA;
--(int)lastgatime;
+- (int)lastgatime;
 
--printcond: (int) word;
+- printcond: (int)word;
 
 - copyList: list To: outputList;
 
--(int)bitDistribution:(int *(*)[4])countptr cumulative:(BOOL)cum;
--(int)fMoments: (double *)moment cumulative: (BOOL)cum;
--(const char *)descriptionOfBit:(int)bit;
+- (int)bitDistribution:(int *(*)[4])countptr cumulative:(BOOL)cum;
+- (int)fMoments: (double *)moment cumulative: (BOOL)cum;
+- (const char *)descriptionOfBit:(int)bit;
 
 @end
 

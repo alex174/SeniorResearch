@@ -15,35 +15,35 @@
 
 
 /*" Sets a list of agents who are in the market "*/
--setAgentList: (id)aList
+- setAgentList: (id)aList
 {
   agentList = aList;
   return self;
 }
 
 /*" Sets a reference to the world, where price and dividend information is kept"*/
--setWorld: (World *)myWorld;
+- setWorld: (World *)myWorld;
 {
   worldForSpec = myWorld;
   return self;
 }
 
 
--setMaxPrice: (double)maximumPrice
+- setMaxPrice: (double)maximumPrice
 {
   maxprice = maximumPrice;
   return self;
 }
 
 
--setMinPrice: (double)minimumPrice
+- setMinPrice: (double)minimumPrice
 {
   minprice = minimumPrice;
   return self;
 }
 
 
--setTaup: (double)aTaup
+- setTaup: (double)aTaup
 {
   taupnew = -expm1(-1.0/aTaup); //pj: moved here from init method
   taupdecay = 1.0 - taupnew;   // moved to simplify!
@@ -55,7 +55,7 @@
 /*"The specialist can be set to type 0, 1, or 2. If this variable is
 set to any other value, the model will set the Specialist to type 1
 and give a warning in the terminal"*/
--setSPtype: (int)i
+- setSPtype: (int)i
 {
   if(i != 0 && i != 1 && i != 2)
     { 
@@ -68,34 +68,34 @@ and give a warning in the terminal"*/
 }
 
 /*" Set the maximum number of interations to be done while looking for a market clearing price"*/
--setMaxIterations: (int)someIterations
+- setMaxIterations: (int)someIterations
 {
   maxiterations = someIterations;
   return self;
 }
 
 
--setMinExcess: (double)minimumExcess
+- setMinExcess: (double)minimumExcess
 {
   minexcess = minimumExcess;
   return self;
 }
 
 
--setETA: (double)ETA
+- setETA: (double)ETA
 {
   eta = ETA;
   return self;
 }
 
--setREA: (double)REA
+- setREA: (double)REA
 {
   rea = REA;
   return self;
 }
 
 
--setREB: (double)REB
+- setREB: (double)REB
 {
   reb = REB;
   return self;
@@ -106,7 +106,7 @@ and give a warning in the terminal"*/
 //  -init
 
 
--(double)performTrading
+- (double)performTrading
 /*" This is the core method that sets a succession of trial prices and
  *  asks the agents for their bids or offer at each, generally
  *  adjusting the price towards reducing |bids - offers|.  * It gets
@@ -225,13 +225,13 @@ and give a warning in the terminal"*/
 }
 
 /*"Returns the volume of trade to anybody that wants, such as the observer or output objects"*/
--(double)getVolume
+- (double)getVolume
 {
   return volume;
 }
 
 
--completeTrades
+- completeTrades
 /*"Updates the agents cash and position to consummate the trades
   previously negotiated in -performTrading, with rationing if
   necessary.
@@ -239,7 +239,7 @@ and give a warning in the terminal"*/
  * Makes the actual trades at the last trial price (which is now the
  * market price), by adjusting the agents' holdings and cash.  The
  * actual purchase/sale my be less than that requested if rationing
- * is impsed by the specialist -- usually one of "bidfrac" and
+ * is imposed by the specialist -- usually one of "bidfrac" and
  * "offerfrac" will be less than 1.0.
  *
  * This could easiliy be done by the agents themselves, but we let

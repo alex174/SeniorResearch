@@ -182,20 +182,12 @@ extern World *worldForAgent;
 #define drand()    [uniformDblRand getDoubleWithMin: 0 withMax: 1] 
 #define urand()  [uniformDblRand getDoubleWithMin: -1 withMax: 1] 
 #define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1]  
- 
-//Macros for bit manipulation
-//pj: Sometimes I use these for diagnostic checking.
-//  #define WORD(bit)	(bit>>4)
-//  #define MAXCONDBITS	80
-//  #define extractvalue(variable, trit) ((variable[WORD(trit)] >> ((trit%16)*2))&3) 
-//  #define ifnilgetzero(variable, trit)  ((variable[WORD(trit)]& (3<<((trit%16)*2))))
 
-
-// Type of forecasting.  WEIGHTED forecasting is untested in its present form.
-//pj: bluntly, WEIGHTED does not work and is incomplete
+// Type of forecasting.  WEIGHTED forecasting is untested in its
+// present form.
+//pj: bluntly, WEIGHTED does not work and is incomplete, It never worked
+// in ASM-2.0, and that's why it is commented out by setting WEIGHTED to 0.
 #define WEIGHTED 0
-
-//static void makebittables(void); //now in BFCast.m
 
 //pj: this is a static global declaration of the params object, shared by all instances.
 //pj: note there is also a local copy which is, in current code, intitially the same thing,
@@ -215,7 +207,7 @@ static BFParams *  params;
 @interface BFagent(Private)
 //pj: methods now replace previous functions:
 - (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
-- (void) MakePool: rejects From: (id <Array>) list;
+- (void) MakePool: (id <List>)rejects From: (id <Array>) list;
 - (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed;
 - (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2;
 - (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects; 
@@ -266,49 +258,25 @@ to know if a forecast has YES or NO for a bit x, [aForecast
 getConditionsbit: x].  "*/
 
 
-/*"This tells BFagents where they should look to get values for their parameters. it shoud give the agent an object from the BFParams class."*/
-+(void) setBFParameterObject: x
+/*"This tells BFagents where they should look to get values for their
+  parameters. it shoud give the agent an object from the BFParams
+  class."*/
++ (void)setBFParameterObject: x
 {
     params=x;
 }
 
-/*"This is vital to set values in the forecast class,  BFCast, which in turn initializes BitVector"*/
-+(void) init
+/*"This is vital to set values in the forecast class, BFCast, which in
+  turn initializes BitVector class"*/
++ (void)init
 {
   [BFCast init]; 
   return;
 }
 
-// This was a big result of code cleanup!
-// These class methods are not needed anymore
-//  +didInitialize
-//  +prepareForTrading      //called at the start of each trading period
-
-// Also, we don't need a class method here for this. If you need something like
-//it, put it in BFParams.  
-//+(int)lastgatime 
-//  {  pp = (struct BFparams *)params; 
-//   return pp->lastgatime; 
-//  }
-
-
-//pj: Watch out with this one, there are pointers flying everywhere!
-//It is a superflous method that is not called anymore, it scared me
-//so much.  
-
-//+setRealWorld: (int *)array { [worldForAgent getRealWorld:
-//array]; return self; }
-
-// superfluous method: never called anymore
-//  +(int)setNumWorldBits
-//  {
-//    int numofbits;
-//    numofbits = [worldForAgent getNumWorldBits];
-//    return numofbits;
-//  }
-
-
-/*"This creates the container objects activeList and oldActiveList.  In addition, it makes sure that any initialization in the createEnd of the super class is done."*/
+/*"This creates the container objects activeList and oldActiveList.
+  In addition, it makes sure that any initialization in the createEnd
+  of the super class is done."*/
 - createEnd
 {
   activeList=[List create: [self getZone]];
@@ -362,7 +330,7 @@ getConditionsbit: x].  "*/
   forecast = lforecast = global_mean;
 
 
-// Iniitialize the forecasts, put them into Swarm Array
+  // Initialize the forecasts, put them into Swarm Array
 
   //keep the 0'th forecast in a  "know nothing" condition
   [fcastList atOffset: 0 put: [self createNewForecast]];
@@ -372,7 +340,7 @@ getConditionsbit: x].  "*/
     {
       id aForecast =[self createNewForecast] ;
       [self setConditionsRandomly: aForecast];
-      [fcastList atOffset: i put: aForecast];//pj: put aForecast into Swarm array "fcastlist"
+      [fcastList atOffset: i put: aForecast]; //put aForecast into Swarm array "fcastlist"
      }
 
 /* Compute average specificity */
@@ -394,7 +362,7 @@ getConditionsbit: x].  "*/
   values for the other coefficients inside the BFCast.  This method is
   accessed at several points throughout the BFagent class when new
   forecasts are needed."*/
-- (BFCast *) createNewForecast
+- (BFCast *)createNewForecast
 {
   BFCast * aForecast;
   //needed to set values of a,b,and c
@@ -437,8 +405,10 @@ getConditionsbit: x].  "*/
   return aForecast;   
 }
 
-/*"Take a forecast and randomly change its bits.  This appears to be a piece of functionality that could move to the BFCast class itself. There were quite a few of them at one time."*/
--setConditionsRandomly: (BFCast *) fcastObject
+/*"Take a forecast and randomly change its bits.  This appears to be a
+  piece of functionality that could move to the BFCast class
+  itself. There were quite a few of them at one time."*/
+- setConditionsRandomly: (BFCast *)fcastObject
 {
   int bit;
   double *problist;
@@ -466,7 +436,7 @@ getConditionsbit: x].  "*/
 }
 
 
--prepareForTrading
+- prepareForTrading
   /*"
  * Set up a new active list for this agent's forecasts, and compute the
  * coefficients pdcoeff and offset in the equation
@@ -563,14 +533,14 @@ getConditionsbit: x].  "*/
     }
 #else
   //NOT WEIGHTED MODEL
-  // Now go through the list and find best forecast
+  // Go through the list and find best forecast
   maxstrength = -1e50;
   //bestfptf=NULL
   bestForecast = nil;
   nactive = 0;
   mincount = getInt(privateParams,"mincount");
 
-  //pj: Kept as example of "homemade list" 
+  //pj: Kept as example of "homemade list" in ASM-2.0
   //    for (fptr=activelist; fptr!=NULL; fptr=fptr->next) 
   //      {
   //        fptr->lastactive = currentTime;
@@ -602,15 +572,14 @@ getConditionsbit: x].  "*/
     }
   [index drop];
 
-
+  // Here is the way it was in ASM-2.0
   //    if (nactive) 
   //      {
   //        pdcoeff = bestfptr->a;
   //        offset = bestfptr->b*dividend + bestfptr->c;
   //        forecastvar = (privateParams->individual? bestfptr->variance :variance);
   //      }
-
-  //fprintf(stderr,"nactive = %d pjactive %d  activeList getCount is %d\n",nactive,pjactivecount, [activeList getCount]);
+ 
   if (nactive)  // meaning that at least some forecasts are active
     {
       pdcoeff = [bestForecast getAval];
@@ -659,7 +628,7 @@ getConditionsbit: x].  "*/
 }
 
 
--(BitVector *) collectWorldData: aZone;
+- (BitVector *)collectWorldData: aZone;
 { 
   int i,n,nworldbits;
   BitVector * world;
@@ -701,8 +670,7 @@ getConditionsbit: x].  "*/
   notice much of a speed effect on modern computers with modern
   compilers :> My alternative implementation is commented out inside
   this method)"*/
-
--updateActiveList: (BitVector *) worldvalues
+- updateActiveList: (BitVector *)worldvalues
 {
   id index;
   BFCast * aForecast;
@@ -739,7 +707,7 @@ getConditionsbit: x].  "*/
     break;
   
     case 2:
-      //pj: here is how it used to be
+      //pj: here is how it used to be in ASM-2.0
 //      real1 = worldvalues[1];
 
 //      for (fptr = fcast; fptr < topfptr; fptr++) 
@@ -811,8 +779,11 @@ getConditionsbit: x].  "*/
    //pj??? There ought to be a "default" action here for other cases.
 
 
-  /*This is an alternative implementation of the same as preceeding.  Its so much cuter.
-I write it before I understood the fact that the World gives back 10 for yes and agent has 01 for yes. 
+  /*This is an alternative implementation of the same as preceeding.
+It is so much cuter in my view.  I wrote it before I understood the
+fact that the World gives back 10 for yes and agent has 01 for yes, so
+you have to be careful with it. Note the bitmath here, that appears
+as it used to throughout the BFagent class.
   
     index=[ fcastList begin: [self getZone]];
     for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
@@ -841,26 +812,25 @@ I write it before I understood the fact that the World gives back 10 for yes and
 	    if ( flag!=1 )  [activeList addLast: aForecast];
     
         }
-    [index drop];
-  */
+    [index drop]; */
 
   return self;
 }
 
 /*"Currently does nothing, used only if their are ANNagents"*/
--getInputValues     
+- getInputValues     
 {
   return self;
 }
 
 /*"Currently does nothing, used only if their are ANNagents"*/
--feedForward        
+- feedForward        
 {
   return self;
 }
 
 
--(double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice
+- (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice
   /*" Returns the agent's requested bid (if >0) or offer (if <0) using
 * best (or mean) linear forecast chosen by -prepareForTrading The
 * forecast is given by 
@@ -876,7 +846,6 @@ traders' demand at time t, based on the change in the forecast
 according to the currently active linear rule. "*/
 
 {
- 
   forecast = (trialprice + dividend)*pdcoeff + offset;
 
 
@@ -912,7 +881,7 @@ according to the currently active linear rule. "*/
 
 
 /*"Return agent's forecast"*/
--(double)getRealForecast
+- (double)getRealForecast
 {
   return forecast;
 }
@@ -932,7 +901,7 @@ according to the currently active linear rule. "*/
   the formula now matches the formula used in the original sfsm,
   rather than ASM-2.0. "*/
 
--updatePerformance
+- updatePerformance
 {
   //pj: register struct BF_fcast *fptr;
   BFCast *  aForecast;
@@ -1060,13 +1029,13 @@ according to the currently active linear rule. "*/
 }
 
 /*"Returns the absolute value of realDeviation"*/
--(double)getDeviation
+- (double)getDeviation
 {
   return fabs(realDeviation);
 }
 
 /*"Currently, does nothing, used only if their are ANNagents"*/
--updateWeights        
+- updateWeights        
 {
   return self;
 }
@@ -1076,7 +1045,7 @@ according to the currently active linear rule. "*/
   condition bits that are monitored in the world, or 0 if
   condition bits aren't used.
   "*/
--(int)nbits
+- (int)nbits
 {
   return privateParams->condbits;
 }
@@ -1085,7 +1054,7 @@ according to the currently active linear rule. "*/
   design, this was a constant set in the parameters, although revision
   of the code for ASM-2.2 conceivably should allow agents to alter the
   number of forecasts they maintain."*/
--(int)nrules
+- (int)nrules
 {
   return privateParams->numfcasts;
 }
@@ -1094,7 +1063,7 @@ according to the currently active linear rule. "*/
 //	Agents that don't use a genetic algorithm return MININT.  This
 //	may be used to see if the bit distribution might have changed,
 //	since a change can only occur through a genetic algorithm."*/
--(int)lastgatime
+- (int)lastgatime
 {
   return lastgatime;
 }
@@ -1114,7 +1083,7 @@ according to the currently active linear rule. "*/
 //	The 4-element array (*countptr)[4] must already exist, but the
 //	arrays to which its element point are supplied dynamically.  This
 //	method must be provided by each subclass that has condition bits.
--(int)bitDistribution: (int *(*)[4])countptr cumulative: (BOOL)cum
+- (int)bitDistribution: (int *(*)[4])countptr cumulative: (BOOL)cum
 {
   BFCast * aForecast;
   unsigned int *agntcond;
@@ -1176,12 +1145,12 @@ according to the currently active linear rule. "*/
 }
 
 
-//pj: this method was never called anywhere
+//pj: this method was never called anywhere in ASM-2.0
 
 /*"Currently, this method is not called anywhere in ASM-2.2. It might
   serve some purpose, past or present, I don't know (pj:
   2001-11-26)"*/
--(int)fMoments: (double *)moment cumulative: (BOOL)cum
+- (int)fMoments: (double *)moment cumulative: (BOOL)cum
 {
   BFCast *aForecast ;
   int i;
@@ -1217,7 +1186,7 @@ according to the currently active linear rule. "*/
 //	specified bit.  Invalid bit numbers return an explanatory message.
 //	Agents that don't use condition bits return NULL.
 //
--(const char *)descriptionOfBit: (int)bit
+- (const char *)descriptionOfBit: (int)bit
 {
   if (bit < 0 || bit > getInt(privateParams,"condbits"))
     return "(Invalid condition bit)";
@@ -1297,8 +1266,6 @@ _{plinear    -- linear combination "crossover" prob.}
 "*/
 - performGA
 {
-  // register struct BF_fcast *fptr;
-  //  struct BF_fcast *nr;
   register int f;
   int  new;
   BFCast * parent1, * parent2;
@@ -1309,21 +1276,22 @@ _{plinear    -- linear combination "crossover" prob.}
   double temp;  //for holding values needed shortly
   //pj: previously declared as globals
   int * bitlist;
- //pj: could be only in perforGA, but then would be recreated every time.
+
   id newList = [List create: [self getZone]]; //to collect the new forecasts; 
   id rejectList = [Array create: [self getZone] setCount: getInt(privateParams,"npoolmax")];
 
-  static double avstrength;
+  static double avstrength;//static inside a method has a different effect than static in a class
 
   ++gacount;
   currentTime = getCurrentTime();
 
-  privateParams->lastgatime= params->lastgatime = lastgatime = currentTime;
+  //??Why is lastgatime in the params at all???
+  //  privateParams->lastgatime= params->lastgatime =  lastgatime = currentTime;
+  lastgatime = currentTime;
 
   bitlist = privateParams->bitlist;
 
   // Find the npool weakest rules, for later use in TrnasferFcasts
-  //MakePool(fcastList);
   [self  MakePool: rejectList From: fcastList];
 
 
@@ -1409,8 +1377,6 @@ _{plinear    -- linear combination "crossover" prob.}
 	  
 	  [newList addLast: aNewForecast]; //?? were these not initialized in original?//
           
-	  //[aNewForecast print];
-
 	  // Pick first parent using touranment selection
 	  //pj: ??should this operate on all or only active forecasts???
 	  do
@@ -1424,14 +1390,12 @@ _{plinear    -- linear combination "crossover" prob.}
 		parent2 = [self  Tournament: fcastList];
 	      while (parent2 == parent1 || parent2 == nil) ;
 
-	      //  Crossover(aNewForecast,parent1, parent2);
 	      [self Crossover:  aNewForecast Parent1:  parent1 Parent2:  parent2];
 	      if (aNewForecast==nil) {raiseEvent(WarningMessage,"got nil back from crossover");}
 	      changed = YES;
 	    }
 	  else
 	    {
-	      //pj: CopyRule(aNewForecast,parent1);
 	      [self CopyRule: aNewForecast From: parent1];
 	      if(!aNewForecast)raiseEvent(WarningMessage,"got nil back from CopyRule");
 	
@@ -1439,14 +1403,11 @@ _{plinear    -- linear combination "crossover" prob.}
 	    }
 	  //It used to only do this if changed, but why not all??
 	 
-	    
-	  // [aNewForecast print];
 	} while (0);
       /* Replace while(0) with while(!changed) to force diversity */
     }
 
   // Replace nnew of the weakest old rules by the new ones
-  //pj: TransferFcasts ( newList, fcastList , rejectList);
 
   [self  TransferFcastsFrom: newList To: fcastList Replace: rejectList];
 
@@ -1478,10 +1439,15 @@ _{plinear    -- linear combination "crossover" prob.}
 
 
 
-/*------------------------------------------------------*/
-/*	CopyRule					*/
-/*------------------------------------------------------*/
--(BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from
+/*"This is a method that copies the instance variables out of one
+  forecast object into another. It copies not only the bitvector of
+  monitored conditions, but also the forecast value, strength,
+  variance, specFactor, specificity, and so forth.  The only deviation
+  is that if the return from the original forecast's getCnt method
+  (its count value) is equal to 0, then the strength of the copy is
+  equal to the value of a static variable named minstrength."*/
+
+- (BFCast *)CopyRule: (BFCast *)to From: (BFCast *)from
 {
   [to setForecast: [from getForecast]];
   [to setLforecast: [from getLforecast]];
@@ -1501,12 +1467,11 @@ _{plinear    -- linear combination "crossover" prob.}
 }
 
 
-/*------------------------------------------------------*/
-/*	MakePool					*/
-/*------------------------------------------------------*/
--(void) MakePool: rejects From: (id <Array>) list
+/*"Given a list of forecasts, find the worst ones and put them into a
+pool of rejects. This method requires 2 inputs, the name of the reject
+list (actually, a Swarm Array) and the Array of forecasts. "*/
+- (void)MakePool: (id <List>)rejects From: (id <Array>)list
 {
-
   register int top;
   int i,j = 0 ;
   BFCast * aForecast;
@@ -1569,7 +1534,7 @@ _{plinear    -- linear combination "crossover" prob.}
 /*------------------------------------------------------*/
 /*	Mutate						*/
 /*------------------------------------------------------*/
--(BOOL) Mutate: (BFCast *) new Status: (BOOL) changed
+- (BOOL)Mutate: (BFCast *)new Status: (BOOL)changed
   /*
      * For the condition bits, Mutate() looks at each bit with
      * probability pmutation.  If chosen, a bit is changed as follows:
@@ -1714,7 +1679,7 @@ _{plinear    -- linear combination "crossover" prob.}
 /*------------------------------------------------------*/
 /*	Crossover					*/
 /*------------------------------------------------------*/
--(BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2
+- (BFCast *)Crossover: (BFCast *)newForecast Parent1: (BFCast *)parent1 Parent2: (BFCast *)parent2
   /*
      * On the condition bits, Crossover() uses uniform crossover -- each
      * bit is chosen randomly from one parent or the other.
@@ -1755,25 +1720,6 @@ _{plinear    -- linear combination "crossover" prob.}
 	  if (value > 0) [newForecast incrSpecificity]; 
 	}
     }
-  //pj:???wont those changes automatically show up in newForecast??//
-    
-  // checked with Blake: this was a remnant, only need first if, as above
-  //   if(irand(1)==0) 
-  //      {
-  //        for (word = 0; word <condwords; word++)
-  //  	newcond[word] = 0;
-  //        for (bit = 0; bit < condbits; bit++)
-  //  	newcond[WORD(bit)] |= (irand(2)?cond1:cond2)[WORD(bit)]&MASK[bit];
-  //      }
-
-  //    else 
-  //      {
-  //        bitparent = irand(2);
-  //        for (word = 0; word <condwords; word++)
-  //  	newcond[word] = 0;
-  //        for (bit = 0; bit < condbits; bit++)
-  //  	newcond[WORD(bit)] |= (bitparent?cond1:cond2)[WORD(bit)]&MASK[bit];
-  //      }
 
   /* Select one crossover method for the forecasting parameters */
   choice = drand();
@@ -1843,11 +1789,8 @@ _{plinear    -- linear combination "crossover" prob.}
 /*------------------------------------------------------*/
 /*	TransferFcasts					*/
 /*------------------------------------------------------*/
-- (void) TransferFcastsFrom: newlist To:  forecastList Replace: rejects 
+- (void)TransferFcastsFrom: newlist To: forecastList Replace: rejects 
 {
-  //register struct BF_fcast *fptr, *nr;
-  //register int new;
-  //      int nnew;
   id ind;
   BFCast * aForecast;
   BFCast * toDieForecast;
@@ -1862,15 +1805,6 @@ _{plinear    -- linear combination "crossover" prob.}
       toDieForecast = [self CopyRule: toDieForecast From: aForecast];
     }
   [ind drop];
-	
-  ///      for (new = 0; new < nnew; new++) 
-  //  	{
-  //  	  nr = newfcast + new;
-  //  	  fptr = GetMort(nr);
-      
-  //  	  // Copy the whole structure and conditions
-  //  	  CopyRule(fptr, nr);
-  //	}
 }
 
 
@@ -1878,7 +1812,7 @@ _{plinear    -- linear combination "crossover" prob.}
 /*------------------------------------------------------*/
 /*	GetMort						*/
 /*------------------------------------------------------*/
-- (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects
+- (BFCast *)GetMort: (BFCast *)new Rejects: (id <List>)rejects
   /* GetMort() selects one of the npool weak old fcasts to replace
      * with a newly generated rule.  It pays no attention to strength,
      * but looks at similarity of the condition bits -- like tournament
@@ -1953,21 +1887,6 @@ _{plinear    -- linear combination "crossover" prob.}
       aReject = [rejects atOffset: r2];
       [ rejects atOffset: r2 put:  nil] ;
     }
-  /*
-    fptr = reject[r1];
-    reject[r1] = NULL;
-  */
-  /*
-    if(reject[r1]->count < reject[r2]->count) {
-    fptr = reject[r1];
-    reject[r1] = NULL;
-    }
-    else {
-    fptr = reject[r2];
-    reject[r1] = NULL;
-    }
-  */
-  
   return aReject;
 }
 
@@ -1976,7 +1895,7 @@ _{plinear    -- linear combination "crossover" prob.}
 /*------------------------------------------------------*/
 /*	Generalize					*/
 /*------------------------------------------------------*/
--(void) Generalize: (id) list AvgStrength: (double) avgstrength
+- (void)Generalize: (id)list AvgStrength: (double)avgstrength
   /*
      * Each forecast that hasn't be used for longtime is generalized by
      * turning a fraction genfrac of the 0/1 bits to don't-cares.
@@ -2038,7 +1957,10 @@ _{plinear    -- linear combination "crossover" prob.}
 }
 
 
-/*"in case you want to see the 0101 representation of an integer. Sometimes this comes in handy if you are looking at a particular forecast's value as an int and you need to convert it to the 0's and 1's"*/
+/*"in case you want to see the 0101 representation of an
+  integer. Sometimes this comes in handy if you are looking at a
+  particular forecast's value as an int and you need to convert it to
+  the 0's and 1's"*/
 - printcond: (int) word
 {
   int i;
@@ -2056,7 +1978,10 @@ _{plinear    -- linear combination "crossover" prob.}
   return self;
 }
 
-/*"This is a general utility method for Swarm lists. It removes all objects form the "outputList" and copies the elements from list into it.  It does not actually destroy any elements from either list, it just updates references."*/
+/*"This is a general utility method for Swarm lists. It removes all
+  objects form the "outputList" and copies the elements from list into
+  it.  It does not actually destroy any elements from either list, it
+  just updates references."*/
 - copyList: list To: outputList
 {
   id index, anObject;

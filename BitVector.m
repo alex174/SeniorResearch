@@ -112,20 +112,20 @@ to users:
 }
 
 /*"init runs the makebittables function, which creates some statically allocated vectors that are used in bit math."*/
-+init
++ init
 {
   makebittables();
   return self;
 }
 
 /*"Sets the number of words-worth of memory will be used"*/       
--(void) setCondwords: (int) x
+- (void)setCondwords: (int)x
 {
   condwords = x;
 }
 
 /*"Sets the number of bits that this bit vector is supposed to take care of"*/
--(void)  setCondbits: (int) x
+- (void) setCondbits: (int)x
 {
   condbits=x;
 }
@@ -135,44 +135,44 @@ to users:
 method takes that pointer and then copies its values into the
 conditions of the current bit vector"*/
 
--(void) setConditions: (int *)
+- (void)setConditions: (int *)
 x { int i; for(i=0;i<condwords;i++) conditions[i]=x[i]; }
 
 
 /*"Returns a pointer to the current conditions of the bit vector"*/
--(int *) getConditions
+- (int *)getConditions
 {
   return conditions;
 }
 
 /*"Set the i'th word of condition to a value"*/
--(void) setConditionsWord: (int) i To: (int) value
+- (void)setConditionsWord: (int)i To: (int)value
 {
   conditions[i]= value;
 }
 
 /*"Returns the i'th word of conditions"*/
--(int) getConditionsWord: (int) i
+- (int)getConditionsWord: (int)i
 {
   return conditions[i];
 }
 
 
 /*"Dig into the conditions, find the given bit, and set its value to x"*/
--(void) setConditionsbit: (int) bit To: (int) x
+- (void)setConditionsbit: (int)bit To: (int)x
 {
   conditions[WORD(bit)] = (conditions[WORD(bit)] & NMASK[bit]) | (x << SHIFT[bit]);
 }
 
 
 /*"Change a given bit from zero to 1 or 2"*/
--(void) setConditionsbit: (int) bit FromZeroTo: (int) x
+- (void)setConditionsbit: (int)bit FromZeroTo: (int)x
 {
   conditions[WORD(bit)] |= x <<SHIFT[bit];
 }
 
 /*"Returns an integer (0,1,2) indicating the status of a given bit"*/
--(int) getConditionsbit: (int)bit
+- (int)getConditionsbit: (int)bit
 {
   int value;
   value= (conditions[WORD(bit)] >> SHIFT[bit]) &3;
@@ -180,32 +180,32 @@ x { int i; for(i=0;i<condwords;i++) conditions[i]=x[i]; }
 }
 
 /*"The value 3 is used to indicate that a bit is not in use"*/
--(void) setConditionsbitToThree: (int) bit
+- (void)setConditionsbitToThree: (int)bit
 {
   conditions[WORD(bit)] |= MASK[bit];
 }
 
--(void) maskConditionsbit: (int) bit
+- (void)maskConditionsbit: (int)bit
 {
   conditions[WORD(bit)] &= NMASK[bit];	
   // specificity --;
 }
 
 /*"If the bit is 1, change it to 2, or vice versa"*/
--(void) switchConditionsbit: (int) bit
+- (void)switchConditionsbit: (int)bit
 {
     conditions[WORD(bit)] ^= MASK[bit];
 }
 
 /*"Release freed memory"*/
-- (void) drop
+- (void)drop
 { 
   [[self getZone] freeBlock: conditions blockSize: condwords*sizeof(unsigned int) ];
   [super drop];
 }
 
 /*"Dump the current conditions to the screen. Use for debugging"*/
-- printcond: (int) word
+- printcond: (int)word
 {
   int i;
   int n = sizeof(int) * CHAR_BIT;

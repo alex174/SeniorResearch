@@ -288,14 +288,12 @@ sure they finish their work.
 "*/
 -(void) drop
 {
-  fclose(dataOutputFile);
+  if (dataOutputFile) fclose(dataOutputFile);
   [hdfWriter drop];
   [archiver drop];
   [dataArchiver drop];
   [super drop];
 }
-
-
 
 @end
 

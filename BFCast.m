@@ -37,20 +37,20 @@
 }
 
 /*"Free dynamically allocated memory"*/
--(void) drop
+- (void)drop
 {
   [conditions drop];
   [super drop];
 }
 
 /*"Sets the number of words-worth's of conditions that are going to be used"*/       
--(void) setCondwords: (int) x
+- (void)setCondwords: (int)x
 {
   condwords = x;
 }
 
 /*"Sets the number of bits. This is the number of aspect of the world that are monitored"*/
--(void)  setCondbits: (int) x
+- (void)setCondbits: (int)x
 {
   condbits=x;
 }
@@ -70,14 +70,14 @@
 /*"Rather than individually set bits one by one, we might want to set
   all of them at once. That means we pass in a pointer to an array of
   words that is the "right size" for all the bits."*/
--(void) setConditions: (int *) x
+- (void) setConditions: (int *)x
 {
   [conditions setConditions: x];
 }
 
 /*"Returns a pointer to an array, the integer representation of the
   conditions"*/
--(int *) getConditions
+- (int *)getConditions
 {
   return [conditions getConditions];
 }
@@ -85,90 +85,90 @@
 /*"Returns an object of type BitVector, the represnetation of
   conditions that is actually used inside this class or
   calculations"*/
--(BitVector *) getConditionsObject
+- (BitVector *)getConditionsObject
 {
   return conditions;
 }
 
 
 /*"For low level access to a full word's-worth of the condition"*/
--(void) setConditionsWord: (int) i To: (int) value
+- (void)setConditionsWord: (int)i To: (int)value
 {
   [conditions setConditionsWord: i To: value];
 }
 
 /*"Returns the integer representation of the x'th word in the
   conditions"*/
--(int) getConditionsWord: (int) x
+- (int)getConditionsWord: (int)x
 {
   return [conditions getConditionsWord: x];
 }
 
 /*"Sets the value of a bit in the conditions"*/
--(void) setConditionsbit: (int) bit To: (int) x
+- (void)setConditionsbit: (int)bit To: (int)x
 {
   [conditions setConditionsbit: bit To: x];
 }
 
 /*"If a bit is currently set to 0 ("don't care"), then change it to
   something else (1 or 2)"*/
--(void) setConditionsbit: (int) bit FromZeroTo: (int) x
+- (void)setConditionsbit: (int)bit FromZeroTo: (int)x
 {
   [conditions setConditionsbit: bit FromZeroTo: x];
 }
 
 /*"Returns 0,1,or 2, for a given bit in the conditions records"*/
--(int) getConditionsbit: (int)bit
+- (int)getConditionsbit: (int)bit
 {
   return [conditions getConditionsbit: bit];
 }
 
 
--(void) maskConditionsbit: (int) bit
+- (void)maskConditionsbit: (int)bit
 {
   [conditions maskConditionsbit: bit];
 }
 
 
 /*"Change a YES to a NO, and vice versa"*/
--(void) switchConditionsbit: (int) bit
+- (void)switchConditionsbit: (int)bit
 {
   // conditions[WORD(bit)] ^= MASK[bit];
   [conditions switchConditionsbit: bit];
 }
 
 /*"Set a coefficient from demand equation"*/
--(void) setAval: (double) x
+- (void)setAval: (double)x
 {
   a=x;
 }
 
 /*"Set b coefficient from demand equation"*/
--(void) setBval: (double) x
+- (void)setBval: (double)x
 {
   b=x;
 }
 
 /*"Set c coefficient from demand equation"*/
--(void) setCval: (double) x
+- (void)setCval: (double)x
 { 
   c=x;
 }
 
 /*"Return a coefficient from demand equation"*/
-- (double) getAval
+- (double)getAval
 {
   return a;
 }
 
 /*"Return b coefficient from demand equation"*/
-- (double) getBval
+- (double)getBval
 {
   return b;
 }
 
 /*"Return c coefficient from demand equation"*/
-- (double) getCval
+- (double)getCval
 {
   return c;
 }
@@ -176,7 +176,7 @@
 /*"Update the spec factor of this forecast. That means calculate:
 specfactor= (condbits - nnulls - specificity)* bitcost
 "*/
--(void) updateSpecfactor
+- (void)updateSpecfactor
 {
   //was in BFagent: specfactor = 1.0/(1.0 + x*specificity);
   //but the bfagent.m way is so much nicer
@@ -185,127 +185,127 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 }
 
 /*"Set the specfactor value of this forecast"*/
--(void) setSpecfactor: (double) x
+- (void)setSpecfactor: (double)x
 {
   specfactor=x;
 };
 
 /*"Return the specfactor value of this forecast"*/
-- (double) getSpecfactor
+- (double)getSpecfactor
 {
   return specfactor;
 }
 
 /*"Raise the specificity value of this forecast by one unit"*/
--(void) incrSpecificity
+- (void)incrSpecificity
 {
   ++ specificity;
 }
 
 /*"Reduce the specificity value of this forecast by one unit"*/
--(void) decrSpecificity
+- (void)decrSpecificity
 {
   --specificity;
 }
 
 /*"Set the specificity of this forecast"*/
--(void) setSpecificity: (int) x
+- (void)setSpecificity: (int) x
 {
   specificity=x;
 }
 
 /*"Return the specificity of this forecast"*/
--(int) getSpecificity
+- (int)getSpecificity
 {
   return specificity;
 }
 
 /*"Set the variance of this forecast"*/
--(void) setVariance: (double) x
+- (void)setVariance: (double)x
 {
   variance=x;
 }
 
 /*"Return the variance of this forecast"*/
--(double) getVariance
+- (double)getVariance
 {
   return variance;
 }
 
 
 /*"Set the time on which this forecast was last active to an input value"*/
--(void) setLastactive: (int) x
+- (void)setLastactive: (int)x
 {
   lastactive=x;
 }
 
 /*"Return the time on which this forecast was last active"*/
--(int) getLastactive
+- (int)getLastactive
 {
   return lastactive;
 
 }
 
 /*"Return the value of count"*/
-- (int) getCnt
+- (int)getCnt
 {
   return count;
 }
 
 
 /*"Set the count variable to an inputted value"*/
--(void) setCnt: (int) x
+- (void)setCnt: (int)x
 {
   count = x;
 
 }
 
 /*"Increment this forecast's count variable"*/
-- (int) incrCount;
+- (int)incrCount;
 {
   return ++count;
 }
 
 /*"Return strength of this forecast"*/
-- (double)  getStrength
+- (double)getStrength
 {
   return strength;
 }
 
 
 /*"Set the strength value to an inputted value"*/
--(void) setStrength: (double) x
+- (void) setStrength: (double)x
 {
   strength=x;
 }
 
 /*"Set the previous forecast of this object to an inputted value"*/
--(void)  setLforecast: (double) x
+- (void)setLforecast: (double)x
 {
   lforecast=x;
 }
 
 /*"Get forecast from the previous time period"*/
-- (double) getLforecast
+- (double)getLforecast
 {
   return lforecast;
 }
 
 
 /*"Set the forecast of this object to an inputted value"*/
--(void)  setForecast: (double) x
+- (void)  setForecast: (double) x
 {
   forecast=x;
 }
 
 /*"Return forecast from this object"*/
-- (double) getForecast
+- (double)getForecast
 {
   return forecast;
 }
 
 /*"Calculate new forecast on basis of price and dividend information"*/
--(double) updateForecastPrice: (double) price Dividend: (double) dividend
+- (double) updateForecastPrice: (double)price Dividend: (double)dividend
 {
   lforecast=forecast;
   forecast= a* (price+dividend) + b*dividend + c;
@@ -315,7 +315,7 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 
 /*"Given an input forecast object, systematically ask it for
   all its IVARs and replace current settings with them."*/
-- copyEverythingFrom: (BFCast *) from
+- copyEverythingFrom: (BFCast *)from
 {
  forecast= [from getForecast];
  lforecast = [from getLforecast];
@@ -345,7 +345,7 @@ specfactor= (condbits - nnulls - specificity)* bitcost
   return self;
 }
 
-- printcond: (int) word
+- printcond: (int)word
 {
   [conditions printcond: word];
   return self;

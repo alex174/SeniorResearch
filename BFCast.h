@@ -27,95 +27,95 @@
 
 - createEnd;
 
--(void) incrSpecificity;
+- (void)incrSpecificity;
 
--(void) decrSpecificity;
+- (void)decrSpecificity;
 
--(void) setSpecificity: (int) specificity;
+- (void)setSpecificity: (int)specificity;
 
--(int) getSpecificity;
+- (int)getSpecificity;
 
--(void) setConditions: (int *) x;
+- (void)setConditions: (int *) x;
 
--(int *) getConditions;
+- (int *)getConditions;
 
--(BitVector *) getConditionsObject;
+- (BitVector *)getConditionsObject;
 
-- (void) setNNulls: (int) x;
+- (void)setNNulls: (int)x;
 
-- (void) setBitcost: (double) x;
+- (void)setBitcost: (double)x;
 
--(void) setConditionsWord: (int) i To: (int) value;
+- (void)setConditionsWord: (int)i To: (int)value;
 
--(int) getConditionsWord: (int) x;
+- (int)getConditionsWord: (int)x;
 
--(void) setConditionsbit: (int) bit To: (int) x; //works for 0,1,2
+- (void)setConditionsbit: (int)bit To: (int)x; //works for 0,1,2
 
--(void) setConditionsbit: (int) bit FromZeroTo: (int) x;//faster if cond[bit]=0
+- (void)setConditionsbit: (int)bit FromZeroTo: (int)x;//faster if cond[bit]=0
 
--(void) maskConditionsbit: (int) bit;
+- (void)maskConditionsbit: (int)bit;
 
--(void) switchConditionsbit: (int) bit;
+- (void)switchConditionsbit: (int)bit;
 
--(int) getConditionsbit: (int)bit;
+- (int) getConditionsbit: (int)bit;
 
--(void) setAval: (double) x;
+- (void) setAval: (double)x;
 
--(void) setBval: (double) x;
+- (void) setBval: (double)x;
 
--(void) setCval: (double) x;
+- (void) setCval: (double)x;
 
-- (double) getAval;
+- (double)getAval;
 
-- (double) getBval;
+- (double)getBval;
 
-- (double) getCval;
+- (double)getCval;
 
--(void) updateSpecfactor;
+- (void)updateSpecfactor;
 
--(void) setSpecfactor: (double) x;
+- (void)setSpecfactor: (double)x;
 
-- (double) getSpecfactor;
+- (double)getSpecfactor;
 
-- (void) setVariance: (double) x;
+- (void)setVariance: (double) x;
        
--(double) getVariance;
+- (double)getVariance;
 
--(void) setCondwords: (int) x;
+- (void)setCondwords: (int)x;
 
--(void)  setCondbits: (int) x;
+- (void)setCondbits: (int)x;
 
--(void)  setForecast: (double) x;
+- (void)setForecast: (double)x;
 
-- (double) getForecast;
+- (double)getForecast;
 
--(double) updateForecastPrice: (double) price Dividend: (double) dividend;
+- (double)updateForecastPrice: (double)price Dividend: (double)dividend;
 
--(void)  setLforecast: (double) x;
+- (void)setLforecast: (double)x;
 
-- (double) getLforecast;
+- (double)getLforecast;
 
--(void) setLastactive: (int) x;
+- (void)setLastactive: (int)x;
 
--(int) getLastactive;
+- (int)getLastactive;
 
--(void) setCnt: (int) x;
+- (void)setCnt: (int)x;
 
--(int) getCnt;
+- (int)getCnt;
 
-- (int) incrCount;
+- (int)incrCount;
 
--(void) setStrength: (double) x;
+- (void)setStrength: (double)x;
 
-- (double)  getStrength;
+- (double)getStrength;
 
-- copyEverythingFrom: (BFCast *) from;
+- copyEverythingFrom: (BFCast *)from;
 
 - print;
 
-- printcond: (int) conditions;
+- printcond: (int)conditions;
 
--(void) drop;
+- (void)drop;
 
 @end
 
