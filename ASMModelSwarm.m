@@ -156,6 +156,9 @@
 
   if(asmModelParams->randomSeed != 0) 
     [randomGenerator setStateFromSeed: asmModelParams->randomSeed];
+  else
+    asmModelParams->randomSeed = [randomGenerator getInitialSeed];
+  
   //pj: note I'm making this like other swarm apps. Same each time, new seeds only if precautions taken.
 
  

@@ -1,4 +1,13 @@
-2003-03-26    <pauljohn@ku.edu>
+2003-03-26  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): remember randomSeed 
+	in asmModelParams. This means if a randomSeed is not entered by the
+	user, the one chosen by Swarm will be recorded.
+
+	* asmModelParamsrandomSeed variable will equal the GUI input,
+	otherwise it will equal the value used by the default or the CLI.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): 
 
 	* BFagent.m ([BFagent -MakePool:From:]): fix bug where only
 	npool-1 rules were created. iterate from 1 to n, not 1 to n-1.
@@ -15,11 +24,7 @@
 	divisor=privateParams->lambda*forecastvar; instead of 
 	divisor =getDouble(privateParams,"lambda")*forecastvar;
 
-	* BFagent.m ([BFagent -initForecasts]): corrected
-	numfcasts=... and variance=... to fix memory leak there caused by
-	getInt and getDouble, also replaced the use of getInt and
-	getDouble in the GA
-	
+
 2003-03-25  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* ASMObserverSwarm.m ([ASMObserverSwarm
