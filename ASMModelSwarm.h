@@ -32,26 +32,27 @@
 -createEnd;
 
 - setParamsModel: (ASMModelParams *) modelParams BF: (BFParams *) bfp ;  //pj: new param receiver 
--getAgentList;
--(int)getNumBFagents;
--(double)getInitialCash;
--(World *)getWorld;
--(Specialist *)getSpecialist;
--(Output *)getOutput;
--setBatchRandomSeed: (int)newSeed;
+- getAgentList;
+- (int)getNumBFagents;
+- (double)getInitialCash;
+- (World *)getWorld;
+- (Specialist *)getSpecialist;
+- (Output *)getOutput;
+- setBatchRandomSeed: (int)newSeed;
 
--buildObjects;
+- buildObjects;
 - writeParams;
 - buildActions;
 - activateIn: (id)swarmContext;
 
-void warmUp(id  warmupSchedule);
-void initPeriod(id  initPeriodSchedule);
+- (void)warmUp: x;
 
--warmupStepDividend;
--warmupStepPrice;
--periodStepDividend;
--periodStepPrice;
+- (void)initPeriod: x;
+
+- warmupStepDividend;
+- warmupStepPrice;
+- periodStepDividend;
+- periodStepPrice;
 
 
 -(long int) getModelTime;

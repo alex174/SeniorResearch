@@ -1,3 +1,11 @@
+2001-10-26  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMModelSwarm.m ([ASMModelSwarm -initPeriod:]): note memory
+	leaks of undropped objects.
+
+	* ASMModelSwarm.h: convert warmUp and initPeriod to methods. Don't
+	know why they were C functions before.  Did Autodoc documentation.
+
 2001-10-26    <pauljohn@dv01m45.lawrence.ks.us>
 
 	* BFagent.h (Agent): nactive removed from IVAR list, it is used

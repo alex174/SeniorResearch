@@ -37,19 +37,19 @@
 }
 
 /*" Returns the number of BFagents,  which is held in asmModelParams"*/
--(int) getNumBFagents
+- (int) getNumBFagents
 {
   return asmModelParams->numBFagents;
 }
 
 /*" Returns the initialcash value, which is held in asmModelParams"*/
--(double) getInitialCash
+- (double) getInitialCash
 {
   return asmModelParams->initialcash;
 }
   
 /*" Returns a list that contains all the agents"*/
--getAgentList
+- getAgentList
 {
   return agentList;
 }
@@ -57,14 +57,14 @@
 /*" Returns a handle of the world object, the place where historical
   price/dividend information is maintained.  It is also the place
   where the BFagents can retrieve information in bit string form."*/
--(World *)getWorld
+- (World *)getWorld
 {
   if (world == nil) printf("Empty world!");
   return world;
 }
 
 /*" Return a pointer to the Specialist object"*/
--(Specialist *)getSpecialist
+- (Specialist *)getSpecialist
 {
   return specialist;
 }
@@ -72,7 +72,7 @@
 /*" Return a pointer to an object of the Output class. Sometimes it is
   necessary for other classes to find out who the output record keeper
   is and send that class a message."*/
--(Output *)getOutput
+- (Output *)getOutput
 {
   return output;
 }
@@ -89,14 +89,14 @@
 
 /*"The value of the randomSeed that starts the simulation will remain
   fixed, unless you change it by using this method"*/
--setBatchRandomSeed: (int)newSeed
+- setBatchRandomSeed: (int)newSeed
 {
   asmModelParams->randomSeed = newSeed;
   return self;
 }
 
 /*"Build and initialize objects"*/
--buildObjects      
+- buildObjects      
 {
   int i;
 
@@ -185,7 +185,7 @@
  * not calculated by a t counter but internally within Swarm.  Time is
  * recovered by the getTime message"*/
 
--buildActions
+- buildActions
 {
   [super buildActions];
 
@@ -245,18 +245,17 @@
   warmupSchedule = [warmupSchedule createEnd];
   [warmupSchedule at: 0 createAction: warmupActions];
 
-  startupSchedule = [Schedule create: [self getZone]];
-  [startupSchedule at: 0 createActionCall: 
-		     (func_t)warmUp: warmupSchedule];
+  startupSchedule = [Schedule create: [self getZone] setAutoDrop: YES];
+  [startupSchedule at: 0 createActionTo: self message: M(warmUp:):warmupSchedule];
   
   initPeriodSchedule = [Schedule createBegin: [self getZone]];
   [initPeriodSchedule setRepeatInterval: 1];
   initPeriodSchedule = [initPeriodSchedule createEnd];
   [initPeriodSchedule at: 0 createAction: periodActions];
   
-  [startupSchedule at: 0 createActionCall: 
-  	     (func_t)initPeriod: initPeriodSchedule];
-  
+  [startupSchedule at: 0 createActionTo: self 
+		   message: M(initPeriod:):initPeriodSchedule];
+  	      
   periodSchedule = [Schedule createBegin: [self getZone]];
   [periodSchedule setRepeatInterval: 1];
   periodSchedule = [periodSchedule createEnd];
@@ -265,8 +264,7 @@
   return self;
 }
 
-
-void warmUp (id warmupSchedule)
+- (void) warmUp: x
 {
   id warmupSwarm;
   id warmupActivity;
@@ -274,7 +272,7 @@ void warmUp (id warmupSchedule)
 
   warmupSwarm = [Swarm create: globalZone];
   [warmupSwarm activateIn: nil];
-  warmupActivity = [warmupSchedule activateIn: warmupSwarm];
+  warmupActivity = [x activateIn: warmupSwarm];
   
   terminateSchedule = [Schedule create: globalZone];
   [terminateSchedule activateIn: warmupSwarm];
@@ -282,9 +280,12 @@ void warmUp (id warmupSchedule)
 		     message: M(terminate)];
       
   while ([[warmupSwarm getSwarmActivity] run] != Completed);
+  [warmupSwarm drop];
+  [terminateSchedule drop];
 }
 
-void initPeriod (id initPeriodSchedule)
+
+- (void)initPeriod: x
 {
   id warmupSwarm;
   id initPeriodActivity;
@@ -292,7 +293,7 @@ void initPeriod (id initPeriodSchedule)
 
   warmupSwarm = [Swarm create: globalZone];
   [warmupSwarm activateIn: nil];
-  initPeriodActivity = [initPeriodSchedule activateIn: warmupSwarm];
+  initPeriodActivity = [x activateIn: warmupSwarm];
   
   terminateSchedule = [Schedule create: globalZone];
   [terminateSchedule activateIn: warmupSwarm];
@@ -300,6 +301,8 @@ void initPeriod (id initPeriodSchedule)
 		     message: M(terminate)];
       
   while ([[warmupSwarm getSwarmActivity] run] != Completed);
+  [warmupSwarm drop];
+  [terminateSchedule drop];
 }
 		
 
