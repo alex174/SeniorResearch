@@ -315,7 +315,10 @@ have a date string pasted into it:
   for ( i = 0; i < 3; i++)
     {
       char name[10];
-      sprintf (name, "csfreq[%d]",i);
+      if (i == 0) sprintf (name, "fundamental");
+      else if (i == 1) sprintf (name, "technical");
+			 else if (i == 2) sprintf (name, "dummy");
+      //sprintf (name, "csfreq[%d]",i);
       cssequence[i] = [bitGraph createSequence: name
 				withFeedFrom: self
 				andSelector: M(getCSfreq:)];
@@ -379,7 +382,7 @@ have a date string pasted into it:
   for (i = 0; i < condbits;i++ )
     {
       if (i < 10) cs[0] = cs[0]+bs[i];
-      else if ( i >= 10 && i < 13) cs[1] = cs[1]+bs[i];
+      else if ( i >= 10 && i < 14) cs[1] = cs[1]+bs[i];
       else cs[2] = cs[2]+bs[i];
     }
 
