@@ -1040,11 +1040,10 @@ _{plinear    -- linear combination "crossover" prob.}
       // Loop used if we force diversity
       do 
 	{
-	   BFCast * aNewForecast=nil;
-	   aNewForecast = [self CreateGAForecast: aNewForecast Avstrength: avstrength Madv: madv];
+	   BFCast * aNewForecast =nil;
+	   aNewForecast = [self CreateFcastAvstrength: avstrength Madv: madv];
 	   [newList addLast: aNewForecast]; //?? were these not initialized in original?//
-	   changed = [self PickParents: aNewForecast Status: changed];
-	   	   
+	   changed = [self PickParents: aNewForecast];
 	} while (0);
       /* Replace while(0) with while(!changed) to force diversity */
     }
@@ -1133,11 +1132,11 @@ _{plinear    -- linear combination "crossover" prob.}
 }
 
 //************************************************************************+
-- (BFCast *)CreateGAForecast: (BFCast *)aNewForecast Avstrength: (double)avstrength Madv:  (double)madv
+- (BFCast *)CreateFcastAvstrength: (double)avstrength Madv:  (double)madv
 {
   double varvalue, altvarvalue = 999999999;
  
-  aNewForecast = [ self createNewForecast ];
+  BFCast * aNewForecast = [ self createNewForecast ];
   [aNewForecast updateSpecfactor];
   [aNewForecast setStrength: avstrength];
  
@@ -1157,10 +1156,11 @@ _{plinear    -- linear combination "crossover" prob.}
 }
 
 //************************************************************************+
-- (BOOL)PickParents: (BFCast *)aNewForecast Status: (BOOL) changed
+- (BOOL)PickParents: (BFCast *)aNewForecast
 {
   BFCast * parent1, * parent2;
-   
+  BOOL changed = NO;   
+
   // Pick first parent using touranment selection
   do
     parent1 = [ self Tournament: fcastList ] ;
@@ -1186,7 +1186,7 @@ _{plinear    -- linear combination "crossover" prob.}
     }
   //It used to only do this if changed, but why not all??
   
-  return (changed);
+  return changed;
 }
 
 
@@ -1545,8 +1545,6 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
     {
       raiseEvent(InvalidArgument,"npool smaller than nnew, can't do it");
     }
-
-
 }
 
 

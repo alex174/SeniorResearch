@@ -8,7 +8,7 @@
 @implementation SOCagent
 
 //************************************************************************
-- (BOOL)PickParents: (BFCast *)aNewForecast Status: (BOOL) changed
+- (BOOL)PickParents: (BFCast *)aNewForecast
 {
   double psocial = 0.5;
   BFCast * parent1, * parent2;
@@ -54,7 +54,7 @@
 	  printf("Agent number %3d\n",[agent getID]);
 	}
     }
-  return (changed);
+  return changed;
 }
 
 

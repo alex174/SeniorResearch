@@ -60,10 +60,8 @@
 - (BFCast *) Tournament: (id <Array>) list;
 - (double) CalculateAndUseMadv;
 - (double) CalculateAvAndMinstrength;
-- (BFCast *) CreateGAForecast: (BFCast *) aNewForecast Avstrength: (double)avstrength Madv: (double)madv;
-
-
-- (BOOL) PickParents: (BFCast *) aNewForecast Status: (BOOL) changed;
+- (BFCast *) CreateFcastAvstrength: (double)avstrength Madv: (double)madv;
+- (BOOL) PickParents: (BFCast *) aNewForecast;
 
 - printcond: (int)word;
 
