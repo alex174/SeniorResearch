@@ -256,6 +256,9 @@ set in ASMModelSwarm. " */
   history_top = 0;
   updown_top = 0;
   
+  divhistory = [[self getZone] alloc: MAXHISTORY*sizeof(double)]; 
+  pricehistory = [[self getZone] alloc: MAXHISTORY*sizeof(double)]; 
+
   realworld = calloc(NWORLDBITS, sizeof(int)); 
   if(!realworld)
     printf("Error allocating memory for realworld.");

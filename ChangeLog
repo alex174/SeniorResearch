@@ -1,3 +1,11 @@
+2001-11-06    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* World.m (changes): Converted pricehistory and divhistory back to
+	dynamically allocated arrays.  This was done because the Swarm
+	archiver was writing those arrays at every timestep, massively
+	filling up filespace.  Don't know how to selectively write
+	variables from objects yet.
+
 2001-11-03    <pauljohn@dv01m45.lawrence.ks.us>
 
 	* BFagent.m ([BFagent -initForecasts]): Now privateParams is a

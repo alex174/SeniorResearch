@@ -47,8 +47,8 @@
   id oldpriceMA[NMAS]; /*" MovingAverage objects which hold lagged price moving averages "*/
   id olddivMA[NMAS];/*" MovingAverage objects which hold lagged dividend moving averages "*/
 @private
- double divhistory[MAXHISTORY];       /*" dividend history array, goes back MAXHISTORY points"*/
- double pricehistory[MAXHISTORY];     /*" price history array "*/
+ double * divhistory;       /*" dividend history array, goes back MAXHISTORY points"*/
+ double * pricehistory;     /*" price history array "*/
  
 }
 

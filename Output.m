@@ -149,8 +149,6 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 - setSpecialist: (Specialist *)theSpec
 {
   outputSpecialist = theSpec;
-
-
   return self;
 }
 
@@ -158,7 +156,6 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
 - setWorld: (World *)theWorld;
 {
   outputWorld = theWorld;
-
   return self;
 }
 
@@ -178,11 +175,11 @@ hdfGraphWed_Oct_24_11_30_18_2001.hdf
   [archiver sync];
 #endif
 
-   [archiver putShallow: paramKey  object: bfParms];
+  [archiver putShallow: paramKey  object: bfParms];
 #ifndef NO_LISP
-   [archiver sync];
+  [archiver sync];
 #endif
-   return self;
+  return self;
 }
 
 
@@ -234,8 +231,8 @@ necessary to initialize an hdfWriter, as seen in this code.  "*/
   hdf5container = [hdf5container createEnd];
     
   hdfWriter = [EZGraph create: [self getZone] 
-			 setHDF5Container: hdf5container
-			 setPrefix: "market"];
+		       setHDF5Container: hdf5container
+		       setPrefix: "market"];
   [hdfWriter createSequence: "volume"
 	     withFeedFrom: outputSpecialist
 	     andSelector: M(getVolume)];
@@ -290,12 +287,12 @@ necessary to initialize an hdfWriter, as seen in this code.  "*/
 #ifndef NO_LISP
   [archiver sync];
 #endif
-   // Third, now use the EZGraph dump of its time strings.
+  // Third, now use the EZGraph dump of its time strings.
 
   if (!hdfWriter) [self initializeHDFWriter];
-   [hdfWriter step];
+  [hdfWriter step];
    
-   return self;
+  return self;
 }
 
 /*"It is necessary to drop the data writing objects in order to make

@@ -277,7 +277,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
 {
   BFParams * bfParams;
 
-  //Why not begin with a totall fresh instance created from scratch,
+  //Why not begin with a totally fresh instance created from scratch,
   //The way your old granny used to do it?
   if ((bfParams =
        [lispAppArchiver getWithZone: aZone key: "bfParams"]) == nil)

@@ -233,16 +233,17 @@ static double minstrength;
 
 
 @implementation BFagent
-/*"The BFagent--"bit forecasting agent" is the centerpiece of the ASM
-model.  The agent competes in a stock market, it buy, it sells.  It
-decides to buy or sell by making predictions about what the price of
-the stock is likely to do in future.  In order to make predictions, it
-keeps a large list of forecast objects on hand, and each forecast
-object makes a price prediction. These forecasts, which are created
-from the BFCast subclass, are fairly sophisticated entities, they may
-monitor many different conditions of the world.  The forecast which has
-the best performance record at any given instant is used to predict the
-future price, which in turn leads to the buy/sell decision. 
+/*"The BFagent--"bitstring forecasting agent" is the centerpiece of
+the ASM model.  The agent competes in a stock market, it buy, it
+sells.  It decides to buy or sell by making predictions about what the
+price of the stock is likely to do in future.  In order to make
+predictions, it keeps a large list of forecast objects on hand, and
+each forecast object makes a price prediction. These forecasts, which
+are created from the BFCast subclass, are fairly sophisticated
+entities, they may monitor many different conditions of the world.
+The forecast which has the best performance record at any given
+instant is used to predict the future price, which in turn leads to
+the buy/sell decision.
 
 Inside the file BFagent.m, there is a long set of comments about the
 updating that went on in the redesign of this code for ASM-2.2.  In
@@ -272,8 +273,8 @@ to know if a forecast has YES or NO for a bit x, [aForecast
 getConditionsbit: x].  "*/
 
 
-/*"This tells BFagents where they should look to get values for their
-  parameters. it shoud give the agent an object from the BFParams
+/*"This tells BFagents where they should look to get the default
+  parameters. it should give the agent an object from the BFParams
   class."*/
 + (void)setBFParameterObject: x
 {
@@ -570,6 +571,7 @@ getConditionsbit: x].  "*/
 
   //??Following code causes a bug when numfcasts is small. It causes
   //nactive >0 even though there is no best forecast. ?? Track it down
+  //This problem existed in ASM-2.0, should back track it.
   index=[activeList begin: [self getZone]];
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
@@ -644,11 +646,12 @@ getConditionsbit: x].  "*/
 
 /*"A forecast has a set of conditions it is watching. These are packed
 tight in a BitVector. We need the world data about the status of those
-conditions packed the same way, in order to make quick checks on the
-accuracy of the forecasts. This method creates a BitVector to match
-the conditions that are being monitored by the agent's forecasts.
-This requires the use of the design assumption that all of an agent's
-forecasts have the same bitlist."*/
+conditions packed the same way, in order to make quick checks to find
+out if the world conditions are matched by the BitVector's
+conditions. This method creates a BitVector to match the conditions
+that are being monitored by the agent's forecasts.  This requires the
+use of the design assumption that all of an agent's forecasts have the
+same bitlist."*/
 - (BitVector *)collectWorldData: aZone;
 { 
   int i,n,nworldbits;

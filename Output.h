@@ -29,9 +29,13 @@
   
   @public
     int currentTime; /*"current time of simulation"*/
-  double price; /*"current price"*/
-  double dividend; /*"current dividend"*/
-  double volume; /*"current volume"*/
+ 
+  // These IVARs were previously used for record keeping, but they
+  // are not needed now. Could reinstate and add "self" to the
+  // objects that the archiver dumps out.				       
+  // double price; /*"current price"*/
+  // double dividend; /*"current dividend"*/
+  // double volume; /*"current volume"*/
 
 }
 
