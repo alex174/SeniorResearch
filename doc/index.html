@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ASM Documentation</title>
+</head>
+
+<body>
+<h1>ASM-2.2 documentation set</h1>
+<p>
+Project Homepage: <a href="http://ArtStkMkt.sourceforge.net">http://ArtStkMkt.sourceforge.net</a>
+<br>
+Current Maintainer: <mailto:"pauljohn@ku.edu">Paul Johnson &lt;pauljohn@ku.edu&gt;
+<br>
+Date: November 3, 2001
+<p>
+
+Maybe a picture is worth a thousand words.
+<p>
+The hierarchy of objects looks something like this:
+<image src="ASM1.png">
+
+<p>
+The major aims in the revision from ASM-2.0 to ASM-2.2 have been 
+<ol>
+<li>Convert wherever possible from ordinary C code to object-oriented code. This has many implications, including the follwing
+<ul>
+<li>Eliminate the usage of large C structs, replace them with Objects (e.g., BFCast, BFParams)
+<li>Eliminate (or hide where necessary) any direct allocation of memory and pointer math.
+<li>Introduce Swarm collections and iterators for repetitive chores.
+</ul>
+<li>Isolate all direct manipulation of "bits" into subclasses (BFCast, BitVector) in order to make BFagent more readable and editing less error prone.
+<li>Eliminate global variables wherever possible.
+<li>Use Swarm's archiver tools to control simulation parameters.  A high level Parameter class is created at the outset, and it holds instances of parameter objects for the ASMModelSwarm (ASMModelParams) and the bit forecasting agents (BFParams).
+<li>Illustrate various methods by which Swarm models can output data about a simulation.
+<li>Clear up and simplify the usage of Swarm conventions in designing the model's schedule.
+<li>Introduce Swarm random number generators and distributions.
+<li>More effectively document and present this large, interesting set of code.
+</ol>
+
+The documentation for the individual classes can be inspected. Click to your heart's content.
+
+<table>
+<tr>
+  <td>Class</td><td>Documentation</td>
+</tr>
+  
+<tr>
+  <td>ASMBatchSwarm</td><td><a href="ASMBatchSwarm.html">ASMBatchSwarm.html</a></td>
+</tr>
+
+ 
+<tr>
+  <td>ASMModelParams</td><td><a href="ASMModelParams.html">ASMModelParams.html</a></td>
+</tr>
+
+<tr>
+  <td>ASMModelSwarm</td><td><a href="ASMModelSwarm.html">ASMModelSwarm.html</a></td>
+</tr>
+
+<tr>
+  <td>ASMObserverSwarm</td><td><a href="ASMObserverSwarm.html">ASMObserverSwarm.html</a></td>
+</tr>
+    
+
+<tr>
+  <td>BFagent</td><td><a href="BFagent.html">BFagent.html</a></td>
+</tr>
+
+<tr>
+  <td>BFCast</td><td><a href="BFCast.html">BFCast.html</a></td>
+</tr>
+
+<tr>
+  <td>BFParams</td><td><a href="BFParams.html">"BFParams.html</a></td>
+</tr>
+
+
+  
+<tr>
+  <td>BitVector</td><td><a href="BitVector.html">BitVector.html</a></td>
+</tr>
+
+
+<tr>
+  <td>Dividend</td><td><a href="Dividend.html">Dividend.html</a></td>
+</tr>
+<tr>
+  <td>World</td><td><a href="World.html">World.html</a></td>
+</tr>
+
+<tr>
+  <td>MovingAverage</td><td><a href="MovingAverage.html">MovingAverage.html</a></td>
+</tr>
+
+<tr>
+  <td>Output</td><td><a href="Output.html">Output.html</a></td>
+</tr>
+
+
+  
+<tr>
+  <td>Parameters</td><td><a href="Parameters.html">Parameters.html</a></td>
+</tr>
+
+<tr>
+  <td>Specialist</td><td><a href="Specialist.html">Specialist.html</a></td>
+</tr>
+    
+<tr>
+  <td>World</td><td><a href="World.html">World.html</a></td>
+</tr>
+</table>    
+      
+
+
+
+
+
+<hr>
+<address>pauljohn@ukans.edu</address>
+<!-- hhmts start --> Last modified: Wed Oct 31 12:30:16 CST 2001 <!-- hhmts end -->
+</body> </html>
