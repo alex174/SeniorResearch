@@ -10,22 +10,21 @@
 @interface ASMModelSwarm: Swarm
 {
   int modelTime;    /*"An integer used to represent the current timestep"*/
-  id warmupActions;
-  id periodActions;
-  id warmupSchedule;
-  id periodSchedule;
-  id startupSchedule;
-  // id initPeriodSchedule;
-
-  id agentList;       /*"A Swarm collection of agents "*/
-  id specialist;      /*"Specialist who clears the market   "*/
-  id dividendProcess; /*"Dividend process that generates dividends  "*/
-  id world;          /*"A World object, a price historian, really   "*/
-  id output;         /*"An Output object   "*/
-
+  
+  id <ActionGroup> periodActions; /*" An ActionGroup that collects things that are supposed to happen in a particular sequential order during each timestep "*/
+  id <Schedule> periodSchedule; /*" Schedule on which we add period (repeating) actions, most importantly, the action group periodActions"*/
+  id <Schedule> startupSchedule;
+  
+  id <List> agentList;       /*"A Swarm collection of agents "*/
+  Specialist * specialist;      /*"Specialist who clears the market   "*/
+  Dividend * dividendProcess; /*"Dividend process that generates dividends  "*/
+  World * world;          /*"A World object, a price historian, really   "*/
+  Output * output;         /*"An Output object   "*/
+  
   BFParams * bfParams;          /*" A (BFParams) parameter object holding BFagent parameters"*/
   ASMModelParams * asmModelParams;  /*" A (ASMModelParms) parameter object holding parameters of Models"*/
-                      
+  
+                    
 }
 
 
@@ -45,7 +44,6 @@
 - buildActions;
 - activateIn: (id)swarmContext;
 - doWarmupStep;
-- (void)warmUp: x;
 
 - periodStepDividend;
 - periodStepPrice;

@@ -14,23 +14,37 @@
   parameters, and then it buildsObjects (agents, markets, etc), it
   builds up a phony history of the market, and then it schedules the
   market opening and gives the agents a chance to buy and sell.
-
-  This model presents an interesting scheduling challenge. We want to
-  generate 500 periods of history that agents can refer to when they
+  
+ This model presents an interesting scheduling challenge. We want to
+  generate 501 periods of history that agents can refer to when they
   make decisions.  The warmUp schedule is a repeating schedule, and we
-  want its actions done 500 times, and when that is finished, we want
+  want its actions done 501 times, and when that is finished, we want
   the periodSchedule to begin at time 0, the starting time of actual
-  agent involvement.  There must be a simpler way to do this [grin
-  :)], but it is done here like this. The warmUp schedule is created.
-  Then a second nonrepeating schedule is created, called
+  agent involvement.  When I looked at the original, I shuddered at
+  the complexity of it.  I thought to myself, there must be a simpler
+  way to do this [grin :)], and it turns out there is.  Now, in case
+  you are comparing the new code against the old code, understand that
+  the old ASM-2.0 way was like this.  First, the warmUp schedule is
+  created.  Then a second nonrepeating schedule is created, called
   "startupSchedule."  At time 0 in the model, that startupSchedule
   controls the first action, and the action it executes is a method
-  that causes the warmUp schedule to run 500 steps of prehistory.
-  That's the warmUp method.  The warmUp method gets that done by
-  creating a temporary Swarm class without any context (activateIn:
-  nil) and then activating the startupSchedule in there, so it runs
-  "doWarmupStep" 500 steps, but none of the 500 steps count against
-  time in the larger context of the model.
+  that causes the warmUp schedule to run 501 steps of prehistory. I
+  don't know why they had 501 steps, but they did.  That's the warmUp
+  method.  The warmUp method gets that done by creating a temporary
+  Swarm class without any context (activateIn: nil) and then
+  activating the startupSchedule in there, so it runs "doWarmupStep"
+  501 steps, but none of the 501 steps count against time in the
+  larger context of the model.
+
+
+  As of ASM-2.2, I have gotten rid of that complicated setup. Instead
+  of creating the phony swarm and activating the warmup schedule
+  inside it, I created a method in ASMModelSwarm.m that carries out
+  one time step's worth of warmup.  And then I dumped 501
+  createActionTo methods on the startup schedule that execute the
+  required startup steps.  I've verified the results are numerically
+  identical to the original model.  And the scheduling is much easier
+  to understand.
 
   After the warmUp, then an ActionGroup called "periodActions" comes
   to the forefront.  The periodSchedule is a repeating schedule, which
@@ -42,7 +56,8 @@
   concluded it was doing nothing necessary, it was basically just
   running the periodActions at time 0 only. We might as well just
   schedule that action at time 0 in the startupSchedule. I have
-  verified that the model runs exactly the same (numerically identical). "*/
+  verified that the model runs exactly the same (numerically identical). 
+"*/
 
 - createEnd
 {
@@ -218,11 +233,7 @@
 {
   [super buildActions];
 
-  warmupActions = [ActionGroup create: [self getZone]];
-
-  [warmupActions createActionTo: self message: M(doWarmupStep)];
-
-//Define the actual period's actions.  
+ //Define the actual period's actions.  
   periodActions = [ActionGroup create: [self getZone]];
 
 //Set the new dividend.  This method is defined below. 
@@ -255,15 +266,22 @@
 		 message: M(updatePerformance)];
 
 // Create the model schedule
-  warmupSchedule = [Schedule createBegin: [self getZone]];
-  [warmupSchedule setRepeatInterval: 1];
-  warmupSchedule = [warmupSchedule createEnd];
-  [warmupSchedule at: 0 createAction: warmupActions];
+
 
   startupSchedule = [Schedule create: [self getZone] setAutoDrop: YES];
-  [startupSchedule at: 0 createActionTo: self message: M(warmUp:):warmupSchedule];
-  
-  
+
+
+ 
+  //force the system to do 501 "warmup steps" at the beginning of the
+  //startup Schedule.  Note that, since these phony steps are just
+  //handled by telling classes to do the required steps, nothing fancy
+  //is required.
+  {
+    int i;
+    for (i = 0; i < 502; i++)
+      [startupSchedule at: 0 createActionTo: self message:M(doWarmupStep)];
+  }
+ 
   [startupSchedule at: 0 createAction: periodActions];
   	      
   periodSchedule = [Schedule createBegin: [self getZone]];
@@ -272,26 +290,6 @@
   [periodSchedule at: 0 createAction: periodActions];
 
   return self;
-}
-
-- (void)warmUp: x
-{
-  id warmupSwarm;
-  id warmupActivity;
-  id terminateSchedule;
-
-  warmupSwarm = [Swarm create: globalZone];
-  [warmupSwarm activateIn: nil];
-  warmupActivity = [x activateIn: warmupSwarm];
-  
-  terminateSchedule = [Schedule create: globalZone];
-  [terminateSchedule activateIn: warmupSwarm];
-  [terminateSchedule at: 501 createActionTo: warmupActivity
-		     message: M(terminate)];
-      
-  while ([[warmupSwarm getSwarmActivity] run] != Completed);
-  [warmupSwarm drop];
-  [terminateSchedule drop];
 }
 
 /*"Ask the dividend object for a draw from the dividend distribution, then tell the world about it. Tell the world to do an update of to respond to the dividend. Then calculate the price the divident implies and insert it into the world"*/
