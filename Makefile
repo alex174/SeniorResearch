@@ -31,3 +31,4 @@ BitVector.o: BitVector.h BitVector.m
 ASMModelParams.o: ASMModelParams.h  ASMModelParams.m
 Parameters.o: Parameters.h Parameters.m ASMModelParams.h BFParams.h
 MovingAverage.o: MovingAverage.h MovingAverage.m
+
