@@ -186,7 +186,6 @@
   [specialist setETA: asmModelParams-> eta];
   [specialist setREA: asmModelParams-> rea];
   [specialist setREB: asmModelParams->reb];
-  //  [specialist setWorld: world];
   specialist = [specialist createEnd];
  
   [output setWorld: world];
@@ -216,9 +215,7 @@
       agent = [agent createEnd];
       [agentList addLast: agent];
     }
-      
-  //Give the specialist access to the agentList
-  //[specialist setAgentList: agentList];
+
   return self;
 }
 
