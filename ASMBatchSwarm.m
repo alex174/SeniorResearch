@@ -29,12 +29,14 @@ instructed to write results"*/
   id modelZone;
   BFParams * bfParams = [(id)arguments getBFParams];
   ASMModelParams * asmModelParams = [(id)arguments getModelParams];
+  output = [[Output createBegin: self] createEnd];
 
   [super buildObjects];
 
   modelZone = [Zone create: [self getZone]];
   asmModelSwarm = [ASMModelSwarm create: modelZone];
- 
+  [asmModelSwarm setOutputObject: output];
+
   [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
 
   //ObjectLoader: is deprecated
