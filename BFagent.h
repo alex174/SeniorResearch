@@ -61,7 +61,7 @@ struct BFparams
   int lastgatime;
   int *bitlist;		// dynamic array, length condbits
   double *problist;	// dynamic array, length condbits
-  unsigned int *myworld;// dynamic array, length condwordsdouble avspecificity
+  unsigned int *myworld;// dynamic array, length condwords
 };
 
 

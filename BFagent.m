@@ -64,30 +64,34 @@
 // 
 
 #import "BFagent.h"
-#import <random.h>
+#import <random.h> 
 #import "World.h"
 #include <misc.h>
 
 extern World *worldForAgent;
 
-//pj:
-//convenience macros to replace stuff from ASM random with Swarm random stuff
-
-#define drand()    [uniformDblRand getDoubleWithMin: 0 withMax: 1]
-#define urand()  [uniformDblRand getDoubleWithMin: -1 withMax: 1]
-#define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1] 
-
+//pj: 
+//convenience macros to replace stuff from ASM random with Swarm random stuff 
+ 
+#define drand()    [uniformDblRand getDoubleWithMin: 0 withMax: 1] 
+#define urand()  [uniformDblRand getDoubleWithMin: -1 withMax: 1] 
+#define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1]  
+ 
 //Macros for bittables
 #define WORD(bit)	(bit>>4)
 #define MAXCONDBITS	80
 
-extern int SHIFT[MAXCONDBITS];
-extern unsigned int MASK[MAXCONDBITS];
-extern unsigned int NMASK[MAXCONDBITS];
+//pj: no need for externs here, not used in other classes
+//pj: extern int SHIFT[MAXCONDBITS];
+//pj: extern unsigned int MASK[MAXCONDBITS];
+//pj: extern unsigned int NMASK[MAXCONDBITS];
+//pj:  int SHIFT[MAXCONDBITS];
+//pj:  unsigned int MASK[MAXCONDBITS];
+//pj:  unsigned int NMASK[MAXCONDBITS];
 
-int SHIFT[MAXCONDBITS];
-unsigned int MASK[MAXCONDBITS];
-unsigned int NMASK[MAXCONDBITS];
+static int SHIFT[MAXCONDBITS];
+static unsigned int MASK[MAXCONDBITS];
+static unsigned int NMASK[MAXCONDBITS];
 
 // Type of forecasting.  WEIGHTED forecasting is untested in its present form.
 #define WEIGHTED 0
@@ -155,8 +159,7 @@ static unsigned int *newconds;		/* GA temporary storage */
 static int npoolmax = -1;		/* size of reject array */
 static int nnewmax = -1;		/* size of newfcast array */
 static int ncondmax = -1;		/* size of newconds array */
-static int * bits;			/* work array during startup */
-static double * probs;			/* work array during startup */
+
 extern int ReadBitname(const char *variable, const struct keytable *table);
 
 // PRIVATE METHODS
@@ -171,18 +174,14 @@ extern int ReadBitname(const char *variable, const struct keytable *table);
 {
   int i, nnulls;
   double currentprob;
-  
+ 
+  //pj: no need bits or probs to be dynamically allocated or class vars.
+  //they are only used in this method!  So remove calloc's
+  int bits[MAXCONDBITS];
+  double probs[MAXCONDBITS];
+
 //Makes the bit tables for the agent    
   makebittables();
-
-// Allocate space for the bitlists
-  bits = calloc(MAXCONDBITS,sizeof(int));
-  if(!bits)
-    printf("There was an error allocating space for bits.");
-
-  probs = calloc(MAXCONDBITS,sizeof(double));
-  if(!probs)
-    printf("There was an error allocating space for probs.");
 
 // Allocate space for our parameters
   params = (struct BFparams *) malloc(sizeof(struct BFparams));
@@ -234,7 +233,7 @@ extern int ReadBitname(const char *variable, const struct keytable *table);
       probs[i] = currentprob;
     }
 
-    
+  //pj: why not params->condbit=16; ??
   params->condbits = i;
   params->nnulls = nnulls;
 
@@ -389,10 +388,11 @@ int ReadBitname(const char *variable, const struct keytable *table)
 {
   struct BF_fcast *fptr, *topfptr;
   unsigned int *conditions;
-    
-// Free working space we're done with
-  free(probs);
-  free(bits);
+  
+  //pj: no longer needed because these are converted to arrays in +init  
+//  // Free working space we're done with
+//    free(probs);
+//    free(bits);
 
 // Allocate working space for GA
   reject = calloc(npoolmax,sizeof(struct BF_fcast *));
@@ -426,18 +426,22 @@ int ReadBitname(const char *variable, const struct keytable *table)
   int * myRealWorld;
   int nworldbits;
 
-  pp = (struct BFparams *)params;
+  //pj: pp = (struct BFparams *)params;
 
 // Make a "myworld" string of bits extracted from the full "realworld"
 // bitstring.
-  pp = params;
+
+  pp = params;  //perhaps this is necessary to initialize pp?  
   condwords = pp->condwords;
   condbits = pp->condbits;
   bitlist = pp->bitlist;
   myworld = pp->myworld;
   for (i = 0; i < condwords; i++)
     myworld[i] = 0;
-  nworldbits = [self setNumWorldBits];
+  //pj: nworldbits = [self setNumWorldBits];
+  //replace with:
+   nworldbits = [worldForAgent getNumWorldBits];
+
   myRealWorld = calloc(nworldbits, sizeof(int));
   if(!myRealWorld)
     printf("There was an error allocating space for myRealWorld.");
@@ -455,8 +459,9 @@ int ReadBitname(const char *variable, const struct keytable *table)
 
 +(int)lastgatime
 {
-  pp = (struct BFparams *)params;
-  return pp->lastgatime;
+  //  pp = (struct BFparams *)params;
+  //return pp->lastgatime;
+  return params->lastgatime;
 }
 
 
@@ -466,7 +471,7 @@ int ReadBitname(const char *variable, const struct keytable *table)
   return self;
 }
 
-
+//pj: superfluous method
 +(int)setNumWorldBits
 {
   int numofbits;

@@ -1,7 +1,6 @@
 #import <objectbase.h>               //Agent is a SwarmObject
 #import "World.h"
 
-
 @interface Agent:SwarmObject          
 {
   @public
