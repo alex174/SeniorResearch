@@ -1,6 +1,20 @@
 // Code for a "bitstring forecaster" (BF) agent
 
 /*
+pj: change comments Nov. 2, 2001.
+
+In 2000 comments, I said I was leaving the privateParams object as
+a shared thing used by all BFagents.  Well, I just could not stand
+that anymore and so now I have the global BFParams object, the one
+for which the GUI shows and it is the default for all instances,
+but now each BFagent gets its own instance of BFParams and it is
+a copy of BFParams, at least to start. That object privateParams
+can now be individualized for each agent. In particular, one thing
+on the TODO list has to be the individualization of bitlists.
+
+Other changes described from last year are all still fine.
+
+
 pj: change comments June 2, 2000
 
 I began with the code as released by the ASM research team through
@@ -200,7 +214,7 @@ static BFParams *  params;
 //pj:  ReadBitname moved to BFParams
 
 //pj: This is the only global variable I still need, and I'm looking for a way go get rid of it!
-  static double minstrength;	
+static double minstrength;	
 
 
 // PRIVATE METHODS
@@ -226,8 +240,8 @@ the stock is likely to do in future.  In order to make predictions, it
 keeps a large list of forecast objects on hand, and each forecast
 object makes a price prediction. These forecasts, which are created
 from the BFCast subclass, are fairly sophisticated entities, they may
-monitor many different conditions of the world.  The forecast which is
-the best historical record at any given instant is used to predict the
+monitor many different conditions of the world.  The forecast which has
+the best performance record at any given instant is used to predict the
 future price, which in turn leads to the buy/sell decision. 
 
 Inside the file BFagent.m, there is a long set of comments about the
@@ -287,17 +301,14 @@ getConditionsbit: x].  "*/
 /*"initForecasts. Creates BFCast objects (forecasts) and puts them
   into an array called fCastList.  These are the "meat" of this
   agent's functionality, as they are repeatedly updated, improved, and
-  tested in the remainder of the class.  Note it is conceivable that,
-  for some future usage, we want to keep a separate BFParams object
-  for each agent. That would allow true diversity!  In the current
-  setup, there is no need to do so, so the "private parameters"
-  objects (see the IVAR privateParams) of all agents all refer to the
-  same, common, public parameter object."*/
+  tested in the remainder of the class.  Please note each BFagent has
+  a copy of the default params object called privateParams.  It can be
+  used to set individualized values of settings in BFParams for each
+  agent. That would allow true diversity! I don't see how that diversity
+  would be allowed for in the ASM-2.0."*/
 - initForecasts
 {
   int  sumspecificity = 0;
- 
-  //pj:new vars
   int i;
   BFCast * aForecast; 
   int numfcasts;
@@ -305,18 +316,18 @@ getConditionsbit: x].  "*/
 
 // Initialize our instance variables
 
-  //pj: in the future, it may be good to have a separate parameter object for each BFagent.
-  //pj: now it makes little sense, so I'm commenting out the creation code here and just setting
-  //pj: privateParams equal to the global variable that is passed in.
-  //    if ((privateParams =
-  //           [lispAppArchiver getWithZone: [self getZone] key: "bfParams"]) == nil)
-  //        raiseEvent(InvalidOperation,
-  //                   "Can't find the BFParams parameters");
-  //      [privateParams init];
+  //all instances of BFagent can use the same BFParams object.
+  //ASM-2.0 was written that way, something like:
+  // privateParams= params;
+  
+  // That seemed fraught with danger, with all instances having
+  // read/write access to a global parameter object, so now I'm
+  // creating a copy that each agent can have and individualize.
+  privateParams = [params copy: [self getZone]];
 
-  privateParams= params;
-
-  numfcasts=getInt(privateParams,"numfcasts");
+  //If you want to customize privateParams, this is the spot!
+ 
+  numfcasts = getInt(privateParams,"numfcasts");
 
   fcastList=[Array create: [self getZone] setCount: numfcasts];
 
@@ -405,9 +416,11 @@ getConditionsbit: x].  "*/
   return aForecast;   
 }
 
-/*"Take a forecast and randomly change its bits.  This appears to be a
-  piece of functionality that could move to the BFCast class
-  itself. There were quite a few of them at one time."*/
+/*"Take a forecast object and randomly change the bits that govern
+  which conditions it monitors.  This appears to be a piece of
+  functionality that could move to the BFCast class itself. There were
+  quite a few of these details floating around in BFagent at one time,
+  many are gone now."*/
 - setConditionsRandomly: (BFCast *)fcastObject
 {
   int bit;
@@ -535,7 +548,6 @@ getConditionsbit: x].  "*/
   //NOT WEIGHTED MODEL
   // Go through the list and find best forecast
   maxstrength = -1e50;
-  //bestfptf=NULL
   bestForecast = nil;
   nactive = 0;
   mincount = getInt(privateParams,"mincount");
@@ -555,6 +567,9 @@ getConditionsbit: x].  "*/
   //  	}
   //      }
   
+
+  //??Following code causes a bug when numfcasts is small. It causes
+  //nactive >0 even though there is no best forecast. ?? Track it down
   index=[activeList begin: [self getZone]];
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
@@ -598,8 +613,8 @@ getConditionsbit: x].  "*/
       mincount = getInt(privateParams,"mincount");
 
 
-      index=[ fcastList begin: [self getZone]];
-      for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+      index = [fcastList begin: [self getZone]];
+      for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
 	{
 	  if ([aForecast getCnt] >= mincount)
 	    {  
@@ -627,7 +642,13 @@ getConditionsbit: x].  "*/
   return self;
 }
 
-
+/*"A forecast has a set of conditions it is watching. These are packed
+tight in a BitVector. We need the world data about the status of those
+conditions packed the same way, in order to make quick checks on the
+accuracy of the forecasts. This method creates a BitVector to match
+the conditions that are being monitored by the agent's forecasts.
+This requires the use of the design assumption that all of an agent's
+forecasts have the same bitlist."*/
 - (BitVector *)collectWorldData: aZone;
 { 
   int i,n,nworldbits;
@@ -661,7 +682,7 @@ getConditionsbit: x].  "*/
 }
 
 
-/*"This is the main inner loop over forecasters. Go through the list
+/*"This is the main inner loop over forecasts. Go through the list
   of active forecasts, compare how they did against the world.  Notice
   the switch that checks to see how big the bitvector (condwords) is
   before proceeding.  At one time, this gave a significant
@@ -832,7 +853,7 @@ as it used to throughout the BFagent class.
 
 - (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice
   /*" Returns the agent's requested bid (if >0) or offer (if <0) using
-* best (or mean) linear forecast chosen by -prepareForTrading The
+* best (or mean) linear forecast chosen by -prepareForTrading. The
 * forecast is given by 
 
    forecast = pdcoeff*(trialprice+dividend) + offset 
@@ -1011,7 +1032,7 @@ according to the currently active linear rule. "*/
 	  // original bfagent has this: rptr->strength = p->maxdev -
 	  // rptr->variance + rptr->specfactor; 
 
-	  // BFagent had this: fptr->strength =
+	  // BFagent in ASM-2.0 had this: fptr->strength =
 	  // fptr->specfactor/fptr->variance; I've spoken to Blake
 	  // LeBaron and we both like the old way and don't know why it
 	  // was changed. 
@@ -1180,7 +1201,9 @@ according to the currently active linear rule. "*/
 
 //pj: this method is not called anywhere
 
-/*"Currently, this method is not called anywhere in ASM-2.2. It might serve some purpose, past or present, I don't know (pj: 2001-11-26)"*/
+/*"Currently, this method is not called anywhere in ASM-2.2. It might
+  serve some purpose, past or present, I don't know (pj:
+  2001-10-26)"*/
 // ASM-2.0 documentation:
 //	If the agent uses condition bits, returns a description of the
 //	specified bit.  Invalid bit numbers return an explanatory message.
@@ -1195,7 +1218,11 @@ according to the currently active linear rule. "*/
 }
 
 
-/*" Genetic algorithm. It relies on the following separate methods.  (pj: 2001-11-25. I still see some room for improvement here, but the emphasis is to eliminate all global variables and explicitly pass return values instead.)
+/*" Genetic algorithm. It relies on the following separate methods.
+(pj: 2001-11-25. I still see some room for improvement here, but the
+emphasis is to eliminate all global variables and explicitly pass
+return values instead.  Any values needed for computations should
+either be passed explicitly or taken from someplace safe)
 //
 //  1. MakePool makes a list of the weakest forecasts:
 //  rejectList. That is the "npool" weakest rules.
@@ -1906,7 +1933,7 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
   int bit, j;
   BOOL changed;
   // int currentTime;
-  int * bitlist=NULL;
+  int * bitlist = NULL;
 
   bitlist = [privateParams getBitListPtr];
 

@@ -1,3 +1,32 @@
+2001-11-03    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* BFagent.m ([BFagent -initForecasts]): Now privateParams is a
+	truely separate instance of BFParams, one for each object. The old
+	way of using the same instance for all agents seemed fraught with
+	danger.
+
+	* BFParams.m ([BFParams -copy:aZone]): New method to create a copy
+	of an instance and return it.  Does detailed copy of all ivars,
+	including dynamically allocated arrays.
+	([BFParams -copyProbList:p:size]): used in copy: method. This takes 
+	a pointer to a double array and replaced the problist with it.
+	([BFParams -copyBitList:Length:size]): copies a bitlist  and replaces
+	existing bitlist with it.
+
+2001-11-02    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* BFParams.m ([BFParams -init]): Commented out "myWorld" array,
+	couldn't find any place it was used. Also commented out
+	lastgatime, couldn't figure why that value was kept here in the
+	parameters object, rather than in the BFagent. Maybe there's a
+	reason, but I can't find it.
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -expostParamWrite]): fixed
+	expostParamWrite error (due to unavailability of time at
+	shutdown).
+	([ASMObserverSwarm -buildObjects]): show probe map for BFParams
+	object.
+
 2001-11-02  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): create

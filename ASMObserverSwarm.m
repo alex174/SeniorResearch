@@ -125,9 +125,8 @@
   [asmModelSwarm setOutputObject: output];
 
   CREATE_ARCHIVED_PROBE_DISPLAY (self);
-
   CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
-
+  CREATE_ARCHIVED_PROBE_DISPLAY (bfParams);
   [controlPanel setStateStopped];
 
   // Don't set the parameter objects until the model starts up That
@@ -277,7 +276,7 @@
 {
   writeParams = 1;
   [output writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: [asmModelSwarm getModelTime]];
- 
+  
   return self;
 }
 
@@ -287,7 +286,7 @@
 - expostParamWrite
 {
   if (writeParams == 1)
-    [output writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: getCurrentTime()]; 
+    [output writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time:[asmModelSwarm getModelTime]]; 
   return self;
 }
 

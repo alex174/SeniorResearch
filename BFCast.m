@@ -52,13 +52,13 @@
 /*"Sets the number of bits. This is the number of aspect of the world that are monitored"*/
 - (void)setCondbits: (int)x
 {
-  condbits=x;
+  condbits = x;
 }
 
 /*"Null bits may be needed if the bit vector that is allocated is larger than the number of conditions being monitored. Since a bitvector allocates space in sizes of words, this might be important. Luckily, in the current design of ASM-2.0 (and after), there are no null bits."*/
 - (void) setNNulls: (int) x
 {
-  nnulls= nnulls;
+  nnulls = nnulls;
 }
 
 /*"Set the variable bitcost at x"*/
@@ -140,19 +140,19 @@
 /*"Set a coefficient from demand equation"*/
 - (void)setAval: (double)x
 {
-  a=x;
+  a = x;
 }
 
 /*"Set b coefficient from demand equation"*/
 - (void)setBval: (double)x
 {
-  b=x;
+  b = x;
 }
 
 /*"Set c coefficient from demand equation"*/
 - (void)setCval: (double)x
 { 
-  c=x;
+  c = x;
 }
 
 /*"Return a coefficient from demand equation"*/
@@ -180,14 +180,14 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 {
   //was in BFagent: specfactor = 1.0/(1.0 + x*specificity);
   //but the bfagent.m way is so much nicer
-  specfactor= (condbits - nnulls - specificity)* bitcost; //follows bfagent.m
+  specfactor = (condbits - nnulls - specificity)* bitcost; //follows bfagent.m
   
 }
 
 /*"Set the specfactor value of this forecast"*/
 - (void)setSpecfactor: (double)x
 {
-  specfactor=x;
+  specfactor = x;
 };
 
 /*"Return the specfactor value of this forecast"*/
@@ -211,7 +211,7 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 /*"Set the specificity of this forecast"*/
 - (void)setSpecificity: (int) x
 {
-  specificity=x;
+  specificity = x;
 }
 
 /*"Return the specificity of this forecast"*/
@@ -236,7 +236,7 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 /*"Set the time on which this forecast was last active to an input value"*/
 - (void)setLastactive: (int)x
 {
-  lastactive=x;
+  lastactive = x;
 }
 
 /*"Return the time on which this forecast was last active"*/
@@ -276,13 +276,13 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 /*"Set the strength value to an inputted value"*/
 - (void) setStrength: (double)x
 {
-  strength=x;
+  strength = x;
 }
 
 /*"Set the previous forecast of this object to an inputted value"*/
 - (void)setLforecast: (double)x
 {
-  lforecast=x;
+  lforecast = x;
 }
 
 /*"Get forecast from the previous time period"*/
@@ -295,7 +295,7 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 /*"Set the forecast of this object to an inputted value"*/
 - (void)  setForecast: (double) x
 {
-  forecast=x;
+  forecast = x;
 }
 
 /*"Return forecast from this object"*/
@@ -307,8 +307,8 @@ specfactor= (condbits - nnulls - specificity)* bitcost
 /*"Calculate new forecast on basis of price and dividend information"*/
 - (double) updateForecastPrice: (double)price Dividend: (double)dividend
 {
-  lforecast=forecast;
-  forecast= a* (price+dividend) + b*dividend + c;
+  lforecast = forecast;
+  forecast = a* (price+dividend) + b*dividend + c;
   return forecast;
 }
 
@@ -317,7 +317,7 @@ specfactor= (condbits - nnulls - specificity)* bitcost
   all its IVARs and replace current settings with them."*/
 - copyEverythingFrom: (BFCast *)from
 {
- forecast= [from getForecast];
+ forecast = [from getForecast];
  lforecast = [from getLforecast];
  variance = [from getVariance];
  strength =  [from getStrength];

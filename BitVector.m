@@ -17,8 +17,8 @@ static void makebittables(void);
 /*" This class is the "hairy guts" that makes bit forecasts possible.
 
 A bit vector is a group of "words", and each "word" contains 16
-indicators.  In this model, the bit vectors have 4 words, which means
-there are 64 indicators possible.
+indicators.  In this model, the bit vectors have 5 words, which means
+there are 80 indicators possible.
 
 In the substance of this model, a "bit" is an aspect of the world
 being monitored.  In genetic algorithm terms, one can say "NO", "YES"
@@ -29,15 +29,15 @@ be represented by a 32 bit integer, as in
 
 0110001000011000010101100100100101010101
 
-which holds the status of 16 bits.  There are 4 such words in any
-BitVector.  Those words are referred to by the pointer "conditions".
-The first word can be found at conditions[0], the second at
-conditions[1], and so forth.  Note that these are integer values, but
-the bit math does work on the binary values.  I probably need a
-computer scientist to translate this for me...
+which holds the status of 16 bits.  There can be as many as 5 of these
+in a BitVector.  Those words are referred to by the pointer
+"conditions".  The first word can be found at conditions[0], the
+second at conditions[1], and so forth.  Note that these are integer
+values, but the bit math does work on the binary values.  I probably
+need a computer scientist to translate this for me...
 
-The world in the ASM can give a vector as well, telling us many
-indicators, whether they are good or bad, 0 or 1.  So the bit
+The world in the ASM can give a vector as well, telling us in binary
+many indicators, whether they are good or bad, 0 or 1.  So the bit
 forecasting agent takes the 0's and 1's from the world, and checks to
 see if they are used in the forecast, and makes a forecast.  All of
 the checking and setting of forecast bits is handled by this BitVector

@@ -21,7 +21,7 @@ getInt (id obj, const char *ivarName);
   @public
     int numfcasts; /*"number of forecasts maintained by this agent"*/
   int condwords; /*"number of words of memory required to hold bits"*/
-  int condbits; /*"number of conditions bits that exist"*/
+  int condbits; /*"number of conditions bits are monitored"*/
   int mincount; /*"minimum number of times forecast must be used to become active"*/
   int gafrequency; /*"how often is genetic algorithm done?"*/
   int firstgatime; /*"after how many time steps is the genetic algorithm done"*/
@@ -54,11 +54,9 @@ getInt (id obj, const char *ivarName);
   int npool;		/*" derived: replacement pool size"*/
   int nnew;		/*" derived: number of new rules"*/
   int nnulls;            /*" unnused bits"*/
-  int lastgatime;        /*" last time genetic algorithm was run"*/
   int *bitlist;		/*" dynamic array, length condbits"*/
   double *problist;	/*" dynamic array, length condbits"*/
-  unsigned int *myworld;/*" dynamic array, length condwords"*/
-
+ 
   int npoolmax ;		/* size of reject array */
   int nnewmax ;		/* size of newfcast array */
   int ncondmax;		/* size of newc*/
@@ -69,12 +67,15 @@ getInt (id obj, const char *ivarName);
 - init;
 
 - (int*)getBitListPtr;
+- (void)copyBitList: (int *) p Length: (int) size;
+
 
 - (double *)getProbListPtr;
-
-- (int *)getMyworldPtr;
-
-- (int)lastgatime;
-
+- (void)copyProbList: (double *) p Length: (int) size;
+- (BFParams *) copy: (id <Zone>) aZone;
 
 @end
+
+
+
+

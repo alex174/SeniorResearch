@@ -34,7 +34,6 @@
   #:nhood   0.05D0
   #:genfrac   0.10D0 
   #:nnulls  0
-  #:lastgatime 1
   #:condbits 16
   #:npoolmax -1
   #:nnewmax -1
