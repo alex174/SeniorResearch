@@ -1,3 +1,12 @@
+2003-06-09  Thomas Badegruber  <badegruber@localhost.localdomain>
+
+	* BFagent.m: changed bitDistribution to count only bits of
+	forecast that were used within the last 10000 periods.
+
+	* BFCast.m ([BFCast -createEnd]): introduced new ivar lastused to
+	track last actual use of forecast in contrast to lastactive, that
+	tracks when forecast was last in activelist.
+
 2003-06-07  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* Output.h (SwarmObject): seems to me bs[] array only should have 12
