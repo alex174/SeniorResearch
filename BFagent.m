@@ -262,6 +262,9 @@ static BFParams *  params;
 
 //pj:  ReadBitname moved to BFParams
 
+//pj: This is the only global variable I still need, and I'm looking for a way go get rid of it!
+  static double minstrength;	
+
 
 // PRIVATE METHODS
 @interface BFagent(Private)
@@ -1222,7 +1225,8 @@ I write it before I understood the fact that the World gives back 10 for yes and
   id rejectList = [Array create: [self getZone] setCount: getInt(privateParams,"npoolmax")];
  
 
-  static double avstrength,minstrength;	
+  static double avstrength;
+
 
   ++gacount;
   currentTime = getCurrentTime();
@@ -1392,8 +1396,6 @@ I write it before I understood the fact that the World gives back 10 for yes and
 /*------------------------------------------------------*/
 -(BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from
 {
-  
-  double minstrength = 1.0e20;
   [to setForecast: [from getForecast]];
   [to setLforecast: [from getLforecast]];
   [to setVariance: [from getVariance]];

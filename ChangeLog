@@ -1,3 +1,11 @@
+2001-10-25  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m ([BFagent -CopyRule:to:from]): minstrength has to be
+	put back in as a global variable because it is used in the
+	performGA as well as CopyRule methods.  Changing it to a local
+	variable broke CopyRule for some forecasts in which Count=0.  That
+	was hard to track down, I'll tell ya.
+
 2001-10-24  Paul E Johnson  <pauljohn@ukans.edu>
 
 	* ASMObserverSwarm.hm (GUISwarm): Found way to make histograms
