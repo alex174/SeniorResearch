@@ -44,7 +44,7 @@
 - writeParams;
 - buildActions;
 - activateIn: (id)swarmContext;
-
+- doWarmupStep;
 - (void)warmUp: x;
 
 - (void)initPeriod: x;

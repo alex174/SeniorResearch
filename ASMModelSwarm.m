@@ -13,7 +13,39 @@
   is orchestrated.  The ASMModelSwarm object is told where to get its
   parameters, and then it buildsObjects (agents, markets, etc), it
   builds up a phony history of the market, and then it schedules the
-  market opening and gives the agents a chance to buy and sell."*/
+  market opening and gives the agents a chance to buy and sell.
+
+  This model presents an interesting scheduling challenge. We want to
+  generate 500 periods of history that agents can refer to when they
+  make decisions.  The warmUp schedule is a repeating schedule, and we
+  want its actions done 500 times, and when that is finished, we want
+  the periodSchedule to begin at time 0, the starting time of actual
+  agent involvement.  There must be a simpler way to do this [grin
+  :)], but it is done here like this. The warmUp schedule is created.
+  Then a second nonrepeating schedule is created, called
+  "startupSchedule."  At time 0 in the model, that startupSchedule
+  controls the first action, and the action it executes is a method
+  that causes the warmUp schedule to run 500 steps of prehistory.
+  That's the warmUp method.  The warmUp method gets that done by
+  creating a temporary Swarm class without any context (activateIn:
+  nil) and then activating the startupSchedule in there, so it runs
+  "doWarmupStep" 500 steps, but none of the 500 steps count against
+  time in the larger context of the model.
+
+  After the warmUp, then an ActionGroup called "periodActions" comes
+  to the forefront.  The periodSchedule is a repeating schedule, which
+  causes the periodActions to happen at every time step in the larger
+  model.
+
+  In ASM-2.0, there was another initial schedule called
+  initPeriodSchedule.  After looking at it for a long time, I
+  concluded it was doing nothing necessary, it was basically just
+  running the periodActions at time 0 only.  We might as well leave
+  that to the periodSchedule. The initPeriodSchedule stuff is
+  commented-out here, in case anybody wants to point out the need for
+  them.  It does demonstrate one way to have an action run only at
+  time 0.
+"*/
 
 - createEnd
 {
@@ -191,17 +223,7 @@
 
   warmupActions = [ActionGroup create: [self getZone]];
 
-//Set the new dividend.  This method is defined below.   
-  [warmupActions createActionTo:     self
-		 message: M(warmupStepDividend)];
-  
-// Update world -- moving averages, bits, etc
-  [warmupActions createActionTo:     world      
-		 message: M(updateWorld)];
-
-//Fake price setting (crude fundamental value)
-  [warmupActions createActionTo:     self
-		 message: M(warmupStepPrice)];
+  [warmupActions createActionTo: self message: M(doWarmupStep)];
 
 //Define the actual period's actions.  
   periodActions = [ActionGroup create: [self getZone]];
@@ -284,6 +306,15 @@
   [terminateSchedule drop];
 }
 
+/*"Ask the dividend object for a draw from the dividend distribution, then tell the world about it. Tell the world to do an update of to respond to the dividend. Then calculate the price the divident implies and insert it into the world"*/
+-doWarmupStep
+{
+  double div = [dividendProcess dividend];
+  [world setDividend: div];
+  [world updateWorld];
+  [world setPrice: (div/(double)asmModelParams->intrate )];
+  return self;
+}
 
 - (void)initPeriod: x
 {
