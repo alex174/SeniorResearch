@@ -311,6 +311,8 @@ necessary to initialize an hdfWriter, as seen in this code.  "*/
   static int *(*countpointer)[4];
   BOOL cum;
   int i,bs[16];
+  int cs[3];
+
 
   //**** I've got 3 ways to write out numerical results. *****//
   //**** Choose what you like ****//
@@ -335,12 +337,31 @@ necessary to initialize an hdfWriter, as seen in this code.  "*/
 	{
 	  //printf("Agent number %3d\n",[agent getID]);
 	[agent bitDistribution: countpointer cumulative:cum];
-	for (i = 0; i < [agent nbits];i++ ) bs[i]=bs[i]+(*countpointer)[1][i]+(*countpointer)[2][i];
+	for (i = 0; i < [agent nbits];i++ ) 
+	  {
+	    bs[i]=bs[i]+(*countpointer)[1][i]+(*countpointer)[2][i];
+
+	  }
 	}
       for (i=0;i<16;i++) fprintf(dataOutputFile,"%3d ",bs[i]);
+      //for (i=0;i<16;i++) fprintf(stderr,"%3d ",bs[i]);fprintf(stderr,"\n");
+
+      cs[0]=0; cs[1]=0; cs[2]=0;
+
+      for (i = 0; i < 16;i++ )
+	{
+	  if (i < 2) cs[0] = cs[0]+bs[i];
+	  else if ( i >=2 && i < 6) cs[1] = cs[1]+bs[i];
+	  else cs[2] = cs[2]+bs[i];
+	}
+
+      
+      fprintf(dataOutputFile,"%f %f %f", (double)cs[0]/2.0,(double)cs[1]/4.0,(double)cs[2]/10.0);
+      // fprintf(stderr,"%f %f %f", (double)cs[0]/2.0,(double)cs[1]/4.0,(double)cs[2]/10.0);fprintf(stderr,"\n");
       fprintf(dataOutputFile,"\n");
       [index drop];
          
+
   // Second, dump those same values out to an hdf5 format file.  This
   // uses the Archiver library "put shallow" to dump all primitive
   // types, ints and doubles mainly.
