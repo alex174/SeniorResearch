@@ -1,29 +1,22 @@
 #import "ASMModelSwarm.h"
 #import <simtools.h>
 #import "Output.h"
-//#import "random.h"
 #import "BFParams.h"
 #import "BFCast.h"
 #import <random.h>
 
 #include <misc.h>
-#include <defobj.h>  //for archiver
-
 
 
 @implementation ASMModelSwarm
 
-//  +createBegin: (id)aZone
-//  {
-//    ASMModelSwarm * obj;
-//    //  id <ProbeMap> probeMap;
 
-//    obj = [super createBegin: aZone];
- 
-
-   
-//    return obj;
-//  }  
+- createEnd
+{
+  modelTime=0;
+  fprintf(stderr,"ModelSwarm Create begin \n");
+  return [super createEnd];
+}
 
 - setParamObject: (ASMModelParams *) modelParams
 {
@@ -32,20 +25,13 @@
   return self;
 }
 
-
--createEnd
-{
-  return [super createEnd];
-}
-
-
--(int)getNumBFagents
+-(int) getNumBFagents
 {
   return asmModelParams->numBFagents;
 }
 
 
--(double)getInitialCash
+-(double) getInitialCash
 {
   return asmModelParams->initialcash;
 }
@@ -55,7 +41,6 @@
 {
   return agentList;
 }
-
 
 -(World *)getWorld
 {
@@ -76,47 +61,32 @@
 }
 
 
+-(long int) getModelTime
+{
+  return modelTime;
+}
+
 -setBatchRandomSeed: (int)newSeed
 {
-  
   asmModelParams->randomSeed = newSeed;
   return self;
 }
 
-
--buildObjects        //Build and initialize all objects
+//Build and initialize objects
+-buildObjects      
 {
   int i;
-  id bfParams;
 
-  //pj
-  //randomSeed = randset(randomSeed);	// returns actual seed if 0
-
-  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n",
-	  asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
-
- 
-#ifndef USE_LISP
-  unlink ("output.hdf");
-  archiver = [HDF5Archiver create: self setPath: "output.hdf"];
-#else
-  unlink ("output.scm");
-  archiver = [LispArchiver create: self setPath: "output.scm"];
-#endif
+  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n", asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
 
   asmModelParams->exponentialMAs = 1; 
 
-   if(asmModelParams->randomSeed != 0) [randomGenerator setStateFromSeed: asmModelParams->randomSeed];
-   //pj: note I'm making this like other swarm apps. Same each time, new seeds only if precautions taken.
+  if(asmModelParams->randomSeed != 0) 
+    [randomGenerator setStateFromSeed: asmModelParams->randomSeed];
+  //pj: note I'm making this like other swarm apps. Same each time, new seeds only if precautions taken.
 
-
-   [archiver putShallow: "someModelOutput" object: asmModelParams];
-#ifdef USE_LISP
-   [archiver sync];
-#endif
-
-  
-/* Initialize the dividend, specialist, and world (order is crucial) */
+ 
+  /* Initialize the dividend, specialist, and world (order is crucial) */
   dividendProcess = [Dividend createBegin: [self getZone]];
   [dividendProcess initNormal];
   [dividendProcess setBaseline: asmModelParams->baseline];
@@ -141,65 +111,55 @@
   [specialist setMaxIterations: asmModelParams-> maxiterations];
   [specialist setMinExcess: asmModelParams->minexcess];
   [specialist setETA: asmModelParams-> eta];
-  //  [specialist setETAmin: asmModelParams-> etamin]; pj: was unused
-  //   [specialist setETAmax: asmModelParams->etamax]; pj: was unused
   [specialist setREA: asmModelParams-> rea];
   [specialist setREB: asmModelParams->reb];
-  // [specialist init];
   [specialist setWorld: world];
   specialist = [specialist createEnd];
 
-  output = [Output create: [self getZone]];
-  if (asmModelParams->setOutputForData == 1) 
-    {
-      [output setWorld: world];
-      [output setSpecialist: specialist];
-      [output prepareOutputFile];
-    }
-/* Initialize the agent modules and create the agents */
+  output = [[Output createBegin: [self getZone]] createEnd];
+  [output setWorld: world];
+  [output setSpecialist: specialist];
+  
+  /* Initialize the agent modules and create the agents */
   agentList = [List create: [self getZone]];  //create list for agents
   
   if ((bfParams =
        [lispAppArchiver getWithZone: self key: "bfParams"]) == nil)
     raiseEvent(InvalidOperation,
                "Can't find the BFParam's parameters");
-   [bfParams init];
+  [bfParams init];
 
-   [BFagent init];
+  [BFagent init];
 
-   [BFagent setBFParameterObject: bfParams];
+  [BFagent setBFParameterObject: bfParams];
 
-   [BFagent setWorld: world];
+  [BFagent setWorld: world];
     
-//nowObject create the agents themselves
-      for (i = 0; i < asmModelParams->numBFagents; i++) 
-	{
-	  BFagent * agent;
-	  agent = [BFagent createBegin: [self getZone]];
-	  [agent setID: i];
-	  [agent setintrate: asmModelParams->intrate];
-	  [agent setminHolding: asmModelParams->minholding   minCash:asmModelParams-> mincash];
-	  [agent setInitialCash: asmModelParams->initialcash];
-	  [agent setInitialHoldings];
-	  [agent setPosition: asmModelParams->initholding];
-	  [agent initForecasts];
-	  agent = [agent createEnd];
-	  [agentList addLast: agent];
-	  fprintf(stderr,"birthed %d",i);
-	}
+  //nowObject create the agents themselves
+  for (i = 0; i < asmModelParams->numBFagents; i++) 
+    {
+      BFagent * agent;
+      agent = [BFagent createBegin: [self getZone]];
+      [agent setID: i];
+      [agent setintrate: asmModelParams->intrate];
+      [agent setminHolding: asmModelParams->minholding   minCash:asmModelParams-> mincash];
+      [agent setInitialCash: asmModelParams->initialcash];
+      [agent setInitialHoldings];
+      [agent setPosition: asmModelParams->initholding];
+      [agent initForecasts];
+      agent = [agent createEnd];
+      [agentList addLast: agent];
+    }
       
-      //  [BFagent didInitialize];
-    
-  
-//Give the specialist access to the agentList
+  //Give the specialist access to the agentList
   [specialist setAgentList: agentList];
   return self;
 }
 
-
--initOutputForDataWrite
+- writeParams
 {
-  setOutputForData = 1;
+   if (asmModelParams != nil && bfParams != nil)
+    [output writeParams: asmModelParams BFAgent: bfParams Time: modelTime];
   return self;
 }
 
@@ -210,7 +170,6 @@
 //getTime message
 -buildActions
 {
-	
   [super buildActions];
 
   warmupActions = [ActionGroup create: [self getZone]];
@@ -327,6 +286,8 @@ void initPeriod (id initPeriodSchedule)
 }
 		
 
+
+
 -warmupStepDividend 
 {
   [world setDividend: [dividendProcess dividend]];
@@ -349,17 +310,10 @@ void initPeriod (id initPeriodSchedule)
 	 
 -periodStepDividend 
 {
+  modelTime++;
   [world setDividend: [dividendProcess dividend]];
   return self;
 }
-
-
-//-prepareBFagentForTrading
-//pj:{
-  //pj:[BFagent prepareForTrading];
-//pj:  return self;
-//pj:}
-
 
 -periodStepPrice 
 {

@@ -1,4 +1,55 @@
+2001-02-08  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* Specialist.[hm]: removed setEtaMax/setEtaMin methods because
+	they were never used. Cleaned out unused variables.
+
+	* Specialist.[hm]: removed init method, because its work has been 
+	reallocated to other methods.
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -expostParamWrite]): If
+	writeParams is YES at the end of the run, it dumps a copy of the
+	settings.  That way, there will always be a record of the
+	simulation, even if the user punches the "writeSimulationParams"
+	button only at the very beginning.
+
+	* Output.m ([Output -writeParams:BFAgent:Time:t]): Moved all
+	archiver-creating code and parmeter writing activity in here.
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -writeSimulationParams]):
+	Whenever you punch the "writeSimulationParams" button, it tells
+	Output object to dump out a time-keyed set of parameters to
+	asm.scm.  Note: If user does this before the model has started,
+	nothing happens because there are no objects to save yet.  But it
+	will turn on a switch that causes params to be automatically saved
+	at the end of the run.
+
+	* ASMModelSwarm.m ([ASMModelSwarm -createEnd]): added, set
+	modelTime=0; 
+
+	* ASMModelSwarm.m ([AsmModelSwarm -getModelTime): get
+	method to allow other classes to find out what Swarm "time step"
+	the model is on.
+
 2001-02-07  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* Output.m ([Output -dumpParametersModel:BFAgent:]): New method,
+	Model can tell it to do this and it will decide whether to use
+	Lisp or HDF5 and create a time-stamped parameter output file.
+
+	* Output.m([Output -createEnd]): runTime is now calculated at create time,
+	so that any output files can be time stamped.
+
+	* main.m (main): Now it will dump parameter values at the end of
+	the run, whatever Output is supposed to dump, will get dumped,
+	with a time-stamp.
+	
+	* ASMModelSwarm.m (buildObjects): get rid of conditional round
+	output object creation/setting. We are always setting up an output
+	object, whether or not the user wants to actually output
+	data. This gets rid of one layer of stupidity.
+
+	* ASMModelSwarm.m (initOutputForDataWrite): delete this method and
+	associated IVAR
 
 	* ASMModelParams.m ([ASMModelParams +createBegin:aZone]): added
 	probe for setOutputData

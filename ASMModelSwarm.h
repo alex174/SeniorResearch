@@ -48,6 +48,7 @@
 //    double initvar;
 //    double maxdev;	
 
+  int modelTime;
   id warmupActions;
   id periodActions;
   id warmupSchedule;
@@ -60,16 +61,17 @@
   id dividendProcess;
   id world;
   id output;
-  int setOutputForData;
+  // int setOutputForData;
 
-
-  ASMModelParams * asmModelParams;  //pj: the parameter object
-  id archiver;                     //pj: archiver instance
+  BFParams * bfParams;          //pj: a parameter object
+  ASMModelParams * asmModelParams;  //pj: a parameter object
+                      
 }
 
 
 
 //+createBegin: (id)aZone;
+
 -createEnd;
 
 
@@ -84,10 +86,11 @@
 -setBatchRandomSeed: (int)newSeed;
 
 -buildObjects;
--initOutputForDataWrite;
-//pj: -initOutputForParamWrite;
--buildActions;
--activateIn: (id)swarmContext;
+// pj: -initOutputForDataWrite;
+// pj: -initOutputForParamWrite;
+- writeParams;
+- buildActions;
+- activateIn: (id)swarmContext;
 
 void warmUp(id  warmupSchedule);
 void initPeriod(id  initPeriodSchedule);

@@ -43,7 +43,7 @@
   (cons 'asmModelParams
 	(make-instance 'ASMModelParams	 
   #:numBFagents 30
-  #:initholding 1F0
+  #:initholding 1D0
   #:initialcash 10000D0
   #:minholding 0D0
   #:mincash 0D0
@@ -71,7 +71,6 @@
   #:initvar 0.4000212D0
   #:maxdev  100D0
   #:exponentialMAs 1 
-  #:setOutputForData 0 
 ))
 
 
@@ -106,7 +105,6 @@
   #:initvar 0.4000212D0
   #:maxdev  100D0
   #:exponentialMAs 1 
-  #:setOutputForData 0
 ))
 
   (cons 'asmBatchSwarm

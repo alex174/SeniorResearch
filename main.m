@@ -27,13 +27,15 @@ main (int argc, const char **argv)
 
   [theTopLevelSwarm buildObjects];
   [theTopLevelSwarm buildActions];
-  [theTopLevelSwarm activateIn: nil];
-  [theTopLevelSwarm go];
-
-  if(([[theTopLevelSwarm getActivity] getStatus] == Completed) && swarmGUIMode == 1)
-    if([theTopLevelSwarm ifParamWrite])
+  
+  while (1)
+    {
+      id <SwarmActivity> activity = [theTopLevelSwarm activateIn: nil];
+      [theTopLevelSwarm go];
+      [activity drop];
       [theTopLevelSwarm expostParamWrite];
-    
+      if ( [[theTopLevelSwarm getControlPanel] setStateQuit] ) break;
+    }
   // The toplevel swarm has finished processing, so it's time to quit.
   return 0;
 }

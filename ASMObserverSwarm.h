@@ -5,6 +5,7 @@
 #import "ASMModelSwarm.h"
 
 #import "ASMModelParams.h"
+#import <misc.h>
 
 
 @interface ASMObserverSwarm: GUISwarm
@@ -58,12 +59,15 @@
 - printRelWealthHisto;
 #endif
 - createEnd;
+- _writeRawData_;
+
 - buildObjects;
 - updateHistos;
 - writeSimulationParams;
 - (BOOL)ifParamWrite;
 - expostParamWrite;
-- writeSimulationData;
+
+-(BOOL) toggleDataWrite;
 - buildActions;
 - activateIn: swarmContext;
 

@@ -102,21 +102,6 @@ acceptable.  The Specialist will be set to Slope (i.e., 1).");
   return self;
 }
 
-//pj: etamin and etamax are not used in this class ??
-//  -setETAmin: (double)ETAmin
-//  {
-//    etamin = ETAmin;
-//    return self;
-//  }
-
-
-//  -setETAmax: (double)ETAmax
-//  {
-//    etamax = ETAmax;
-//    return self;
-//  }
-
-
 -setREA: (double)REA
 {
   rea = REA;
@@ -132,20 +117,7 @@ acceptable.  The Specialist will be set to Slope (i.e., 1).");
 
 //pj: init method is now unnecessary. Moved IVARS inside methods, or
 //reset values when needed.
--init
-{
-/* construct constants and initial values */
-  // bidtotal = 0.0;
-  //offertotal = 0.0;
-  //volume = 0.0;
-  //oldbidtotal = 0;
-  //oldoffertotal = 0;
-  //oldvolume = 0.0;
-//    taupnew = -expm1(-1.0/taup); //pj: moved to setTaup: method
-//    taupdecay = 1.0 - taupnew;
-  
-  return self;
-}
+//  -init
 
 
 -(double)performTrading

@@ -17,29 +17,16 @@ typedef enum
   double minprice;
   double eta;
   double etainitial;
-//    double etamax;  pj: was unused
-//    double etamin;  pj: was unused
-  //double ldelpmax; pj: was unused
   double minexcess;
   double rea;
   double reb;
   double bidfrac;
   double offerfrac;
   int maxiterations;
-  //int varcount;  pj: was not used in class
-   SpecialistType sptype;
+  SpecialistType sptype;
   id agentList;
   World * worldForSpec;
-
-  //double bidtotal;
-  //double offertotal; pj: just in performTrading method
   double volume;
-  //double oldbidtotal;  pj: was unused
-  //double oldoffertotal; pj: was unused
-  //double oldvolume; pj: was unused
-
-  //double price;  pj: was used only in completeTrades
-  //double taup;   pj: was not needed in class
   double taupdecay;
   double taupnew;
 }
@@ -54,12 +41,11 @@ typedef enum
 -setMaxIterations: (int)someIterations;
 -setMinExcess: (double)minimumExcess;
 -setETA: (double)ETA;
-//-setETAmin: (double)ETAmin;  //pj: set value never used
-//-setETAmax: (double)ETAmax;  //pj: set value never used
+
 -setREA: (double)REA;
 -setREB: (double)REB;
 
--init;//pj: init can be deleted ??
+
 -(double)performTrading;
 -(double)getVolume;
 -completeTrades;

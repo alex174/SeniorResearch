@@ -22,7 +22,7 @@
   [probeMap addProbe: [probeLibrary getProbeForMessage: 
 		      "writeSimulationParams" inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForMessage: 
-		      "writeSimulationData" inClass: [self class]]];
+		      "toggleDataWrite" inClass: [self class]]];
 
   //The member functions that allow you to print a graph. 
 #if 0
@@ -89,24 +89,24 @@
 
   [super buildObjects];
 
-  asmModelSwarm = [ ASMModelSwarm create: self ];
+  //asmModelSwarm = [[ASMModelSwarm createBegin: self ] createEnd];
+  
+  asmModelSwarm = [ASMModelSwarm create: self ];
 
- if ((asmModelParams =
+  if ((asmModelParams =
        [lispAppArchiver getWithZone: self key: "asmModelParams"]) == nil)
     raiseEvent(InvalidOperation,
                "Can't find the modelSwarm parameters");
 
  [asmModelSwarm setParamObject: asmModelParams];
 
-  CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
-  CREATE_ARCHIVED_PROBE_DISPLAY (self);
+ CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
+ CREATE_ARCHIVED_PROBE_DISPLAY (self);
 
-  [actionCache waitForControlEvent];
-  if ([controlPanel getState] == ControlStateQuit)
-    return self;
 
-  [asmModelSwarm buildObjects];
-  
+ [controlPanel setStateStopped];
+ [asmModelSwarm buildObjects];
+
   // numagents = [asmModelSwarm getNumBFagents];
   numagents = asmModelParams->numBFagents;
   position = xcalloc (numagents, sizeof (double));
@@ -246,6 +246,7 @@
 - writeSimulationParams
 {
   writeParams = 1;
+  [asmModelSwarm writeParams];
   return self;
 }
 
@@ -253,7 +254,8 @@
 - expostParamWrite
 {
   // [asmModelSwarm initOutputForParamWrite];
-  // [[asmModelSwarm getOutput] writeParams];
+  if (writeParams == 1)
+    [asmModelSwarm writeParams];
   return self;
 }
 
@@ -264,15 +266,28 @@
 }
 
 
-- writeSimulationData
+-(BOOL) toggleDataWrite
 {
-   if(writeParams != 1)
-     writeParams = 1;
-   [asmModelSwarm initOutputForDataWrite];
-   writeData = 1;
-  
+   if(writeData != YES)
+     {
+       [[asmModelSwarm getOutput] prepareOutputFile];
+	 writeData = YES;
+     }
+   else
+     writeData = NO;
+
+   return writeData;
+}
+
+
+
+- _writeRawData_
+{
+  if (writeData == YES)
+    [[asmModelSwarm getOutput] writeData];
   return self;
 }
+
 
 
 - buildActions 
@@ -282,9 +297,9 @@
   [asmModelSwarm buildActions];
 
   displayActions = [ActionGroup create: [self getZone]];
-  if(writeData == 1)
-    [displayActions createActionTo: [asmModelSwarm getOutput] 
-		    message: M(writeData)];
+
+  [displayActions createActionTo: self 
+		    message: M(_writeRawData_)];
   [displayActions createActionTo: self             message: M(updateHistos)];
   [displayActions createActionTo: priceGrapher     message: M(step)];
   [displayActions createActionTo: riskNeutralGrapher     message: M(step)];
