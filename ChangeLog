@@ -1,3 +1,8 @@
+2001-10-23    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* ASMObserverSwarm.h (GUISwarm): Convert volumeGraph to EZGraph
+	format, insert _volumeGraphDeath_ method for destroy notification.
+
 2001-10-23  Paul E Johnson  <pauljohn@ukans.edu>
 
 	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): Convert

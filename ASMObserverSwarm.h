@@ -19,16 +19,9 @@
   BOOL writeData;
 
   id <EZGraph> priceGraph;
-  // id <GraphElement> priceData;
-  // id <GraphElement> riskNeutralData;
-
-  // id <ActiveGraph> priceGrapher;
-  //id <ActiveGraph> riskNeutralGrapher;
-
-  id <Graph> volumeGraph;
-  id <GraphElement> volumeData;
-
-  id <ActiveGraph> volumeGrapher;
+ 
+  id <EZGraph> volumeGraph;
+ 
 
   id <Histogram> positionHisto;
   //Histo *cashHisto; //A histogram for agent cash holdings.
@@ -63,6 +56,7 @@
 - buildObjects;
 
 - priceGraphDeath_ : caller;
+- volumeGraphDeath_ : caller;
 - updateHistos;
 - writeSimulationParams;
 - (BOOL)ifParamWrite;
