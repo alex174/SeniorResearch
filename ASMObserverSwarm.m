@@ -172,6 +172,10 @@
   [positionHisto setAxisLabelsX: "agents" Y: "position"];
   [positionHisto pack];
 
+  [positionHisto enableDestroyNotification: self
+		 notificationMethod: @selector (_positionHistoDeath_:)];
+
+
   //Again, you can add this back.
   //cashHisto = [Histo create: [self getZone]];
   //[cashHisto setWidth: 500 Height: 250];
@@ -192,7 +196,9 @@
   [relativeWealthHisto setTitle: "Relative Wealth of Agents"];
   [relativeWealthHisto setAxisLabelsX: "agents" Y: "relative wealth"];
   [relativeWealthHisto pack];
-
+  
+  [relativeWealthHisto enableDestroyNotification: self
+		 notificationMethod: @selector (_relativeWealthHistoDeath_:)];
   //Only interesting to compare multiple agents.
   //deviationGraph = [Graph createBegin: [self getZone]];
   //SET_WINDOW_GEOMETRY_RECORD_NAME (deviationGraph);
@@ -223,7 +229,7 @@
 
 
 /*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
-- priceGraphDeath_ : caller
+- _priceGraphDeath_ : caller
 {
   [priceGraph drop];
   priceGraph = nil;
@@ -231,12 +237,34 @@
 }
 
 /*"This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button"*/
-- volumeGraphDeath_ : caller
+- _volumeGraphDeath_ : caller
 {
   [volumeGraph drop];
   volumeGraph = nil;
   return self;
 }
+
+
+
+- _positionHistoDeath_ : caller
+{
+  [positionHisto drop];
+  positionHisto = nil;
+  return self;
+}
+
+
+
+- _relativeWealthHistoDeath_ : caller
+{
+  [relativeWealthHisto drop];
+  relativeWealthHisto = nil;
+  return self;
+}
+
+
+
+
 
 /*" This method gathers data about the agents, puts it into arrays,
   and then passes those arrays to the histogram objects. As soon as we

@@ -1,3 +1,9 @@
+2003-03-25  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm
+	-_relativeWealthHistoDeath_:]): windows users say Swarm crashes on
+	shutdown.
+
 2003-03-18  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
 
 	* BFagent.m ([BFagent -updateActiveList:]): Looking for speedups in

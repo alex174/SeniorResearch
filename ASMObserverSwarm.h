@@ -52,8 +52,11 @@
 
 - buildObjects;
 
-- priceGraphDeath_ : caller;
-- volumeGraphDeath_ : caller;
+- _priceGraphDeath_ : caller;
+- _volumeGraphDeath_ : caller;
+- _positionHistoDeath_ : caller;
+- _relativeWealthHistoDeath_ : caller;
+
 - updateHistos;
 - writeSimulationParams;
 - (BOOL)ifParamWrite;
