@@ -2,9 +2,9 @@
 
 @interface BitVector: SwarmObject
 {
-  unsigned int *conditions; 
-  int condwords;
-  int condbits;
+  int condwords; /*"Number of words of memory required to hold bits in this model"*/
+  int condbits;  /*"The number of conditions bits we expect to actually use"*/
+  unsigned int *conditions; /*points to a dynamically allocated array of "condwords" elements"*/
 }
 
 
@@ -22,7 +22,7 @@
 
 -(void) setConditionsWord: (int) i To: (int) value;
 
--(int) getConditionsWord: (int) x;
+-(int) getConditionsWord: (int) i;
 
 -(void) setConditionsbit: (int) bit To: (int) x;
 

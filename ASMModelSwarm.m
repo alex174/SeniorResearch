@@ -9,7 +9,11 @@
 
 
 @implementation ASMModelSwarm
-
+/*"The ASMModelSwarm is where the substantive work of the simulation
+  is orchestrated.  The ASMModelSwarm object is told where to get its
+  parameters, and then it buildsObjects (agents, markets, etc), it
+  builds up a phony history of the market, and then it schedules the
+  market opening and gives the agents a chance to buy and sell."*/
 
 - createEnd
 {
@@ -19,6 +23,11 @@
   return [super createEnd];
 }
 
+
+/*"This is very vital.  When the ASMModelSwarm is created, it needs to
+ * be told where to find many constants that determine how agents are
+ * created. This passes handles of objects that have the required
+ * data."*/
 - setParamsModel: (ASMModelParams *) modelParams BF: (BFParams *) bfp 
 {
   bfParams = bfp;
@@ -27,61 +36,71 @@
   return self;
 }
 
+/*" Returns the number of BFagents,  which is held in asmModelParams"*/
 -(int) getNumBFagents
 {
   return asmModelParams->numBFagents;
 }
 
-
+/*" Returns the initialcash value, which is held in asmModelParams"*/
 -(double) getInitialCash
 {
   return asmModelParams->initialcash;
 }
   
-
+/*" Returns a list that contains all the agents"*/
 -getAgentList
 {
   return agentList;
 }
 
+/*" Returns a handle of the world object, the place where historical
+  price/dividend information is maintained.  It is also the place
+  where the BFagents can retrieve information in bit string form."*/
 -(World *)getWorld
 {
   if (world == nil) printf("Empty world!");
   return world;
 }
 
-
+/*" Return a pointer to the Specialist object"*/
 -(Specialist *)getSpecialist
 {
   return specialist;
 }
 
-
+/*" Return a pointer to an object of the Output class. Sometimes it is
+  necessary for other classes to find out who the output record keeper
+  is and send that class a message."*/
 -(Output *)getOutput
 {
   return output;
 }
 
 
+/*"
+  Returns the integer time-step of the current simulation. 
+  "*/
 -(long int) getModelTime
 {
   return modelTime;
 }
 
+
+/*"The value of the randomSeed that starts the simulation will remain
+  fixed, unless you change it by using this method"*/
 -setBatchRandomSeed: (int)newSeed
 {
   asmModelParams->randomSeed = newSeed;
   return self;
 }
 
-//Build and initialize objects
+/*"Build and initialize objects"*/
 -buildObjects      
 {
   int i;
 
   //  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n", asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
-
-  asmModelParams->exponentialMAs = 1; 
 
   if(asmModelParams->randomSeed != 0) 
     [randomGenerator setStateFromSeed: asmModelParams->randomSeed];
@@ -124,17 +143,11 @@
   
   /* Initialize the agent modules and create the agents */
   agentList = [List create: [self getZone]];  //create list for agents
-  
- //   if ((bfParams =
-//         [lispAppArchiver getWithZone: self key: "bfParams"]) == nil)
-//      raiseEvent(InvalidOperation,
-//                 "Can't find the BFParam's parameters");
-//    [bfParams init];
 
+
+  /* Set class variables */
   [BFagent init];
-
   [BFagent setBFParameterObject: bfParams];
-
   [BFagent setWorld: world];
     
   //nowObject create the agents themselves
@@ -158,6 +171,7 @@
   return self;
 }
 
+/*"This triggers a writing of the model parameters, for record keeping."*/
 - writeParams
 {
    if (asmModelParams != nil && bfParams != nil)
@@ -166,10 +180,11 @@
 }
 
 
-//Create the model actions, separating into two different action groups, the 
-//warmup period and the actual period.  Note that time is not calculated
-//by a t counter but internally within Swarm.  Time is recovered by the 
-//getTime message
+/*"Create the model actions, separating into two different action
+ * groups, the warmup period and the actual period.  Note that time is
+ * not calculated by a t counter but internally within Swarm.  Time is
+ * recovered by the getTime message"*/
+
 -buildActions
 {
   [super buildActions];
@@ -303,13 +318,15 @@ void initPeriod (id initPeriodSchedule)
   // fprintf(stderr," setPrice %f \n", [world getDividend]/asmModelParams->intrate );
 
   //  fprintf(stderr, "numBFagents  %d \n intrate  %f \n baseline %f \n eta %f \n initvar %f \n",
-  //	  asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
+  //  asmModelParams->numBFagents,asmModelParams->intrate, asmModelParams->baseline, asmModelParams->eta, asmModelParams->initvar);
 
   [world setPrice: ([world getDividend]/(double)asmModelParams->intrate )];
   return self;
 }	 
 
-	 
+/*" Have the dividendProcess calculate a new dividend. Then tell the
+  world about the dividendProcess output.  Also this increment the
+  modelTime variable"*/
 -periodStepDividend 
 {
   modelTime++;
@@ -317,13 +334,17 @@ void initPeriod (id initPeriodSchedule)
   return self;
 }
 
+/*"Have the Specialist perform the trading process. Then tell the world about the price that resulted from the Specialist's action."*/
 -periodStepPrice 
 {
   [world setPrice: [specialist performTrading]];
   return self;
 }
 
-
+/*"The activities of the ASMModelSwarm are brought into time-sync with
+  higher level Swarm activities. Basically, each time the higher level
+  takes a step, this one will too, and the higher one won't step again
+  until this one is finished with its turn."*/
 -activateIn: (id)swarmContext
 {
   [super activateIn: swarmContext];

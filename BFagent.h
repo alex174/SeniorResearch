@@ -16,42 +16,32 @@
 
 @interface BFagent:Agent
 {
-  int currentTime;
-  int lastgatime;	// last time a GA was run
-  double avspecificity;
-  double forecast;
-  double lforecast;
-  double global_mean;
-  double realDeviation;
-  double variance;
-  double pdcoeff;
-  double offset;
-  double divisor;
-  // struct BF_fcast *fcast;		// array of size numfcasts
-  //struct BF_fcast *activelist;
-  //struct BF_fcast *lactivelist; 	// last active list
-  // struct BFparams *p;
-  int gacount;
-  int nactive;
-  BFParams * privateParams;             //created from same mechanism as public params
-  // struct BF_fcast	**reject;	/* GA temporary storage */
-  //  struct BF_fcast	*newfcast;	/* GA temporary storage */
-  //id <Array> rejectList; //need ** accounted for ???
+  int currentTime; /*"The agent regularly checks with Swarm to see what time it is"*/
+  int lastgatime;	/*" last time period when the GeneticAlgorithm was run"*/
+  double avspecificity; /*'average specificity of active forecasts"*/
+  double forecast;       /*"prediction of stock price: (trialprice+dividend)*pdcoeff + offset."*/
+  double lforecast; /*"lagged forecast: forecast value from previous period"*/
+  double global_mean; /*"price+dividend"*/
+  double realDeviation;  /*" ftarget-lforecast: how far off was the agent's forecast?"*/
+  double variance;   /*"an Exp.Weighted MA of the agent's historical variance: Combine the old variance with deviation^squared, as in:  bv*variance + av*deviation*deviation"*/
+  double pdcoeff;   /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
+  double offset;    /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
+  double divisor;   /*" a coefficient used to calculate demand for stock. It is a proportion (lambda) of forecastvar (basically, accuracy of forecasts)"*/
+  int gacount;     /*" how many times has the Genetic Algorithm been used?"*/
+  // int nactive;     
+  BFParams * privateParams;     /*"BFParams object holds parameters of this object"*/
 
-  id <Array> fcastList;
-  //id <Array> newconds;
+  id <Array> fcastList;        /*"A Swarm Array, holding the forecasts that the agent might use"*/
 
-  id <List> activeList;
-  id <List> oldActiveList; 
+  id <List> activeList;       /*"A Swarm list containing a subset of all forecasts"*/
+  id <List> oldActiveList;    /*"A copy of the activeList from the previous time step"*/
 }
 
 +(void)setBFParameterObject: x;
 +(void)init;
-//+didInitialize;
-//+prepareForTrading;
 //+(int)lastgatime;
-+setRealWorld: (int *)array;
-+(int)setNumWorldBits;
+//+setRealWorld: (int *)array;
+//+(int)setNumWorldBits;
 
 -createEnd;
 -initForecasts;
@@ -73,6 +63,8 @@
 -updateWeights;   //does nothing, used only if their are ANNagents
 -(int)nbits;
 -(int)nrules;
+
+- performGA;
 -(int)lastgatime;
 
 -printcond: (int) word;

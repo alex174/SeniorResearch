@@ -9,46 +9,7 @@
 
 @interface ASMModelSwarm: Swarm
 {
-//    //Agent parameters
-//    int numBFagents;
-//    float initholding;
-//    double initialcash;
-//    double minholding;
-//    double mincash;
-//    double intrate;
-
-//    //Dividend parameters
-//    double baseline;   //Also used by World.
-//    double mindividend;
-//    double maxdividend;
-//    double amplitude;
-//    int period;
-
-//    //Specialist parameters
-//    double maxprice;
-//    double minprice;
-//    double taup;
-//    BOOL exponentialMAs;   //Also used by World.
-//    int sptype;
-//    int maxiterations;
-//    double minexcess;
-//    double eta;
-//    double etamax;
-//    double etamin;
-//    double rea;
-//    double reb;
-
-//    int randomSeed;
-
-  //Agent parameters overridden by the BFagent.  
-  //These might be used for other agents that a user implements. 
- //   double tauv;          
-//    double lambda;
-//    double maxbid; 
-//    double initvar;
-//    double maxdev;	
-
-  int modelTime;
+  int modelTime;    /*"An integer used to represent the current timestep"*/
   id warmupActions;
   id periodActions;
   id warmupSchedule;
@@ -56,21 +17,17 @@
   id startupSchedule;
   id initPeriodSchedule;
 
-  id agentList;
-  id specialist;
-  id dividendProcess;
-  id world;
-  id output;
-  // int setOutputForData;
+  id agentList;       /*"A Swarm collection of agents "*/
+  id specialist;      /*"Specialist who clears the market   "*/
+  id dividendProcess; /*"Dividend process that generates dividends  "*/
+  id world;          /*"A World object, a price historian, really   "*/
+  id output;         /*"An Output object   "*/
 
-  BFParams * bfParams;          //pj: a parameter object
-  ASMModelParams * asmModelParams;  //pj: a parameter object
+  BFParams * bfParams;          /*" A (BFParams) parameter object holding BFagent parameters"*/
+  ASMModelParams * asmModelParams;  /*" A (ASMModelParms) parameter object holding parameters of Models"*/
                       
 }
 
-
-
-//+createBegin: (id)aZone;
 
 -createEnd;
 
@@ -84,8 +41,6 @@
 -setBatchRandomSeed: (int)newSeed;
 
 -buildObjects;
-// pj: -initOutputForDataWrite;
-// pj: -initOutputForParamWrite;
 - writeParams;
 - buildActions;
 - activateIn: (id)swarmContext;
@@ -96,7 +51,6 @@ void initPeriod(id  initPeriodSchedule);
 -warmupStepDividend;
 -warmupStepPrice;
 -periodStepDividend;
-//-prepareBFagentForTrading;
 -periodStepPrice;
 
 
@@ -105,3 +59,11 @@ void initPeriod(id  initPeriodSchedule);
 -(void) drop;
 
 @end
+
+
+
+
+
+
+
+

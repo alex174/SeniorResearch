@@ -1,40 +1,7 @@
 // The Santa Fe Stockmarket -- Implementation of the dividend process.
 
-// This object produces a stochastic sequence of dividends.  The process
-// is independent of the market and agents, depending only the parameters 
-// that are set for the dividend process (and on the random number generator).
-
-// -(double)dividend;
-//	Returns the next value of the dividend.  This is the core method
-//	of the Dividend object, for which all else exists.  It does NOT
-//	use the global time, but simply assumes that one period
-//	passes between each call.
-//
-//	These processes are parameterized by some or all of the
-//	following parameters:
-//
-//	baseline	The centerline around which deviations are computed.
-//			This is equal to the mean for a symmetric process
-//			(i.e., if asymmetry = 0).  "baseline" is set only
-//			from the parameter file, and should NOT normally
-//			be changed from the default value (10.0).
-//
-//	amplitude	The amplitude of the deviations from the baseline.
-//			Measured in units of "baseline".  The standard
-//			deviation of the process is proportional to this.
-//
-//	period		The period or auto-correlation time of the process.
-//
-//
-// -(double)setAmplitude: (double)theAmplitude
-//	Sets the "amplitude" parameter.  See "-setDivType:".  Returns the
-//	value actually set, which may be clipped or rounded compared to the
-//	supplied argument.
-//
 // -(int)setPeriod: (int)thePeriod
-//	Sets the "period" parameter.  See "-setDivType:".  Returns the
-//	value actually set, which may be clipped compared to the
-//	supplied argument.
+//	
 
 
 #import "Dividend.h"
@@ -43,13 +10,16 @@
 #include <math.h>
 #include <misc.h>
 
-// Constants
-#define PI		3.14159265
 
 
 @implementation Dividend
+/*"
+// This object produces a stochastic sequence of dividends.  The process
+// is independent of the market and agents, depending only the parameters 
+// that are set for the dividend process (and on the random number generator).
+"*/
 
-//pj: new method 
+/*"Creates a Swarm Normal Distribution object"*/
 - initNormal
 {
   
@@ -79,6 +49,10 @@
 }
 
 
+/*" Sets the "amplitude" parameter.    Returns the
+//	value actually set, which may be clipped or rounded compared to the
+//	supplied argument. See "-setDivType:".
+"*/
 -(double)setAmplitude:(double)theAmplitude
 {
   amplitude = theAmplitude;
@@ -90,6 +64,9 @@
   return amplitude;
 }
 
+/*" Sets the "period" parameter.   Returns the
+// value actually set, which may be clipped compared to the supplied
+// argument. See "-setDivType:". "*/
 
 -(int)setPeriod: (int)thePeriod
 {
@@ -118,14 +95,14 @@
   return self;
 }
 
+/*" Returns the next value of the dividend.  This is the core method
+  of the Dividend object, for which all else exists.  It does NOT use
+  the global time, but simply assumes that one period passes between
+  each call.  Note that "time" may not be the same as the global
+  variable "t" because shifts are introduced to maintain phase when
+  certain parameters are changed."*/
 
 -(double)dividend
-/*
- * Compute dividend for the current period.
- * Assumes that one period passes between each call; note that "time"
- * may not be the same as the global variable "t" because shifts are
- * introduced to maintain phase when certain parameters are changed.
- */
 {
   //pj:
   // dvdnd = baseline + rho*(dvdnd - baseline) + gauss*normal();

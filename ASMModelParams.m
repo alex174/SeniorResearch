@@ -3,7 +3,20 @@
 
 
 @implementation ASMModelParams
+/*"The ASMModelParams class is a "holding class" for the parameters
+  that are associated with the ASMModelSwarm class and it also
+  controls the GUI probes that users can use to change variables at
+  runtime.  These values are set here in order to keep the code clean
+  and neat!  Several parts of the simulation need to have access to
+  the information held by ASMModelParams, not just ASMModelParams, but
+  also any classes that want information on system parameters.
 
+  A big reason for keeping these values in a separate class is that
+  they can be used by both batch and graphical runs of the model.
+
+  There are values saved for these parameters in the asm.scm file, and
+  the Parameters class, which orchestrates all this parameter magic,
+  does the work of creating one of these ASMModelParams objects."*/
 
 +createBegin: (id) aZone
 {
@@ -16,12 +29,12 @@
   [probeMap setProbedClass: [self class]];
   probeMap = [probeMap createEnd];
   
-    [probeMap addProbe: [probeLibrary getProbeForVariable: "numBFagents"
+  [probeMap addProbe: [probeLibrary getProbeForVariable: "numBFagents"
 				    inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForVariable: "initholding"
   			            inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForVariable: "initialcash"
-  	            inClass: [self class]]];
+				    inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForVariable: "minholding"
   			            inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForVariable: "mincash"
@@ -81,7 +94,7 @@
 
   [probeLibrary setProbeMap: probeMap For: [self class]];
 
-return obj;
+  return obj;
 
 }
 

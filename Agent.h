@@ -5,11 +5,11 @@
 @interface Agent:SwarmObject          
 {
   @public
-  double demand;	// bid or -offer 
-  double profit;	// exp-weighted moving average
-  double wealth;	// total agent wealth
-  double position;	// total shares of stock
-  double cash;	        // total agent cash position 
+    double demand;	/*" bid or -offer"*/ 
+  double profit;	/*" exp-weighted moving average "*/
+  double wealth;	/*" total agent wealth "*/
+  double position;	/*" total shares of stock "*/
+  double cash;	        /*" total agent cash position "*/ 
   double initialcash;
   double minholding;
   double mincash;

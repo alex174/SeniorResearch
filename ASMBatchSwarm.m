@@ -2,6 +2,11 @@
 #import "Parameters.h"
 
 @implementation ASMBatchSwarm
+/*"If the model is started with ./asm -b, then this ASMBatchSwarm acts
+  as the top level Swarm. The benefit here is that the model runs
+  faster because it is not driving a graphical interface.  It also
+  turns on data-writing."*/
+
 
 +createBegin: (id)aZone
 {
@@ -44,7 +49,7 @@
   return self;
 }
 
-
+/*"buildActions creates schedules"*/
 -buildActions
 {
   [super buildActions];
@@ -68,7 +73,7 @@
   return self;
 }
 
-
+/*"activateIn: is required to preserve the hierarchy of schedules across many levels"*/
 -activateIn: (id)swarmContext
 {
   [super activateIn: swarmContext];
@@ -82,7 +87,7 @@
 }
 
 
-
+/*"Tell the objects that are keeping records on parameter values to write them to files at the end of the simulation."*/ 
 - expostParamWrite
 {
  [[asmModelSwarm getOutput] writeParams: [(id) arguments getModelParams] BFAgent: [(id) arguments getBFParams] Time: [asmModelSwarm getModelTime]]; 
@@ -90,6 +95,9 @@
 }
 
 
+/*"Once schedules are created and activatedIn to the right part of the
+  hierarchy, then go makes processing start with actions at time 0,
+  then 1, then..."*/
 -go
 {
   printf("\nYou typed 'asm -batchmode'.  The simulation is running without graphics.\n\n");
@@ -110,6 +118,8 @@
 }
 
 
+/*" The drop method lets objects know the simulation is coming to an
+  end, so if they are waiting to write some data, they should do it"*/
 -(void) drop
 {
   [asmModelSwarm drop];

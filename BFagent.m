@@ -1,60 +1,5 @@
 // Code for a "bitstring forecaster" (BF) agent
 
-// +init
-//     Initializes the class, setting parameters and allocating space
-//     for arrays.
-//
-// +didInitialize
-//     Tells the agent class object that initialization (including creation
-//     of agents) is finished.
-//
-// +prepareForTrading //deleted by pj May 1, 2000
-
-// +(BOOL)lastgatime
-//	Returns the most recent time at which a GA ran for any agent of
-//	this type.  
-//
-// -free  //now handled by "drop" method in "BFCast.m"
-//
-// -(int *(*)[4])bitDistribution;
-//	Returns a pointer to an array of 4 pointers to arrays containing the
-//	number of 00's, 01's, 10's, and 11's for each of this agent's
-//	condition bits, summed over all rules/forecasters.  Agents that
-//	don't use condition bits return NULL.  This uses the method
-//	-bitDistribution:cumulative: described below that is provided by
-//	subclasses that have condition bits.
-//
-// -(int)nbits
-//	Returns the number of condition bits used by this agent, or 0 if
-//	condition bits aren't used.
-//
-// -(const char *)descriptionOfBit: (int)bit
-//	If the agent uses condition bits, returns a description of the
-//	specified bit.  Invalid bit numbers return an explanatory message.
-//	Agents that don't use condition bits return NULL.
-//
-// -(int)nrules
-//	Returns the number of rules or forecasters used by this agent, or 0
-//	if rules/forecasters aren't used.
-//
-// -(int)lastgatime
-//	Returns the last time at which an agent's genetic algorithm was run.
-//	Agents that don't use a genetic algorithm return MININT.  This may
-//	be used to see if the bit distribution might have changed, since
-//	a change can only occur through a genetic algorithm.
-//
-// -(int)bitDistribution:(int *(*)[4])countptr cumulative: (BOOL)cum
-//	Places in (*countptr)[0] -- (*countptr)[3] the addresses of 4
-//	arrays, (*countptr)[0][i] -- (*countptr)[3][i], which are filled
-//	with the number of bits that are 00, 01, 10, or 11 respectively,
-//	for each condition bit i= 0, 1, nbits-1, summed over all rules or
-//	forecasters.  Returns nbits, the number of condition bits.  If
-//	cum is YES, adds the new counts to whatever is in the (*coutptr)
-//	arrays already.  Agents that don't use condition bits return -1.
-//	The 4-element array (*countptr)[4] must already exist, but the
-//	arrays to which its element point are supplied dynamically.  This
-//	method must be provided by each subclass that has condition bits.
-// 
 /*
 pj: change comments June 2, 2000
 
@@ -268,8 +213,6 @@ static BFParams *  params;
 
 // PRIVATE METHODS
 @interface BFagent(Private)
-- performGA;
-
 //pj: methods now replace previous functions:
 - (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
 - (void) MakePool: rejects From: (id <Array>) list;
@@ -284,25 +227,64 @@ static BFParams *  params;
 
 
 @implementation BFagent
+/*"The BFagent--"bit forecasting agent" is the centerpiece of the ASM
+model.  The agent competes in a stock market, it buy, it sells.  It
+decides to buy or sell by making predictions about what the price of
+the stock is likely to do in future.  In order to make predictions, it
+keeps a large list of forecast objects on hand, and each forecast
+object makes a price prediction. These forecasts, which are created
+from the BFCast subclass, are fairly sophisticated entities, they may
+monitor many different conditions of the world.  The forecast which is
+the best historical record at any given instant is used to predict the
+future price, which in turn leads to the buy/sell decision. 
 
+Inside the file BFagent.m, there is a long set of comments about the
+updating that went on in the redesign of this code for ASM-2.2.  In
+order to faciliate this revision, several new classes were introduced.
+BFParams is an object that keeps values of the parameters for
+BFagents, and BFCast is the forecast object itself.  BFCast, in turn,
+keeps its conditions bits with a subclass called BitVector.
+
+If you dig into the code of this agent, you will find a confusing
+thing, so be warned. This code and articles based on it use the term
+"bit" to refer to something that can be valued either 0, 1, or 2. 0
+means "don't care," 1 means "NO" and 2 means "YES".  The confusing
+thing is that it takes two bits to represent this amount of
+information. In binary, the values would be {00,01,10},
+respectively. I'm told some people call these trits to keep that in
+mind that two digits are required.  As a result of the fact that it
+takes "two bits" to store "one bit's" worth of information, some
+relatively complicated book keeping has to be done.  That's where all
+the parameters like "condbits" and "condwors" come into play.  In
+ASM-2.0, that book keeping was all "manually done" right here in
+BFagent.m, but in the 2.2 version, it is all hidden in the subclass
+BitVector.  So, for purposes of the interface of this class, a bit is
+a 3 valued piece of information, and values of bits inside forecasts
+are set by messages to the forecast, like [aForecast setConditionsbit:
+bit FromZeroTo: 2], for example, will set that bit to 2. If you want
+to know if a forecast has YES or NO for a bit x, [aForecast
+getConditionsbit: x].  "*/
+
+
+/*"This tells BFagents where they should look to get values for their parameters. it shoud give the agent an object from the BFParams class."*/
 +(void) setBFParameterObject: x
 {
     params=x;
 }
 
+/*"This is vital to set values in the forecast class,  BFCast, which in turn initializes BitVector"*/
 +(void) init
 {
-  [BFCast init]; //must pass along init statement to BFCast,then to
-  //BitVector from there.
-
+  [BFCast init]; 
   return;
 }
 
-//pj: none of this functionality is needed anymore
+// This was a big result of code cleanup!
+// These class methods are not needed anymore
 //  +didInitialize
 //  +prepareForTrading      //called at the start of each trading period
 
-//Don't need a class method here for this. If you need something like
+// Also, we don't need a class method here for this. If you need something like
 //it, put it in BFParams.  
 //+(int)lastgatime 
 //  {  pp = (struct BFparams *)params; 
@@ -310,35 +292,40 @@ static BFParams *  params;
 //  }
 
 
-//pj: yikes, pointer usage, be careful.
-+setRealWorld: (int *)array
-{
-  [worldForAgent getRealWorld: array];
-  return self;
-}
+//pj: Watch out with this one, there are pointers flying everywhere!
+//It is a superflous method that is not called anymore, it scared me
+//so much.  
 
-//pj: superfluous method: never called anymore
-+(int)setNumWorldBits
-{
-  int numofbits;
-  numofbits = [worldForAgent getNumWorldBits];
-  return numofbits;
-}
+//+setRealWorld: (int *)array { [worldForAgent getRealWorld:
+//array]; return self; }
 
--createEnd
-{
+// superfluous method: never called anymore
+//  +(int)setNumWorldBits
+//  {
+//    int numofbits;
+//    numofbits = [worldForAgent getNumWorldBits];
+//    return numofbits;
+//  }
 
-  //pj: container objects
+
+/*"This creates the container objects activeList and oldActiveList.  In addition, it makes sure that any initialization in the createEnd of the super class is done."*/
+- createEnd
+{
   activeList=[List create: [self getZone]];
   oldActiveList=[List create: [self getZone]];
-
- 
-
   return [super createEnd];
 }
 
-
--initForecasts
+/*"initForecasts. Creates BFCast objects (forecasts) and puts them
+  into an array called fCastList.  These are the "meat" of this
+  agent's functionality, as they are repeatedly updated, improved, and
+  tested in the remainder of the class.  Note it is conceivable that,
+  for some future usage, we want to keep a separate BFParams object
+  for each agent. That would allow true diversity!  In the current
+  setup, there is no need to do so, so the "private parameters"
+  objects (see the IVAR privateParams) of all agents all refer to the
+  same, common, public parameter object."*/
+- initForecasts
 {
   int  sumspecificity = 0;
  
@@ -402,7 +389,11 @@ static BFParams *  params;
   return self;
 }
 
-//pj: creates forecasts with all condition bits are 00 here, "don't care"
+/*"Creates a new forecast object (instance of BFCast), with all
+  condition bits set to 00 here, meaning "don't care.  It also sets
+  values for the other coefficients inside the BFCast.  This method is
+  accessed at several points throughout the BFagent class when new
+  forecasts are needed."*/
 - (BFCast *) createNewForecast
 {
   BFCast * aForecast;
@@ -446,7 +437,7 @@ static BFParams *  params;
   return aForecast;   
 }
 
-
+/*"Take a forecast and randomly change its bits.  This appears to be a piece of functionality that could move to the BFCast class itself. There were quite a few of them at one time."*/
 -setConditionsRandomly: (BFCast *) fcastObject
 {
   int bit;
@@ -466,8 +457,8 @@ static BFParams *  params;
       else if (drand() < problist[bit])
 	{  
 	  [fcastObject setConditionsbit: bit FromZeroTo:  irand(2)+1];
-	  //remember 1 means yes, or binary 01, and 2 means no, or 10
-	  [fcastObject incrSpecificity];//I wish this were automatic!
+	  //remember 1 means no, or binary 01, and 2 means Yes, or 10
+	  [fcastObject incrSpecificity];//pj: I wish this were automatic!
 	  [fcastObject updateSpecfactor];
 	}
     }
@@ -476,19 +467,20 @@ static BFParams *  params;
 
 
 -prepareForTrading
-  /*
+  /*"
  * Set up a new active list for this agent's forecasts, and compute the
  * coefficients pdcoeff and offset in the equation
  *	forecast = pdcoeff*(trialprice+dividend) + offset
  *
  * The active list of all the fcasts matching the present conditions is saved
  * for later updates.
- */
+ "*/
 {
   //register struct BF_fcast *fptr, *topfptr, **nextptr;
   //unsigned int real0, real1, real2, real3, real4 = 0 ;
   double weight, countsum, forecastvar=0.0;
   int mincount;
+  int nactive;
 
   //pj: for getting values from world
   BitVector * myworld; 
@@ -532,7 +524,8 @@ static BFParams *  params;
 
   //pj: note I started updating this code to match the rest, but then
   //pj: I realized it did not work as it was before, so I stopped
-  //pj: messing with it.
+  //pj: messing with it. Don't expect the CPPFLAG WEIGHTED to do 
+  //pj: anything good.
 
   a = 0.0;
   b = 0.0;
@@ -622,7 +615,7 @@ static BFParams *  params;
     {
       pdcoeff = [bestForecast getAval];
       offset = [bestForecast getBval]*dividend + [bestForecast getCval];
-      forecastvar = getInt(privateParams,"individual")? [bestForecast getVariance]:variance;
+      forecastvar = getInt(privateParams,"individual")? [bestForecast getVariance]: variance;
     }
 
 #endif
@@ -699,12 +692,15 @@ static BFParams *  params;
 }
 
 
-//pj: here is the comment from BFagent about the next thing.
-// Main inner loop over forecasters.  We set this up separately for each
-// value of condwords, for speed.  It's ugly, but fast.  Don't mess with
-// it!  Taking out fptr->conditions will NOT make it faster!  The highest
-// condwords allowed for here sets the maximum number of condition bits
-// permitted (no matter how large MAXCONDBITS).
+/*"This is the main inner loop over forecasters. Go through the list
+  of active forecasts, compare how they did against the world.  Notice
+  the switch that checks to see how big the bitvector (condwords) is
+  before proceeding.  At one time, this gave a significant
+  speedup. The original sfsm authors say 'Its ugly, but it
+  works. Don't mess with it!'  (pj: I've messed with it, and don't
+  notice much of a speed effect on modern computers with modern
+  compilers :> My alternative implementation is commented out inside
+  this method)"*/
 
 -updateActiveList: (BitVector *) worldvalues
 {
@@ -851,35 +847,39 @@ I write it before I understood the fact that the World gives back 10 for yes and
   return self;
 }
 
-
--getInputValues      //does nothing, used only if their are ANNagents
+/*"Currently does nothing, used only if their are ANNagents"*/
+-getInputValues     
 {
   return self;
 }
 
-
--feedForward        //does nothing, used only if their are ANNagents
+/*"Currently does nothing, used only if their are ANNagents"*/
+-feedForward        
 {
   return self;
 }
 
 
 -(double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice
-  /*
- * Returns the agent's requested bid (if >0) or offer (if <0) using
- * best (or mean) linear forecast chosen by -prepareForTrading
- */
+  /*" Returns the agent's requested bid (if >0) or offer (if <0) using
+* best (or mean) linear forecast chosen by -prepareForTrading The
+* forecast is given by 
+
+   forecast = pdcoeff*(trialprice+dividend) + offset 
+
+* where pdcoeff and offset are set by -prepareForTrading.
+
+A risk aversion computation gives a target holding, and its
+derivative ("slope") with respect to price.  The slope is calculated
+as the linear approximated response of a change in price on the
+traders' demand at time t, based on the change in the forecast
+according to the currently active linear rule. "*/
+
 {
-  // The actual forecast is given by
-  //       forecast = pdcoeff*(trialprice+dividend) + offset
-  // where pdcoeff and offset are set by -prepareForTrading.
+ 
   forecast = (trialprice + dividend)*pdcoeff + offset;
 
-  // A risk aversion computation now gives a target holding, and its
-  // derivative ("slope") with respect to price.  The slope is calculated
-  // as the linear approximated response of a change in price on the traders'
-  // demand at time t, based on the change in the forecast according to the
-  // currently active linear rule.
+
   if (forecast >= 0.0) 
     {
       demand = -((trialprice*intratep1 - forecast)/divisor + position);
@@ -911,11 +911,26 @@ I write it before I understood the fact that the World gives back 10 for yes and
 }
 
 
+/*"Return agent's forecast"*/
 -(double)getRealForecast
 {
   return forecast;
 }
 
+
+/*" Now update the variance and strength of all the forecasts that
+  were active in the previous period, since now we know how they
+  performed. This method causes an update of price/dividend
+  information from the world, then it measures how far off each
+  forecast was and puts the square of that "deviance" measure into the
+  forecast with the forecast's setVariance: method. Each forecast in
+  the active list is told to update its forecast.  It also updates the
+  instance variable variance, which is calculated here as an
+  exponentially weignted moving average of that forecast's
+  squared-error (variance).  Inside the code of updatePerformance,
+  there is a description of the strength formula that is used, and how
+  the formula now matches the formula used in the original sfsm,
+  rather than ASM-2.0. "*/
 
 -updatePerformance
 {
@@ -923,9 +938,6 @@ I write it before I understood the fact that the World gives back 10 for yes and
   BFCast *  aForecast;
   id <Index> index = nil;
   double deviation, ftarget, tauv, a, b, c, av, bv, maxdev;
-    
-   // Now update all the forecasts that were active in the previous period,
-  // since now we know how they performed.
 
   // Precompute things for speed
   tauv = privateParams->tauv;
@@ -1008,8 +1020,7 @@ I write it before I understood the fact that the World gives back 10 for yes and
       index = [ oldActiveList begin: [self getZone]];
       for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
 	{
-	  double lastForecast;
-	  lastForecast=[aForecast getLforecast];
+	  double  lastForecast=[aForecast getLforecast];
 	  deviation = (ftarget - lastForecast)*(ftarget - lastForecast);
 
 	  if (deviation > maxdev) deviation = maxdev;
@@ -1021,52 +1032,88 @@ I write it before I understood the fact that the World gives back 10 for yes and
 	      [aForecast setVariance: (1.0 - c)*[aForecast getVariance] +
 			 c*deviation];
 	    }
-	  [aForecast setStrength: privateParams->maxdev - [aForecast getVariance] + [aForecast getSpecfactor]];  //based on bfagent.m
-	  // original  bfagent has this:
-	  //    rptr->strength = p->maxdev - rptr->variance + rptr->specfactor;
-	  // BFagent had this:   fptr->strength = fptr->specfactor/fptr->variance;
+	  
+	  [aForecast setStrength: privateParams->maxdev 
+		     - [aForecast getVariance]
+		     + [aForecast getSpecfactor]];
+	  // ****************************************/
+	  // pj: The preceeding is based on sfsm's bfagent.m
+	  // 
+	  // original bfagent has this: rptr->strength = p->maxdev -
+	  // rptr->variance + rptr->specfactor; 
+
+	  // BFagent had this: fptr->strength =
+	  // fptr->specfactor/fptr->variance; I've spoken to Blake
+	  // LeBaron and we both like the old way and don't know why it
+	  // was changed. 
+
+	  // I hasten to say that maxdev is the benchmark for
+	  // variance, and I wonder if maxdev would not be better
+	  // renamed maxdev-squared or maxvar.
+	  //******************************************/
 	}
 
       [index drop];
     }
-  // NOTE: On exit, fptr->forecast is only guaranteed to be valid for
-  // forcasters which matched.  The inspector has to calculate the rest
-  // itself if it wants to show them all.  This is for speed.
+ 
   return self;
 }
 
-
+/*"Returns the absolute value of realDeviation"*/
 -(double)getDeviation
 {
   return fabs(realDeviation);
 }
 
-
--updateWeights         //does nothing, used only if their are ANNagents
+/*"Currently, does nothing, used only if their are ANNagents"*/
+-updateWeights        
 {
   return self;
 }
 
 
+/*"Returns the "condbits" variable from parameters: the number of
+  condition bits that are monitored in the world, or 0 if
+  condition bits aren't used.
+  "*/
 -(int)nbits
 {
   return privateParams->condbits;
 }
 
-
+/*"Returns the number of forecasts that are used. In the original
+  design, this was a constant set in the parameters, although revision
+  of the code for ASM-2.2 conceivably should allow agents to alter the
+  number of forecasts they maintain."*/
 -(int)nrules
 {
   return privateParams->numfcasts;
 }
 
-
+/*"Return the last time the Genetic Algorithm was run.
+//	Agents that don't use a genetic algorithm return MININT.  This
+//	may be used to see if the bit distribution might have changed,
+//	since a change can only occur through a genetic algorithm."*/
 -(int)lastgatime
 {
   return lastgatime;
 }
 
 
-//pj: Never gets called. ????
+/*"Currently, this method is not called anywhere in ASM-2.2. It might
+  serve some purpose, past or present, I don't know (pj:
+  2001-11-26)"*/
+//   Original docs from ASM-2.0
+//	Places in (*countptr)[0] -- (*countptr)[3] the addresses of 4
+//	arrays, (*countptr)[0][i] -- (*countptr)[3][i], which are filled
+//	with the number of bits that are 00, 01, 10, or 11 respectively,
+//	for each condition bit i= 0, 1, nbits-1, summed over all rules or
+//	forecasters.  Returns nbits, the number of condition bits.  If
+//	cum is YES, adds the new counts to whatever is in the (*coutptr)
+//	arrays already.  Agents that don't use condition bits return -1.
+//	The 4-element array (*countptr)[4] must already exist, but the
+//	arrays to which its element point are supplied dynamically.  This
+//	method must be provided by each subclass that has condition bits.
 -(int)bitDistribution: (int *(*)[4])countptr cumulative: (BOOL)cum
 {
   BFCast * aForecast;
@@ -1128,7 +1175,12 @@ I write it before I understood the fact that the World gives back 10 for yes and
   return condbits;
 }
 
+
 //pj: this method was never called anywhere
+
+/*"Currently, this method is not called anywhere in ASM-2.2. It might
+  serve some purpose, past or present, I don't know (pj:
+  2001-11-26)"*/
 -(int)fMoments: (double *)moment cumulative: (BOOL)cum
 {
   BFCast *aForecast ;
@@ -1158,6 +1210,13 @@ I write it before I understood the fact that the World gives back 10 for yes and
 }
 
 //pj: this method is not called anywhere
+
+/*"Currently, this method is not called anywhere in ASM-2.2. It might serve some purpose, past or present, I don't know (pj: 2001-11-26)"*/
+// ASM-2.0 documentation:
+//	If the agent uses condition bits, returns a description of the
+//	specified bit.  Invalid bit numbers return an explanatory message.
+//	Agents that don't use condition bits return NULL.
+//
 -(const char *)descriptionOfBit: (int)bit
 {
   if (bit < 0 || bit > getInt(privateParams,"condbits"))
@@ -1167,45 +1226,75 @@ I write it before I understood the fact that the World gives back 10 for yes and
 }
 
 
-// Genetic algorithm
+/*" Genetic algorithm. It relies on the following separate methods.  (pj: 2001-11-25. I still see some room for improvement here, but the emphasis is to eliminate all global variables and explicitly pass return values instead.)
 //
-//  1. MakePool() makes a list in reject[] of the "npool" weakest rules.
+//  1. MakePool makes a list of the weakest forecasts:
+//  rejectList. That is the "npool" weakest rules.
 //
-//  2. "nnew" new rules are created in newrules[], using tournament
-//     selection, crossover, and mutation.  "Tournament selection"
-//     means picking two candidates purely at random and then choosing
-//     the one with the higher strength.  See the Crossover() and
-//     Mutate() routines for more details about how they work.
+//  2. "nnew" new rules are created. They are put into a Swarm list
+//  called newList. Their bit settings are taken from either crossover
+//  (using tournament selection to get parents), or mutation.
+//  "Tournament selection" means picking two candidates purely at
+//  random and then choosing the one with the higher strength.  See
+//  the Crossover and Mutate methods for more details about how they
+//  work.
 //
-//  3. The nnew new rules replace nnew of the npool weakest old ones found in
-//     step 1.  GetMort() is called for each of the nnew new rules and
-//     selects one to replace out of the remainder of the original npool weak
-//     ones.  It pays no attention to strength, but looks at similarity of
-//     the bitstrings -- rather like tournament selection, we pick two
-//     candidates at random and choose the one with the MORE similar
-//     bitstring to be replaced.  This maintains more diversity.
+//  3. The nnew new rules replace weakest old ones found in step
+//  1. This is done by the method "TransferFcastsFrom:To:" It pays no
+//  attention to strength, but looks at similarity of the bitstrings
+//  -- rather like tournament selection, we pick two candidates from
+//  the rejectList at random and choose the one with the MORE similar
+//  bitstring to be replaced.  This maintains more diversity.
 //
-//  4. Generalize() looks for rules that haven't been triggered for
-//     "longtime" and generalizes them by changing a randomly chosen
-//     fraction "genfrac" of 0/1 bits to "don't care".  It does this
-//     independently of strength to all rules in the population.
+//  4. Generalize looks for rules that haven't been triggered for
+//  "longtime" and generalizes them by changing a randomly chosen
+//  fraction "genfrac" of 0/1 bits to "don't care".  It does this
+//  independently of strength to all rules in the population.
 //
-// Parameter list:
-//
-//   npool	-- size of pool of weakest rules for possible relacement;
-//		   specified as a fraction of numfcasts by "poolfrac"
-//   nnew	-- number of new rules produced
-//		   specified as a fraction of numfcasts by "newfrac"
-//   pcrossover -- probability of running Crossover() at all.
-//   plinear    -- linear combination "crossover" prob.
-//   prandom    -- random from each parent crossover prob.
-//   pmutation  -- per bit mutation prob.
-//   plong      -- long jump prob.
-//   pshort     -- short (neighborhood) jump prob.
-//   nhood      -- size of neighborhood.
-//   longtime	-- generalize if rule unused for this length of time
-//   genfrac	-- fraction of 0/1 bits to make don't-care when generalising
+//  There are several private methods that take care of this
+//  work. They don't show up in the public interface, but here they
+//  are:
 
+-(BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from
+
+-(void) MakePool: rejects From: (id <Array>) list
+
+-(BOOL) Mutate: (BFCast *) new Status: (BOOL) changed
+
+-(BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2
+
+- (void) TransferFcastsFrom: newlist To:  forecastList Replace: rejects 
+
+- (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects
+
+-(void) Generalize: (id) list AvgStrength: (double) avgstrength
+
+// Parameter list:
+
+_{npool	-- size of pool of weakest rules for possible relacement;
+		   specified as a fraction of numfcasts by "poolfrac"}
+
+_{nnew	-- number of new rules produced
+		   specified as a fraction of numfcasts by "newfrac"}
+
+_{ pcrossover -- probability of running Crossover.}
+
+_{plinear    -- linear combination "crossover" prob.}
+
+//  _{ prandom    -- random from each parent crossover prob.}
+
+//  _{ pmutation  -- per bit mutation prob.}
+
+//  _{ plong      -- long jump prob.}
+
+//   _{pshort     -- short (neighborhood) jump prob.}
+
+//  _{nhood      -- size of neighborhood.}
+
+//   _{longtime	-- generalize if rule unused for this length of time}
+
+//  _{ genfrac	-- fraction of 0/1 bits to make don't-care when generalising}
+"*/
 - performGA
 {
   // register struct BF_fcast *fptr;
@@ -1949,7 +2038,7 @@ I write it before I understood the fact that the World gives back 10 for yes and
 }
 
 
-//pj: in case you want to see the 0101 representation of an integer:
+/*"in case you want to see the 0101 representation of an integer. Sometimes this comes in handy if you are looking at a particular forecast's value as an int and you need to convert it to the 0's and 1's"*/
 - printcond: (int) word
 {
   int i;
@@ -1967,6 +2056,7 @@ I write it before I understood the fact that the World gives back 10 for yes and
   return self;
 }
 
+/*"This is a general utility method for Swarm lists. It removes all objects form the "outputList" and copies the elements from list into it.  It does not actually destroy any elements from either list, it just updates references."*/
 - copyList: list To: outputList
 {
   id index, anObject;

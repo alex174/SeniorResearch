@@ -3,7 +3,7 @@
 @interface ASMModelParams: SwarmObject
 {
 @public
-  int numBFagents;
+  int numBFagents;  /*" number of BFagents "*/
   float initholding;
   double initialcash;
   double minholding;
@@ -38,7 +38,6 @@
   double initvar;
   double maxdev;
   int setOutputForData;
-	
 };
 
 @end

@@ -1,3 +1,28 @@
+2001-10-26    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* BFagent.h (Agent): nactive removed from IVAR list, it is used
+	only in prepareForTrading, so it is defined there.
+
+2001-10-25    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* World.m (GETMA): GETMA(ma,i) is a macro that tells the given ma
+	whether to get the exponential or regular ma. IT gets it from the
+	i'th element of the array of moving averages.
+
+	* World.h (SwarmObject): delete awieght, bweight. That gets taken
+	care of byMovingAverage now. priceMA, divMA, oldpriceMA, olddivMA
+	objects now replace old mas.  These MA objects keep both regular and
+	exponential MAs, and retrieve them with getMA and getEWMA.
+
+2001-10-25    <pauljohn@ukans.edu>
+
+	* World.m: Moved define NMAS into World.h, converted pointers to
+	arrays[NMAS], got rid of alloc's in World.m.
+	
+	* World.m: Moved define UPDOWNLOOKBACK into World.h,
+	converted pointers to arrays[NMAS], got rid of alloc's in World.m.
+
+
 2001-10-25  Paul E Johnson  <pauljohn@ukans.edu>
 
 	* BFagent.m ([BFagent -CopyRule:to:from]): minstrength has to be

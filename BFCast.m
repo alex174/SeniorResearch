@@ -3,6 +3,14 @@
 #import <misc.h>
 
 @implementation BFCast
+/*"A BFCast is an object that holds all the forcecasting components of
+  a bit forecast.  That means it has a BitVector (a thing called
+  "conditions" in the code that keeps track of which world bits are
+  being monitored) as well as other coefficients that are used to
+  calculate forecasts. It has instance variables that record when the
+  rule was last used, how many times it has been used, how accururate
+  its predictions are, and so forth."*/
+
 
 - createEnd
 {
@@ -20,81 +28,96 @@
   return self;
 }
 
+/*"The init is needed because BitVector has to be told how bit of a
+  bit vector it will need"*/
 + init
 {
   [BitVector init];
  return self;
 }
 
+/*"Free dynamically allocated memory"*/
 -(void) drop
 {
   [conditions drop];
   [super drop];
 }
 
-       
+/*"Sets the number of words-worth's of conditions that are going to be used"*/       
 -(void) setCondwords: (int) x
 {
   condwords = x;
 }
 
+/*"Sets the number of bits. This is the number of aspect of the world that are monitored"*/
 -(void)  setCondbits: (int) x
 {
   condbits=x;
 }
 
+/*"Null bits may be needed if the bit vector that is allocated is larger than the number of conditions being monitored. Since a bitvector allocates space in sizes of words, this might be important. Luckily, in the current design of ASM-2.0 (and after), there are no null bits."*/
 - (void) setNNulls: (int) x
 {
   nnulls= nnulls;
 }
 
+/*"Set the variable bitcost at x"*/
 - (void) setBitcost: (double) x
 {
   bitcost = x;
 }
   
-
+/*"Rather than individually set bits one by one, we might want to set
+  all of them at once. That means we pass in a pointer to an array of
+  words that is the "right size" for all the bits."*/
 -(void) setConditions: (int *) x
 {
   [conditions setConditions: x];
 }
 
+/*"Returns a pointer to an array, the integer representation of the
+  conditions"*/
 -(int *) getConditions
 {
   return [conditions getConditions];
 }
 
-
+/*"Returns an object of type BitVector, the represnetation of
+  conditions that is actually used inside this class or
+  calculations"*/
 -(BitVector *) getConditionsObject
 {
   return conditions;
 }
 
 
+/*"For low level access to a full word's-worth of the condition"*/
 -(void) setConditionsWord: (int) i To: (int) value
 {
   [conditions setConditionsWord: i To: value];
 }
 
-
+/*"Returns the integer representation of the x'th word in the
+  conditions"*/
 -(int) getConditionsWord: (int) x
 {
   return [conditions getConditionsWord: x];
 }
 
-
+/*"Sets the value of a bit in the conditions"*/
 -(void) setConditionsbit: (int) bit To: (int) x
 {
   [conditions setConditionsbit: bit To: x];
 }
 
-
+/*"If a bit is currently set to 0 ("don't care"), then change it to
+  something else (1 or 2)"*/
 -(void) setConditionsbit: (int) bit FromZeroTo: (int) x
 {
   [conditions setConditionsbit: bit FromZeroTo: x];
 }
 
-
+/*"Returns 0,1,or 2, for a given bit in the conditions records"*/
 -(int) getConditionsbit: (int)bit
 {
   return [conditions getConditionsbit: bit];
@@ -108,9 +131,11 @@
   [conditions maskConditionsbit: bit];
 }
 
+
+/*"Change a YES to a NO, and vice versa"*/
 -(void) switchConditionsbit: (int) bit
 {
-  //    conditions[WORD(bit)] ^= MASK[bit];
+  // conditions[WORD(bit)] ^= MASK[bit];
   [conditions switchConditionsbit: bit];
 }
 

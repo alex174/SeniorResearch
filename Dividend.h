@@ -4,32 +4,40 @@
 
 @interface Dividend: SwarmObject
 {
-  int period;
-  double baseline;
-  double mindividend;
-  double maxdividend;
-  double amplitude;
+ 
+  double baseline; /*"The centerline around which deviations are computed.
+		     //			This is equal to the mean for a symmetric process
+		     //			(i.e., if asymmetry = 0).  "baseline" is set only
+		     //			from the parameter file, and should NOT normally
+		     //			be changed from the default value (10.0)."*/
+  //
 
+  double amplitude; /*"The amplitude of the deviations from the baseline.
+		      //			Measured in units of "baseline".  The standard
+		      //			deviation of the process is proportional to this."*/
+
+  int period;  /*"The period or auto-correlation time of the process."*/
+
+  double mindividend;  /*"floor under dividend values"*/
+  double maxdividend; /*"ceiling for dividend values"*/
   double deviation;
   double rho;
   double gauss;
-
   double dvdnd;
-
-  id normal;
+  id normal; /*"A Swarm Normal Generator object"*/
 }
 
--initNormal;
+- initNormal;
 
  //These member functions just take parameters set in the 
--setBaseline: (double)theBaseline;
--setmindividend: (double)minimumDividend;
--setmaxdividend: (double)maximumDividend;
--(double)setAmplitude: (double)theAmplitude;
--(int)setPeriod: (int)thePeriod;
--setDerivedParams;
+- setBaseline: (double)theBaseline;
+- setmindividend: (double)minimumDividend;
+- setmaxdividend: (double)maximumDividend;
+- (double)setAmplitude: (double)theAmplitude;
+- (int)setPeriod: (int)thePeriod;
+- setDerivedParams;
 
--(double)dividend;
+- (double)dividend;
 
 @end
 
