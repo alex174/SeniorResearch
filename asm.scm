@@ -71,7 +71,7 @@
   #:initvar 0.4000212D0
   #:maxdev  100D0
   #:exponentialMAs 1 
-  #:setOutputForData 1
+  #:setOutputForData 0 
 ))
 
 
@@ -106,7 +106,7 @@
   #:initvar 0.4000212D0
   #:maxdev  100D0
   #:exponentialMAs 1 
-  #:setOutputForData 1
+  #:setOutputForData 0
 ))
 
   (cons 'asmBatchSwarm
