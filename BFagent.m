@@ -276,6 +276,7 @@ getConditionsbit: x].  "*/
 
   fcastList=[Array create: [self getZone] setCount: numfcasts];
   gacount = 0;
+  medianstrength = 0;
 
   variance = privateParams->initvar;
   [self getPriceFromWorld];
@@ -306,6 +307,12 @@ getConditionsbit: x].  "*/
 - (int)getNfcasts
 {
   return [fcastList getCount];
+}
+
+/*"Get the median strength of the forecasts of the agent"*/
+- (double) getMedianstrength
+{
+  return medianstrength;
 }
 
 
@@ -938,34 +945,76 @@ according to the currently active linear rule. "*/
   BFCast *aForecast ;
   int i;
   int condbits;
+  double weight, sumweight = 0;
+  double mt[8];
+  double medstrength;
 
   id index;
   
   condbits = privateParams->condbits;
+  currentTime = getCurrentTime()+1;
+  medstrength = [self getMedianstrength];
   
   if (!cum)
-	for(i=0;i<6;i++)
-	  moment[i] = 0;
+    for(i=0;i<8;i++)
+      moment[i] = 0;
+
+  for (i=0;i<8;i++)
+    mt[i]=0;
+
   
  index=[ fcastList begin: [self getZone] ];  
  for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
    {
-     moment[0] +=  [aForecast getAval];
-      moment[1] += [aForecast getAval]*[aForecast getAval];
-      moment[2] += [aForecast getBval];
-      moment[3] += [aForecast getBval]*[aForecast getBval];
-      moment[4] += [aForecast getCval];
-      moment[5] += [aForecast getCval]*[aForecast getCval];
+     if (((currentTime - [aForecast getLastused]) < 10000) && ([aForecast getStrength] >= medstrength))
+       sumweight += weight = 1;
+     else 
+       weight = 0;
+     
+     mt[0] +=  weight*[aForecast getAval];
+     mt[2] +=  weight*[aForecast getBval];
+     mt[4] +=  weight*[aForecast getCval];
+     mt[6] +=  weight*[aForecast getVariance];
    }
+
+ if (sumweight != 0)
+   for (i=0;i<8;i+=2) 
+     mt[i] /= sumweight;
+ else 
+   for (i=0;i<8;i+=2)
+     mt[i] = 0;
+
+ sumweight = 0;
+
+ index=[ fcastList begin: [self getZone] ];  
+ for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+   {
+     if (((currentTime - [aForecast getLastused]) < 10000) && ([aForecast getStrength] >= medstrength))
+       sumweight += weight = 1;
+     else 
+       weight = 0;
+     
+     mt[1] +=  weight*fabs([aForecast getAval]-mt[0]);
+     mt[3] +=  weight*fabs([aForecast getBval]-mt[2]);
+     mt[5] +=  weight*fabs([aForecast getCval]-mt[4]);
+     mt[7] +=  weight*fabs([aForecast getVariance]-mt[6]);
+   }
+
+ if (sumweight != 0)
+   for (i=1;i<8;i+=2) 
+     mt[i] /= sumweight;
+ else 
+   for (i=1;i<8;i+=2)
+     mt[i] = 0;
+
+ for (i=0;i<8;i++)
+   moment[i] += mt[i];
+
  [index drop];  
-  return privateParams->numfcasts;
+ return privateParams->numfcasts;
 }
 
-//pj: this method is not called anywhere
 
-/*"Currently, this method is not called anywhere in ASM-2.2. It might
-  serve some purpose, past or present, I don't know (pj:
-  2001-10-26)"*/
 // ASM-2.0 documentation:
 //	If the agent uses condition bits, returns a description of the
 //	specified bit.  Invalid bit numbers return an explanatory message.
@@ -1069,7 +1118,8 @@ _{plinear    -- linear combination "crossover" prob.}
   currentTime = getCurrentTime()+1;
   //bitlist = privateParams->bitlist;
 
-  medstrength = [self CalculateMedian];  
+  medstrength = [self CalculateMedian];
+  medianstrength = medstrength;
   
   // Find the npool weakest rules, for later use in TrnasferFcasts
   [self  MakePool: rejectList From: fcastList];

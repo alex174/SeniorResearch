@@ -15,6 +15,7 @@
   double global_mean; /*"price+dividend"*/
   double realDeviation;  /*" ftarget-lforecast: how far off was the agent's forecast?"*/
   double variance;   /*"an Exp.Weighted MA of the agent's historical variance: Combine the old variance with deviation^squared, as in:  bv*variance + av*deviation*deviation"*/
+  double medianstrength;
 
   double pdcoeff;   /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
   double offset;    /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
@@ -47,6 +48,7 @@
 
 - (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice;
 - (double)getRealForecast;
+- (double)getMedianstrength;
 - updatePerformance;
 - (double)getDeviation;
 - (int)nbits;

@@ -1,7 +1,12 @@
 2003-06-09  Thomas Badegruber  <badegruber@localhost.localdomain>
 
+	* BFagent.h: created new ivar medianstrength for use in fMoments,
+	local variable in GA and fMoments still called medstrength.
+
 	* BFagent.m: changed bitDistribution to count only bits of
-	forecast that were used within the last 10000 periods.
+	forecast that were used within the last 10000 periods. changed
+	fMoments to calculate means and absolute mean deviations of
+	forecast parameters and forecast variance.
 
 	* BFCast.m ([BFCast -createEnd]): introduced new ivar lastused to
 	track last actual use of forecast in contrast to lastactive, that
