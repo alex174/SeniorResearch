@@ -1,3 +1,10 @@
+2003-03-26    Thomas Badegruber <thomas.badegruber@uni-graz.at>
+
+	* ASMModelParams.m ([ASMModelParams +createBegin:aZone]): removed
+	tauv, lambda and initvar from asm.scm and the probemap in
+	ASMModelParams.m because they are not needed, since pj introduced
+	the BFParams
+
 2003-03-25  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* ASMObserverSwarm.m ([ASMObserverSwarm

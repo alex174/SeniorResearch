@@ -79,13 +79,7 @@
   			            inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForVariable: "randomSeed"
   			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "tauv"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "lambda"
-  			            inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForVariable: "maxbid"
-  			            inClass: [self class]]];
-  [probeMap addProbe: [probeLibrary getProbeForVariable: "initvar"
   			            inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForVariable: "maxdev"
   			            inClass: [self class]]];

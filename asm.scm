@@ -63,11 +63,8 @@
   #:etamin 0.00001D0
   #:rea 6.333D0
   #:reb 16.6882D0
-  #:randomSeed 0  
-  #:tauv  75.0D0         
-  #:lambda 0.5D0
+  #:randomSeed 0
   #:maxbid  10.0D0
-  #:initvar 4.0D0
   #:maxdev  100D0
   #:exponentialMAs 1 
 ))
