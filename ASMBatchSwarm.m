@@ -23,9 +23,17 @@
 
   modelZone = [Zone create: [self getZone]];
   asmModelSwarm = [ASMModelSwarm create: modelZone];
-  
-  [ObjectLoader load: self fromAppDataFileNamed: "batch.setup"];
-  [ObjectLoader load: asmModelSwarm fromAppDataFileNamed: "param.data"];
+
+  //pj:can use same parameter object
+  if ((asmModelParams =
+       [lispAppArchiver getWithZone: globalZone key: "asmBatchParams"]) == nil)
+    raiseEvent(InvalidOperation,
+               "Can't find the batchModelSwarm parameters");
+  [asmModelSwarm setParamObject: asmModelParams];
+
+  //pj: [ObjectLoader load: self fromAppDataFileNamed: "batch.setup"];
+
+  //pj:  [ObjectLoader load: asmModelSwarm fromAppDataFileNamed: "param.data"];
 
   // [asmModelSwarm initOutputForDataWrite];
   [asmModelSwarm buildObjects];

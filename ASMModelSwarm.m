@@ -141,16 +141,16 @@
   [specialist setMaxIterations: asmModelParams-> maxiterations];
   [specialist setMinExcess: asmModelParams->minexcess];
   [specialist setETA: asmModelParams-> eta];
-  [specialist setETAmin: asmModelParams-> etamin];
-  [specialist setETAmax: asmModelParams->etamax];
+  //  [specialist setETAmin: asmModelParams-> etamin]; pj: was unused
+  //   [specialist setETAmax: asmModelParams->etamax]; pj: was unused
   [specialist setREA: asmModelParams-> rea];
   [specialist setREB: asmModelParams->reb];
-  [specialist init];
+  // [specialist init];
   [specialist setWorld: world];
   specialist = [specialist createEnd];
 
   output = [Output create: [self getZone]];
-  if (setOutputForData == 1) 
+  if (asmModelParams->setOutputForData == 1) 
     {
       [output setWorld: world];
       [output setSpecialist: specialist];

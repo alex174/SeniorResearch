@@ -60,9 +60,6 @@
 
 -setBaseline: (double)theBaseline
 {
-
-  printf(" \n \n World set baseline %f \n \n", theBaseline);
-
   baseline = theBaseline;
   return self;
 }

@@ -17,8 +17,14 @@ main (int argc, const char **argv)
   if(swarmGUIMode == 1)
     theTopLevelSwarm = [ASMObserverSwarm create: globalZone];
   else
-    theTopLevelSwarm = [ASMBatchSwarm create: globalZone];
-  
+    // theTopLevelSwarm = [ASMBatchSwarm create: globalZone];
+    
+  if ((theTopLevelSwarm =
+       [lispAppArchiver getWithZone: globalZone key: "asmBatchSwarm"]) == nil)
+    raiseEvent(InvalidOperation,
+               "Can't find the batchSwarm parameters");
+
+
   [theTopLevelSwarm buildObjects];
   [theTopLevelSwarm buildActions];
   [theTopLevelSwarm activateIn: nil];

@@ -16,7 +16,7 @@
   double maxdividend;
   double amplitude;
   int period;
-  BOOL exponentialMAs;   //Also used by World.
+  int exponentialMAs;   //Also used by World.//pj:was BOOL
   //Specialist parameters
   double maxprice;
   double minprice;
@@ -36,7 +36,9 @@
   double lambda;
   double maxbid; 
   double initvar;
-  double maxdev;	
+  double maxdev;
+  int setOutputForData;
+	
 };
 
 @end

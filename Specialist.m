@@ -62,7 +62,8 @@
 
 -setTaup: (double)aTaup
 {
-  taup = aTaup;
+  taupnew = -expm1(-1.0/aTaup); //pj: moved here from init method
+  taupdecay = 1.0 - taupnew;   // moved to simplify!
   return self;
 }
 
@@ -101,19 +102,19 @@ acceptable.  The Specialist will be set to Slope (i.e., 1).");
   return self;
 }
 
+//pj: etamin and etamax are not used in this class ??
+//  -setETAmin: (double)ETAmin
+//  {
+//    etamin = ETAmin;
+//    return self;
+//  }
 
--setETAmin: (double)ETAmin
-{
-  etamin = ETAmin;
-  return self;
-}
 
-
--setETAmax: (double)ETAmax
-{
-  etamax = ETAmax;
-  return self;
-}
+//  -setETAmax: (double)ETAmax
+//  {
+//    etamax = ETAmax;
+//    return self;
+//  }
 
 
 -setREA: (double)REA
@@ -129,18 +130,19 @@ acceptable.  The Specialist will be set to Slope (i.e., 1).");
   return self;
 }
 
-
+//pj: init method is now unnecessary. Moved IVARS inside methods, or
+//reset values when needed.
 -init
 {
 /* construct constants and initial values */
-  bidtotal = 0.0;
-  offertotal = 0.0;
-  volume = 0.0;
-  oldbidtotal = 0;
-  oldoffertotal = 0;
-  oldvolume = 0.0;
-  taupnew = -expm1(-1.0/taup);
-  taupdecay = 1.0 - taupnew;
+  // bidtotal = 0.0;
+  //offertotal = 0.0;
+  //volume = 0.0;
+  //oldbidtotal = 0;
+  //oldoffertotal = 0;
+  //oldvolume = 0.0;
+//    taupnew = -expm1(-1.0/taup); //pj: moved to setTaup: method
+//    taupdecay = 1.0 - taupnew;
   
   return self;
 }
@@ -164,14 +166,17 @@ acceptable.  The Specialist will be set to Slope (i.e., 1).");
   double demand, slope, imbalance, dividend;
   double slopetotal = 0.0;
   double trialprice = 0.0;
-    
-  id agent;
-  id index;
+  double offertotal = 0.0;  //was IVAR
+  double bidtotal = 0.0; //was IVAR
+
+  id agent;  id index;
+
+  volume = 0.0;
 
 // Save previous values
-  oldbidtotal = bidtotal;
-  oldoffertotal = offertotal;
-  oldvolume = volume;
+  //oldbidtotal = bidtotal;  //pj: old variables were never used anywhere
+  //oldoffertotal = offertotal;
+  //oldvolume = volume;
 
   dividend = [worldForSpec getDividend];
 // Main loop on {set price, get demand}
@@ -280,6 +285,8 @@ acceptable.  The Specialist will be set to Slope (i.e., 1).");
   Agent * agent;
   id index;
   double bfp, ofp, tp, profitperunit;
+  double price = 0.0; //pj: was IVAR
+
 
   price = [worldForSpec getPrice];
   profitperunit = [worldForSpec getProfitPerUnit];

@@ -60,7 +60,7 @@
   id dividendProcess;
   id world;
   id output;
-  BOOL setOutputForData;
+  int setOutputForData;
 
 
   ASMModelParams * asmModelParams;  //pj: the parameter object

@@ -1,6 +1,13 @@
+2000-06-16  Paul Johnson  <pauljohn@dellap.pols.ukans.edu>
+
+	* main.m (main): lispAppArchiver loading for ASMBatchSwarm
+
+	* ASMBatchSwarm.m ([ASMBatchSwarm -buildObjects]): batch model
+	load parameters from asm.scm.  Adjust asm.scm accordingly.
+
 2000-06-08  Paul Johnson  <pauljohn@ukans.edu>
 
-	* Output.h:REmoved the following methods:
+	* Output.h:Removed the following methods:
 		-setNumBFagents: (int)BFagents;
 		-setInitHolding: (float)Holding;
 		-setInitialCash: (double)initcash;

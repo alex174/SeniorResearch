@@ -1,4 +1,4 @@
-#import <objectbase.h>    //Specialist is a SwarmObject
+//#import <objectbase.h>    //Specialist is a SwarmObject
 #import "World.h"
 
 @class Agent;
@@ -17,29 +17,29 @@ typedef enum
   double minprice;
   double eta;
   double etainitial;
-  double etamax;
-  double etamin;
-  double ldelpmax;
+//    double etamax;  pj: was unused
+//    double etamin;  pj: was unused
+  //double ldelpmax; pj: was unused
   double minexcess;
   double rea;
   double reb;
   double bidfrac;
   double offerfrac;
   int maxiterations;
-  int varcount;
-  SpecialistType sptype;
+  //int varcount;  pj: was not used in class
+   SpecialistType sptype;
   id agentList;
   World * worldForSpec;
 
-  double bidtotal;
-  double offertotal;
+  //double bidtotal;
+  //double offertotal; pj: just in performTrading method
   double volume;
-  double oldbidtotal;
-  double oldoffertotal;
-  double oldvolume;
+  //double oldbidtotal;  pj: was unused
+  //double oldoffertotal; pj: was unused
+  //double oldvolume; pj: was unused
 
-  double price;
-  double taup;
+  //double price;  pj: was used only in completeTrades
+  //double taup;   pj: was not needed in class
   double taupdecay;
   double taupnew;
 }
@@ -54,12 +54,12 @@ typedef enum
 -setMaxIterations: (int)someIterations;
 -setMinExcess: (double)minimumExcess;
 -setETA: (double)ETA;
--setETAmin: (double)ETAmin;
--setETAmax: (double)ETAmax;
+//-setETAmin: (double)ETAmin;  //pj: set value never used
+//-setETAmax: (double)ETAmax;  //pj: set value never used
 -setREA: (double)REA;
 -setREB: (double)REB;
 
--init;
+-init;//pj: init can be deleted ??
 -(double)performTrading;
 -(double)getVolume;
 -completeTrades;
