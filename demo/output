@@ -1,0 +1,271 @@
+# Output stream specifications for the Santa Fe Stock Market
+# Parameters are recognized solely by position within file -- watch out!
+
+# Any number of output streams may be specified (subject to system
+# limitations).  Each one is specified with the following parameters:
+#
+#    streamname
+#    filename         		(= may be used after the first)
+#    headinginterval
+#    variable_or_block_1
+#    variable_or_block_2
+#    ...
+#    AFTERFIRST			(optional)
+#    variable_or_block_3
+#    variable_or_block_4
+#    ...
+#    end
+#
+# The "streamname" is arbitrary, as long as different streams have different
+# names.  It is used for reference in the timelist file, which specifies
+# when each output stream should be activated.
+#
+# The "filename" is the output filename -- see the general discussion of
+# filenames above.
+#
+# The "headinginterval" is an integer specifying the frequency of adding a
+# heading (naming the variables) to the output.  E.g., headinginterval = 50
+# would give a heading every 50 times the output stream is written.  0 gives
+# an initial heading only, -1 gives none at all, and -2 gives none and also
+# suppresses the initial block heading.
+#
+# The "variable_or_block_n" parameters specify the actual variables to be
+# output, in order.  As described in detail below, each is either the name
+# of a variable or a whole block of variables that are to written as a group
+# for a particular agent, type, class, or set of agents.  A literal "end"
+# terminates these "variable_or_block_n" specifications.  Another literal
+# "end" must appear after the last output stream specification.
+#
+# The optional AFTERFIRST keyword specifies that the variable_or_block_n
+# specifications preceding it should only be executed the first time the
+# stream is activated.  After the first activation, only the specifications
+# following AFTERFIRST are executed.
+# 
+# Variable specifications
+# -----------------------
+# Each variable_or_block_n specification can be the name of a variable or
+# a bit, possibly with an optional prefix and/or suffix.  The possible
+# names are listed in the "names" file, or can be listed by running the
+# program with the -n option.
+#
+# Prefix characters are:
+#    
+#   |	Don't leave a space before the variable (default is one space)
+#   @   Average the variable's value since the last time it was printed
+#	in this output stream (or since time 0).
+#   +   Like @, but just sum the values -- don't divide by the number of
+#	samples.  Useful, e.g., for getting the total trading volume.
+#
+# If | is used it must come first.  It may also stand alone as a separate
+# item (followed by white space).  No space may appear between @ or + and
+# the variable name.
+#
+# The only allowed suffix is a format specification, as for printf,
+# enclosed in parentheses.  A default format is used if this is not given.
+# The format specification should be appropriate for a "double" or "int"
+# as appropriate (see the "names" file), except that all variables with a
+# @ prefix are treated as double.  A format may also be used alone.
+#
+# The variable "allbits" is a special case.  It prints the value (0 or 1) of
+# all the defined bits, in the order in the "names" file.  By default these
+# are concatenated into one long string.  If a format is specified it is
+# applied to each bit.
+#
+# Examples of variable specifications (with comments following #):
+#    p			# price (double)
+#    date		# current date and time (string)
+#    p>p20		# bit "price > 20-period MA" (int: 0 or 1)
+#    |p>p20		# same, but without preceding space
+#    @p>p20		# average value of the bit (double)
+#    +v			# total volume since last time printed
+#    d/r(%.6f)		# dividend/intrate with format %.6f
+#    "t(time = %d)"	# time with format string (note the double quotes)
+#    (\n)		# format standing alone
+#    allbits		# all bits, concatenated
+#    allbits(%2d)	# all bits, separated
+#
+# Block specifications
+# --------------------
+# Each variable_or_block_n specification can be a block with the following
+# structure:
+#
+#    block_header
+#    MAX n			(optional)
+#    variable_1
+#    variable_2
+#    ...
+#    END
+#
+# The "variable_n" specifications specify individual variables in the block,
+# in the manner described above, but with some variations and additional
+# cases discussed in the next section.
+#
+# The block_header can be any of the following:
+#
+#    FOR AGENTS		# Loop over all agents
+#    SUM AGENTS		# Sum over all agents
+#    AVG AGENTS		# Average over all agents
+#    FOR CLASS c	# Loop over all agents in class c
+#    SUM CLASS c	# Sum over all agents in class c
+#    AVG CLASS c	# Average over all agents in class c
+#    FOR TYPE t		# Loop over all agents in type t
+#    SUM TYPE t		# Sum over all agents in type t
+#    AVG TYPE t		# Average over all agents in type t
+#    CLASS c		# Properties of class c (no loop)
+#    TYPE t		# Properties of type t (no loop)
+#    AGENT a		# Properties of agent a (no loop)
+#
+# A class "c" may specified by a name such as "BF" (e.g., "FOR CLASS BF")
+# or by a number (e.g., "SUM CLASS 1") based on the order of specification
+# in the agentlist file (1 means the first class specified, etc).
+#
+# A type "t" may be specified by a name such as "BF2" or by a number
+# based on the order of specification in the agentlist file.
+#
+# An agent "a" may be specified by a name such as "BF2-kib" or by its number,
+# starting from 1.  The agents are initially created in the order specified
+# in the agentlist file, so e.g. "AGENT 1" means the first one specified.
+# After an evolution event "AGENT 1" means the first remaining agent, which
+# may or may not be a descendant of the first one origially specified.
+# Using a named agent (e.g., "AGENT BS1-leb" or "AGENT BF2-pos-faw") is
+# only useful when replaying a previous run, since agent names are not
+# otherwise known in advance.
+#
+# A loop over a set of agents prints the values of the variables in the
+# block for each agent in turn.  A sum over a set of agents evaluates
+# the variables for each agent and then prints the total for each in turn.
+# An average over a set of agents is like a sum except that the totals are
+# divided by the number of agents in the loop (and needs a double format).
+#
+# The optional "MAX n" specification that can follow the block_header sets
+# "n" as a limit for the number of agents to be included in an agent loop,
+# sum, or average.  It is only valid in a FOR, SUM, or AVG block.
+#
+# Note that each block must end with "END".  Case is significant -- this is
+# not the same as the "end" used to end each stream and this whole file.
+#
+# Accumulation through time (specified by a @ or + prefix on a variable name)
+# is only allowed in a block containing a single agent, specified by
+# "AGENT a" or by a FOR loop with "MAX 1".
+#
+# Normally each block starts on a new output line, and loops over agents
+# start a new line for each agent.  These newlines may be suppressed by
+# placing a "|" before the block_header (e.g., "| FOR AGENTS").
+#
+# Variable specifications inside blocks
+# -------------------------------------
+# Outside a block only globally-meaningful variable names can be used.  Inside
+# a block a particular class, type, or agent is defined (for each pass through
+# a loop/sum/average if appropriate), so additional variables specific to
+# a class, type, or agent can be used.  These variables are listed in the
+# "names" file under subheadings like "-- agent variables --".  Specifying an
+# agent implicitly specifies a type and a class, and specifying a type
+# implicitly specifies a class, so e.g., a type-specific variable could be
+# used in an "AGENT a" block.
+#
+# Some variables change their meaning depending on the block in which they
+# appear, as follows:
+#
+# nagents	gives the total number of agents, or the number in a
+#		specified class (for CLASS c) or type (for TYPE t)
+#
+# ntypes	gives the total number of types, or the number in a
+#		specified class (for CLASS c) or type (for TYPE t -- always 1)
+# 
+# bit names	give the value (0 or 1) of a market (world) bit outside a
+#		block, but give the total number of rules/forecasters that
+#		use that bit (i.e., not "don't care") for an agent.  For
+#		a type (for TYPE t) the total usage in all agents in that
+#		type is given.
+#
+# allbits	behaves like individual bit names.  In a block specifying
+#		an agent or type, only the condition bits used by that
+#		type are given, in the order specifed in the type's
+#		parameter file (e.g. "bfparams").  Null bits are included,
+#		but always give 0.
+#
+# Some additional special variables are only allowed inside blocks:
+#
+# sumbits	gives the total bit usage (one number) for an agent or type,
+#		summed over all condition bits and over all rules/forecasters.
+#		For a type (TYPE t) it is also summed over all agents in
+#		the type.
+#
+# avgbits	like sumbits, except that is normalized to give the average
+#		number of bits used per agent; normalization is by the number
+#		of non-null condition bits and (for TYPE t) by the number of
+#		agents in the type.
+#
+# avgtypebits	like sumbits, except that is normalized to give the average
+#		number of bits used in the type; normalization is by the
+#		number of non-null condition bits only.
+#
+# details(string)  specifies printing of detailed statistics etc for an agent,
+#		type, or class.  This simply sends an appropriate message
+#		to the agent, type, or class, with the argument "string".
+#		The resulting output depends on the particular agent class
+#		and on "string".  Documentation for these cases appears in
+#		the default agent parameter files, like "bfparams".
+#
+# Examples of blocks
+# ------------------
+# 1. Print the name, stock holding, and cash for the first 10 agents:
+#	FOR AGENTS MAX 10 agentname holding cash END
+#
+# 2. Print the above variables plus detailed statistics for all agents
+#    in class BF, starting the details on a new line:
+#	FOR CLASS BF
+#	agentname holding cash (\n) details(stats)
+#	END
+#
+# 3. Print the average stock holding and cash across all agents:
+#	AVG AGENTS holding cash END
+#
+# 4. Print moments of the prediction coefficients across the agents in
+#    in type BF1:
+#	TYPE BF1 details(moments) END
+#
+# 5. Print the usage of the pr/d>1 bit for each agent in type BS1, and
+#    then the average of these values:
+#	FOR TYPE BS1 agentname pr/d>1 END
+#	AVG TYPE BS1 (average:) pr/d>1 END
+#
+# The rest of this file is an example:
+
+# 	
+# "prices" stream (sent to stdout for demo)
+prices          # streamname
+-               # filename
+0               # headinginterval
+                # -- variables in stream 'prices' --
+"mseed(# mseed = %d)"
+"dseed(   dseed = %d\n)"
+AFTERFIRST
+t               # time
+p               # price
+d/r             # dividend/interest_rate
+@v              # average volume
+end             # (end of variable list)
+
+# Other output stream specifications could appear here
+agents
+"agents###"
+0
+t @p 
+(april) CLASS BF classname classnum nclasses ntypes details(gainterval)  END
+(may) CLASS 1 classname classnum nclasses ntypes END
+#(june) CLASS 2 classname classnum nclasses ntypes details(gainterval) END
+(rick) TYPE BF1 classname classnum pshort nclasses ntypes nrules details(gainterval) END
+#(sue) TYPE BF2 classname classnum pshort nclasses ntypes nrules details(gainterval) END
+#(sam) TYPE BS classname classnum wild nclasses ntypes nrules details(gainterval) END
+#(sue) TYPE 2 classname classnum nclasses ntypes nrules details(gainterval) END
+(jane) AGENTS BF1-ziy classname classnum pshort nclasses ntypes nrules gacount END
+#(jim) FOR TYPE BF2 wealth run pshort END
+(mike) AGENTS 2 agentname cash forecast details(gainterval) END
+(rob) FOR AGENTS agentname cash END
+(kate) FOR AGENTS MAX 5 agentname cash pshort END
+(carol) FOR AGENTS MAX 1 agentname +cash pshort END
+end
+
+end             # (end of output stream specifications)
+

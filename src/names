@@ -1,0 +1,206 @@
+# ====================================================================
+#	*** The Santa Fe Stock Market ***
+#  Version 6.22.662 - Jul 30 1999
+# ====================================================================
+# This is a list of the variable names and keywords that can be used in
+# output specifications.  The bit names can also be used in the parameter
+# files of some agent classes to name condition bits.
+#
+# Integer variables and bits need integer output formats (e.g., %d)
+# unless averaged with '@' or AVG.  Real variables and any averaged
+# variables or bits need double output formats (e.g., %f).
+#
+# Items marked with a '*' change their meaning according to the context in
+# which they are used -- see the documentation for output specifications.
+#
+# Use the -n option to produce this listing.
+
+# ---------- Integer variables ----------
+1               #          | 1
+t               #          | time
+oldt            #          | time - 1
+run             #          | run number
+mseed           #          | random seed for market and agents
+dseed           #          | random seed for dividend stream
+nagents         #          | number of agents in class, type, or all *
+nclasses        #          | number of classes
+ntypes          #          | number of types in class, type, or all *
+generation      #          | evolutionary generation
+classnum        # CLASS    | class number
+typenum         # TYPE     | type number
+nrules          # TYPE     | number of rules or forecasters
+nbits           # TYPE     | number of condition bits/rule (excluding nulls)
+nbitsall        # TYPE     | number of condition bits/rule (including nulls)
+sumbits         # TYPE     | total condition bit usage for type or agent *
+agentnum        # AGENT    | agent number
+agenttag        # AGENT    | agent number - 1 (starts at 0)
+index           # AGENT    | ordinal number of this agent in a loop
+gacount         # AGENT    | number of GA runs
+mincount        # TYPE  BF | rules exclude than mincount
+gainterval      # TYPE  BF | genetic algorithm is run if due
+firstgatime     # TYPE  BF | genetic algorithm first
+longtime        # TYPE  BF | unused time before generalize
+nactive         # AGENT BF | rules than conditions
+
+# ---------- Real variables ----------
+p               #          | price
+d               #          | dividend
+d/r             #          | dividend/interest_rate
+v               #          | volume
+b               #          | bids
+o               #          | offers
+p5              #          | 5-period MA of price
+p20             #          | 20-period MA of price
+p100            #          | 100-period MA of price
+p500            #          | 500-period MA of price
+d5              #          | 5-period MA of dividend
+d20             #          | 20-period MA of dividend
+d100            #          | 100-period MA of dividend
+d500            #          | 500-period MA of dividend
+pr/d            #          | price*interest_rate/dividend
+ppu             #          | profitperunit
+return          #          | returnratio
+vol             #          | volatility - 1 back
+vol5            #          | volatility - 5 back
+vol20           #          | volatility - 20 back
+vol100          #          | volatility - 100 back
+vol500          #          | volatility - 500 back
+r               #          | intrate
+eta             #          | eta
+oldp            #          | old price
+oldd            #          | old dividend
+oldd/r          #          | old dividend/interest_rate
+oldv            #          | old volume
+oldb            #          | old bids
+oldo            #          | old offers
+avgbits         # TYPE     | average condition bit usage per agent *
+avgtypebits     # TYPE     | average condition bit usage in type *
+wealth          # AGENT    | wealth
+relwealth       # AGENT    | relative wealth
+position        # AGENT    | stock holding
+holding         # AGENT    | stock holding
+stockvalue      # AGENT    | stock value
+cash            # AGENT    | cash
+profit          # AGENT    | profit moving average
+demand          # AGENT    | demand
+target          # AGENT    | target
+tauv            # TYPE  BF | moving average estimated variance
+lambda          # TYPE  BF | risk-aversion
+maxbid          # TYPE  BF | maximum bid parameter
+subrange        # TYPE  BF | random fraction of min-max range
+a_min           # TYPE  BF | min for p+d coefficient
+a_max           # TYPE  BF | max for p+d coefficient
+b_min           # TYPE  BF | min for dividend coefficient
+b_max           # TYPE  BF | max for dividend coefficient
+c_min           # TYPE  BF | min for constant term
+c_max           # TYPE  BF | max for constant term
+newrulevar      # TYPE  BF | variance to a new forecaster
+initvar         # TYPE  BF | variance of overall forecast for t<200
+bitcost         # TYPE  BF | penalty parameter for specificity
+maxdev          # TYPE  BF | max deviation of a forecast in variance estimation
+bitprob         # TYPE  BF | bits probability (current, p = prob)
+newfrac         # TYPE  BF | fraction of rules replaced
+pcrossover      # TYPE  BF | probability of running crossover() at all
+plinear         # TYPE  BF | linear combination crossover prob
+prandom         # TYPE  BF | random from each parent crossover prob
+pmutation       # TYPE  BF | per bit mutation prob
+plong           # TYPE  BF | long jump prob
+pshort          # TYPE  BF | short (neighborhood) jump prob
+nhood           # TYPE  BF | size of neighborhood
+genfrac         # TYPE  BF | fraction of 0/1 bits to generalize
+forecast        # AGENT BF | this forecast of return
+variance        # AGENT BF | variance of forecast
+
+# ---------- String variables ----------
+title           #          | title of this program
+version         #          | version number
+versiondate     #          | version date
+username        #          | current username
+hostname        #          | current hostname
+date            #          | date and time
+classname       # CLASS    | name of class
+typename        # TYPE     | name of type
+filename        # TYPE     | type's parameter file name
+agentname       # AGENT    | name of agent
+shortname       # AGENT    | shortened name of agent
+selectionmethod # TYPE  BF | overall forecast: average/best/roulette
+individual      # TYPE  BF | overal variances are determined: no/yes
+
+# ---------- Special keywords ----------
+END             # end of block
+MAX             # maximum agents for a loop/sum/average
+AGENTS          # start of all-agents block
+CLASS           # start of class block
+TYPE            # start of type block
+AGENT           # start of single agent block
+FOR             # block prefix for loop over agents
+SUM             # block prefix for sum over agents
+AVG             # block prefix for average over agents
+AFTERFIRST      # starting point after 1st pass
+
+details(string) # class/type/agent-dependent details specified by 'string' *
+
+# ---------- Bits * ----------
+on              # dummy bit -- always on
+off             # dummy bit -- always off
+random          # random on or off
+dup             # dividend went up this period
+dup1            # dividend went up one period ago
+dup2            # dividend went up two periods ago
+dup3            # dividend went up three periods ago
+dup4            # dividend went up four periods ago
+d5up            # 5-period MA of dividend went up
+d20up           # 20-period MA of dividend went up
+d100up          # 100-period MA of dividend went up
+d500up          # 500-period MA of dividend went up
+d>d5            # dividend > 5-period MA
+d>d20           # dividend > 20-period MA
+d>d100          # dividend > 100-period MA
+d>d500          # dividend > 500-period MA
+d5>d20          # dividend: 5-period MA > 20-period MA
+d5>d100         # dividend: 5-period MA > 100-period MA
+d5>d500         # dividend: 5-period MA > 500-period MA
+d20>d100        # dividend: 20-period MA > 100-period MA
+d20>d500        # dividend: 20-period MA > 500-period MA
+d100>d500       # dividend: 100-period MA > 500-period MA
+d/md>1/4        # dividend/mean dividend > 1/4
+d/md>1/2        # dividend/mean dividend > 1/2
+d/md>3/4        # dividend/mean dividend > 3/4
+d/md>7/8        # dividend/mean dividend > 7/8
+d/md>1          # dividend/mean dividend > 1  
+d/md>9/8        # dividend/mean dividend > 9/8
+d/md>5/4        # dividend/mean dividend > 5/4
+d/md>3/2        # dividend/mean dividend > 3/2
+d/md>2          # dividend/mean dividend > 2
+d/md>4          # dividend/mean dividend > 4
+pr/d>1/4        # price*interest/dividend > 1/4
+pr/d>1/2        # price*interest/dividend > 1/2
+pr/d>3/4        # price*interest/dividend > 3/4
+pr/d>7/8        # price*interest/dividend > 7/8
+pr/d>1          # price*interest/dividend > 1
+pr/d>9/8        # price*interest/dividend > 9/8
+pr/d>5/4        # price*interest/dividend > 5/4
+pr/d>3/2        # price*interest/dividend > 3/2
+pr/d>2          # price*interest/dividend > 2
+pr/d>4          # price*interest/dividend > 4
+pup             # price went up this period
+pup1            # price went up one period ago
+pup2            # price went up two periods ago
+pup3            # price went up three periods ago
+pup4            # price went up four periods ago
+p5up            # 5-period MA of price went up
+p20up           # 20-period MA of price went up
+p100up          # 100-period MA of price went up
+p500up          # 500-period MA of price went up
+p>p5            # price > 5-period MA
+p>p20           # price > 20-period MA
+p>p100          # price > 100-period MA
+p>p500          # price > 500-period MA
+p5>p20          # price: 5-period MA > 20-period MA
+p5>p100         # price: 5-period MA > 100-period MA
+p5>p500         # price: 5-period MA > 500-period MA
+p20>p100        # price: 20-period MA > 100-period MA
+p20>p500        # price: 20-period MA > 500-period MA
+p100>p500       # price: 100-period MA > 500-period MA
+
+allbits         # all of the above bits *
