@@ -76,7 +76,11 @@
   			            inClass: [self class]]];
   [probeMap addProbe: [probeLibrary getProbeForVariable: "maxdev"
   			            inClass: [self class]]];
+  [probeMap addProbe: [probeLibrary getProbeForVariable: "setOutputForData"
+  			            inClass: [self class]]];
+
   [probeLibrary setProbeMap: probeMap For: [self class]];
+
 return obj;
 
 }

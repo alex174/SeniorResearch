@@ -1,3 +1,14 @@
+2001-02-07  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMModelParams.m ([ASMModelParams +createBegin:aZone]): added
+	probe for setOutputData
+
+	* asm.scm (cons): added setOutputForData 1 to initialize it.
+
+2001-02-06  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* BFCast.m: added import of <misc.h> 
+
 2000-06-16  Paul Johnson  <pauljohn@dellap.pols.ukans.edu>
 
 	* main.m (main): lispAppArchiver loading for ASMBatchSwarm
