@@ -52,8 +52,8 @@
   #:baseline 10D0  
   #:mindividend 0.00005D0
   #:maxdividend 100D0
-  #:amplitude 0.14178D0
-  #:period 100D0
+  #:amplitude 0.0873D0
+  #:period 19.5D0
   #:maxprice 99999D0
   #:minprice 0.001D0
   #:taup 50.0D0

@@ -16,7 +16,7 @@
 		      //			Measured in units of "baseline".  The standard
 		      //			deviation of the process is proportional to this."*/
 
-  int period;  /*"The period or auto-correlation time of the process."*/
+  double period;  /*"The period or auto-correlation time of the process."*/
 
   double mindividend;  /*"floor under dividend values"*/
   double maxdividend; /*"ceiling for dividend values"*/

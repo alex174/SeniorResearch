@@ -834,7 +834,7 @@ according to the currently active linear rule. "*/
 	  deviation = (ftarget - lastForecast)*(ftarget - lastForecast);
 
 	  if (deviation > maxdev) deviation = maxdev;
-	  if ([aForecast getCnt] > tauv)
+	  if ([aForecast getCnt] > 0)
 	    [aForecast setActvar: b*[aForecast getActvar] + a*deviation];
 	  else 
 	    {

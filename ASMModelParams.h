@@ -15,7 +15,7 @@
   double mindividend;
   double maxdividend;
   double amplitude;
-  int period;
+  double period;
   int exponentialMAs;   //Also used by World.//pj:was BOOL
   //Specialist parameters
   double maxprice;
