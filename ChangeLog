@@ -1,3 +1,9 @@
+2003-03-27  Paul E Johnson  <pauljohn@ukans.edu>
+
+	* ASMObserverSwarm.m ([ASMObserverSwarm -buildObjects]): Thomas
+	Badegruber pointed out ASM crashes on windows systems and
+	submitted a patch.
+
 2003-03-18  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
 
 	* BFagent.m ([BFagent -updateActiveList:]): Looking for speedups in
