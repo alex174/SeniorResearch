@@ -1,3 +1,8 @@
+2000-06-02  Paul Johnson  <pauljohn@valinux.pols.ukans.edu>
+
+	* BFagent.h (Agent): Closed memory leaks by [index drop]. Still
+	some small leak in the GA code.
+
 2000-06-01  Paul Johnson  <pauljohn@ukans.edu>
 
 	* BFagent.m : Added BitVector usage, added methods -updateActiveList and

@@ -1,8 +1,8 @@
 ifeq ($(SWARMHOME),)
 SWARMHOME=/usr
 endif
-APPVERSION=2.1
-BUGADDRESS=weber2@ssc.upenn.edu
+APPVERSION=2.1.1
+BUGADDRESS=pauljohn@ukans.edu
 APPLICATION = asm
 OBJECTS = Agent.o Dividend.o World.o \
 	  Specialist.o Output.o ASMModelSwarm.o \

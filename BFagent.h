@@ -42,10 +42,7 @@
   //id <Array> newconds;
 
   id <List> activeList;
-  id <List> oldActiveList;
-
-  id <List> newList ; //to collect the new forecasts; 
-  id <Array> rejectList ; 
+  id <List> oldActiveList; 
 }
 
 +(void)setBFParameterObject: x;

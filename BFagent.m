@@ -56,7 +56,7 @@
 //	method must be provided by each subclass that has condition bits.
 // 
 /*
-pj: change comments May 30, 2000
+pj: change comments June 2, 2000
 
 I began with the code as released by the ASM research team through
 Brandon Weber in April, 2000.  Here is a summary of the vital changes
@@ -144,8 +144,49 @@ this file, but not everywhere, because I got tired of typing.
 5. More object orientation.  The "homemade" linked lists, built with
 pointers and other C concepts, are replaced by Swarm collections.
 Iteration now uses Swarm index objects.  Many usages of C alloc and
-calloc are eliminated.  After a thorough removal of commented-out old
-code, this should approach a high level of readability.
+calloc are eliminated.  This should approach a high level of readability.
+
+Example: code that used to look like this for looping through a list:
+   struct BF_fcast *fptr, *topfptr;
+   topfptr = fcast + p->numfcasts;
+   for (fptr = fcast; fptr < topfptr; fptr++) 
+      {
+	if (fptr->conditions[0] & real0) continue;
+	*nextptr = fptr;
+	nextptr = &fptr->next;
+      }
+
+Now it looks like this:
+   id <Index> index=[ fcastList begin: [self getZone]];
+    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+    {
+      if ( [aForecast getConditionsWord: 0] & real0 )   continue ;
+      //if that's true, this does not get done:
+      [activeList addLast: aForecast];
+    }
+    [index drop];
+
+Example 2: What was like this:
+  for (fptr = fcast; fptr < topfptr; fptr++) 
+    {
+      agntcond = fptr->conditions;
+      for (i = 0; i < condbits; i++)
+	count[(int)((agntcond[WORD(i)]>>SHIFT[i])&3)][i]++;
+    }
+Is now like this:
+ index=[ fcastList begin: [self getZone] ];  
+ for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+   {
+     agntcond = [aForecast getConditions];
+      for (i = 0; i < condbits; i++)
+	{
+	    count[ (int)[aForecast getConditionsbit: i]][i]++;
+	}
+   }
+ [index drop];
+ 
+Note the usage of Swarm lists, indexes, and methods like
+"getConditionsbit" and "getConditionsWord", instead of bitmath.
 
 Usage of pointers to arrays is now minimized as well.  There used to
 be a class method called +prepareForTrading that would retrieve a copy
@@ -161,15 +202,20 @@ look to the world and get the information it wants.
 
 6. Think locally, act locally.  Global pointers and lists and anything
 else have been replaced wherever possible by automatic variables
-(inside methods) or instance variables.  I created several new methods that
-take bits from bit methods/functions and do them in isolation (see -updateActiveList
-or -collectWorldData.
+(inside methods) or instance variables.  I created several new methods
+that take bits from bit methods/functions and do them in isolation
+(see -updateActiveList or -collectWorldData.
 
 7. Genetic Algorithm now is written in Obj-C methods that pass whatever 
 arguments are needed, rather than using C functions that access a lot 
 of global variables. Agent's don't share workspace for the GA, either, 
-each has its own memory.  */
+each has its own memory.  
 
+8. Formulas to calcuate strength, specfactor, and variance in the 
+forecast objects were different in the original BFagent.m than in 
+the bfagent.m.  Since the bfagent.m file matched the documentation 
+released with ASM-2.0, I have changed to use the bfagent.m formulas 
+in this file.  Some cleanup can still be made.  */
 
 
 #import "BFagent.h"
@@ -181,8 +227,9 @@ each has its own memory.  */
 #import "BitVector.h"
 
 extern World *worldForAgent;
-//pj: wish I could get rid of that one too, since each agent could just have a pointer
-//pj: to a common world object. However, there are serveral class methods that use it.
+//pj: wish I could get rid of that one too, since each agent could
+//just have a pointer pj: to a common world object. However, there are
+//serveral class methods that use it.
 
 //pj: 
 //convenience macros to replace stuff from ASM random with Swarm random stuff 
@@ -197,6 +244,8 @@ extern World *worldForAgent;
 //  #define MAXCONDBITS	80
 //  #define extractvalue(variable, trit) ((variable[WORD(trit)] >> ((trit%16)*2))&3) 
 //  #define ifnilgetzero(variable, trit)  ((variable[WORD(trit)]& (3<<((trit%16)*2))))
+
+
 // Type of forecasting.  WEIGHTED forecasting is untested in its present form.
 //pj: bluntly, WEIGHTED does not work and is incomplete
 #define WEIGHTED 0
@@ -210,11 +259,6 @@ static BFParams *  params;
 
 //pj: other global variables were moved either to the performGA method where they are 
 //pj: needed or into the BFParams class, where they are used to create BFParams objects
-
-//pj: I don't want to share this across agents.  Now it is an IVAR.
-// Working space, dynamically allocated, shared by all instances
-//    static struct BF_fcast	**reject;	/* GA temporary storage */
-//    static struct BF_fcast	*newfcast;	/* GA temporary storage */
 
 //pj:  ReadBitname moved to BFParams
 
@@ -253,98 +297,7 @@ static BFParams *  params;
 
 //pj: none of this functionality is needed anymore
 //  +didInitialize
-//  {
-//    struct BF_fcast *fptr, *topfptr;
-//    unsigned int *conditions;
-//    unsigned int *newconds;	
-    //pj: no longer needed because these are converted to arrays in +init  
-  //  // Free working space we're done with
-  //    free(probs);
-  //    free(bits);
-
-
-
-//  // Allocate working space for GA
-//    int npoolmax = getDouble(params,"npoolmax");
-//    int nnewmax = getDouble(params,"nnewmax");
-//    int ncondmax = getDouble (params,"ncondmax");
-
-//    reject = calloc(npoolmax,sizeof(struct BF_fcast *));
-//    if(!reject)
-//      printf("There was an error allocating space for reject.");
-
-//    newfcast = calloc(nnewmax,sizeof(struct BF_fcast));
-//    if(!newfcast)
-//      printf("There was an error allocating space for newfcast.");
-    
-//    newconds = calloc(ncondmax*nnewmax,sizeof(unsigned int));
-//    if(!newconds)
-//      printf("There was an error allocating space for newconds.");
-
-//  // Tie up pointers for conditions
-//    topfptr = newfcast + nnewmax;
-//    conditions = newconds;
-//    for (fptr = newfcast; fptr < topfptr; fptr++) 
-//      {
-//        fptr->conditions = conditions;
-//        conditions += ncondmax;
-//      }
-
-//    return self;
-//  }
-
-
-//pj: note this is a CLASS METHOD because, as originally designed, each agent
-//pj: has the exact same bit-space and the same "real world" as a result.
-//pj: Should be easy to rewrite so each agent can have own selection of bits
-//pj: to track and a instance variable "my world". This method would be rewritten.
-
-//pj: As a matter of fact, I'm not calling this anymore. Each agent gets his own Condition
-//pj: object to set world values into. That's in -prepareForTrading.
-
 //  +prepareForTrading      //called at the start of each trading period
-//  {
- //   int i, n;
-//    int * myRealWorld=NULL;
-//    int nworldbits;
-//    int * bitlist;
-//    //previously were global vars
-//    int condbits;
-//    int condwords;
-//    unsigned int * myworld; //pj: was just int. Unsigned vital for bit math
-//    BFParams * pp;
-
-//    //pj: The possibility is that pp could be set to some other thing, like an
-//    //pj: IVAR privateParams, which could differentiate the conditions used by agents. 
-//    pp = params;  //must refer to same object as params are gotten from below.
-//    condwords = getInt(pp,"condwords");
-//    condbits = getInt(pp,"condbits");
-//    //bitlist = pp->bitlist;
-//    bitlist = [pp getBitListPtr];
-//    //myworld = pp->myworld;
-//    myworld = [pp getMyworldPtr];
-//    for (i = 0; i < condwords; i++)
-//      myworld[i] = 0;
-//     nworldbits = [worldForAgent getNumWorldBits];
-
-//     //pj: this was not freed in ASM-2.0
-//      myRealWorld = calloc(nworldbits, sizeof(int));//was memcpy in other file, 
-//      if(!myRealWorld)
-//        printf("There was an error allocating space for myRealWorld.");
-//    [worldForAgent getRealWorld: myRealWorld];
-
-//    for (i=0; i < condbits; i++) 
-//      {
-//        if ((n = bitlist[i]) >= 0)
-//  	//	myworld[WORD(i)] |= myRealWorld[n] << SHIFT[i];
-//  	myworld[WORD(i)] |= myRealWorld[n] << ((i%16)*2);
-//      }
-
-//    free(myRealWorld);
-//    return self;
-//  }
-
-
 
 //Don't need a class method here for this. If you need something like
 //it, put it in BFParams.  
@@ -354,7 +307,7 @@ static BFParams *  params;
 //  }
 
 
-//pj: yikes, pointer usage, be careful. changes to array affect the world.
+//pj: yikes, pointer usage, be careful.
 +setRealWorld: (int *)array
 {
   [worldForAgent getRealWorld: array];
@@ -376,9 +329,7 @@ static BFParams *  params;
   activeList=[List create: [self getZone]];
   oldActiveList=[List create: [self getZone]];
 
-  //pj: could be only in perforGA, but then would be recreated every time.
-  newList = [List create: [self getZone]]; //to collect the new forecasts; 
-  rejectList = [Array create: [self getZone] setCount: getInt(privateParams,"npoolmax")];
+ 
 
   return [super createEnd];
 }
@@ -448,16 +399,7 @@ static BFParams *  params;
   return self;
 }
 
-
-//  -free
-//  {
-//    //  free(fcast->conditions);
-//    // free(fcast);
-//    return [super free];
-//  }
-
-
-//pj: creates forecasts with all condition bits are 0 here, "don't care for all"
+//pj: creates forecasts with all condition bits are 00 here, "don't care"
 - (BFCast *) createNewForecast
 {
   BFCast * aForecast;
@@ -573,11 +515,11 @@ static BFParams *  params;
   //this saves a copy of the agent's last as lforecast.
   lforecast = forecast;
     
-  myworld=[self collectWorldData: [self getZone] ];
+  myworld = [self collectWorldData: [self getZone] ];
   
   [self updateActiveList: myworld];
 
-  [myworld drop];
+  [myworld drop]; //was created inside collectWorldData
 
  
 #if WEIGHTED == 1
@@ -624,7 +566,7 @@ static BFParams *  params;
       forecastvar = privateParams->individual? sumv/((double)nactive) :variance;
     }
 #else
-
+  //NOT WEIGHTED MODEL
   // Now go through the list and find best forecast
   maxstrength = -1e50;
   //bestfptf=NULL
@@ -1018,12 +960,12 @@ I write it before I understood the fact that the World gives back 10 for yes and
   else
     variance = bv*variance + av*deviation*deviation;
 
- //??cant find anywhere in ASM-2.0's BFagent.m an update of the forecast's
+ //I cant find anywhere in ASM-2.0's BFagent.m an update of the forecast's
  //forecast. but it is clearly needed if you look at bfagent from the
- //objc version???
-  //??This fixes the strange time series properties too??//
+ //objc version. Including the next loop
+ //fixes the strange time series properties too
  
-  printf("active list has %d \n",[activeList getCount] );
+  //printf("active list has %d \n",[activeList getCount] );
 
   index = [ activeList begin: [self getZone]];
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
@@ -1171,7 +1113,8 @@ I write it before I understood the fact that the World gives back 10 for yes and
 	    count[ (int)[aForecast getConditionsbit: i]][i]++;
 	}
    }
-
+ [index drop];
+ //pj: it was like this:
 //    for (fptr = fcast; fptr < topfptr; fptr++) 
 //      {
 //        agntcond = fptr->conditions;
@@ -1207,7 +1150,7 @@ I write it before I understood the fact that the World gives back 10 for yes and
       moment[4] += [aForecast getCval];
       moment[5] += [aForecast getAval]*[aForecast getAval];
    }
-    
+ [index drop];  
   return privateParams->numfcasts;
 }
 
@@ -1274,6 +1217,9 @@ I write it before I understood the fact that the World gives back 10 for yes and
   double temp;  //for holding values needed shortly
   //pj: previously declared as globals
   int * bitlist;
+ //pj: could be only in perforGA, but then would be recreated every time.
+  id newList = [List create: [self getZone]]; //to collect the new forecasts; 
+  id rejectList = [Array create: [self getZone] setCount: getInt(privateParams,"npoolmax")];
  
 
   static double avstrength,minstrength;	
@@ -1325,11 +1271,9 @@ I write it before I understood the fact that the World gives back 10 for yes and
 
   madv = madv/privateParams->numfcasts;
 
-
   //    ava /= sumc;
   //    avb /= sumc;
   //    avc /= sumc;
-
   /*
    * Set rule 0 (always all don't care) to inverse variance weight 
    * of the forecast parameters.  A somewhat Bayesian way for selecting 
@@ -1391,14 +1335,14 @@ I write it before I understood the fact that the World gives back 10 for yes and
 
 	      //  Crossover(aNewForecast,parent1, parent2);
 	      [self Crossover:  aNewForecast Parent1:  parent1 Parent2:  parent2];
-	      if (aNewForecast==nil) {fprintf(stderr,"got nil back from crossover");}
+	      if (aNewForecast==nil) {raiseEvent(WarningMessage,"got nil back from crossover");}
 	      changed = YES;
 	    }
 	  else
 	    {
 	      //pj: CopyRule(aNewForecast,parent1);
 	      [self CopyRule: aNewForecast From: parent1];
-	      if(!aNewForecast)fprintf(stderr,"got nil back from CopyRule");
+	      if(!aNewForecast)raiseEvent(WarningMessage,"got nil back from CopyRule");
 	
 	      changed = [self Mutate: aNewForecast Status: changed];
 	    }
@@ -1433,13 +1377,10 @@ I write it before I understood the fact that the World gives back 10 for yes and
 
   }
 
-[newList deleteAll]; 
+  [newList deleteAll]; 
+  [newList drop];
 
- for (f = 0; f < privateParams->nnew; f++)
-   {
-    [ rejectList atOffset: f put: nil];
-   }
-
+  [rejectList drop]; 
 
   return self;
 }
@@ -1468,9 +1409,7 @@ I write it before I understood the fact that the World gives back 10 for yes and
   if ( [from getCnt] ==0)
     [to setStrength: minstrength];
   return to;
-
 }
-
 
 
 /*------------------------------------------------------*/
@@ -1486,7 +1425,7 @@ I write it before I understood the fact that the World gives back 10 for yes and
   
   top = -1;
   //pj: why not just start at 1 so we never worry about putting forecast 0 into the mix?
-  for ( i=1; i < getInt(privateParams,"npool"); i++)
+  for ( i=1; i < getInt(privateParams,"npool" ); i++ )
     {
       aForecast=[list atOffset: i];
       for ( j=top;  j >= 0 && (aReject=[rejects atOffset:j])&& ([aForecast getStrength] < [aReject  getStrength] ); j--)
@@ -1574,13 +1513,10 @@ I write it before I understood the fact that the World gives back 10 for yes and
      */
 {
   register int bit;
-  //  register struct BF_fcast *nr = newfcast + new;
-  //  unsigned int *cond, *cond0;
   double choice, temp;
   BOOL bitchanged = NO;
   int * bitlist= NULL;
   
-  //recall pp same as privateParams
   bitlist= [privateParams getBitListPtr];
   //pj: dont know why BFagents introduced bitchanged.??
   bitchanged = changed;
@@ -1678,11 +1614,9 @@ I write it before I understood the fact that the World gives back 10 for yes and
   [new setCnt: 0];
 
   if (changed) 
-    {
-      //[new setSpecFactorParam: privateParams->bitcost];
+    { 
       [new updateSpecfactor];
     }
-  printf("Mutated \n");
   return(changed);
 }
 
@@ -2041,6 +1975,7 @@ I write it before I understood the fact that the World gives back 10 for yes and
     {
       [outputList addLast: anObject];
     }
+  [index drop];
   return self;
 }
 
