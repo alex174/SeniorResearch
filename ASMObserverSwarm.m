@@ -127,6 +127,7 @@
   output = [[Output createBegin: self] createEnd];
 
   asmModelSwarm = [ASMModelSwarm create: self]; 
+  
   [asmModelSwarm setOutputObject: output];
 
   CREATE_ARCHIVED_PROBE_DISPLAY (self);

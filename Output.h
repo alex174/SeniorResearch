@@ -22,8 +22,8 @@
 
   id archiver; /*"LISP archiver object"*/
 
-  int bs[16];
-  int cs[3];
+  int bs[16]; //*"counter array, size of number of bits in use"*/
+  double csfreq[3];
 
   time_t runTime; /*"Return from the systems time() function"*/
   time_t now;
@@ -67,7 +67,7 @@
 
 - calculateBitData;
 
-- (double)getCS: (unsigned) i;
+- (double)getCSfreq: (unsigned) i;
 
 - stepPlots;
 

@@ -22,20 +22,22 @@ instructed to write results"*/
 {
   id modelZone;
   BFParams * bfParams = [(id)arguments getBFParams];
+
   ASMModelParams * asmModelParams = [(id)arguments getModelParams];
+
   output = [[Output createBegin: self] createEnd];
 
   [super buildObjects];
 
-  modelZone = [Zone create: [self getZone]];
-  asmModelSwarm = [ASMModelSwarm create: modelZone];
+  asmModelSwarm = [ASMModelSwarm create: self]; 
+  
   [asmModelSwarm setOutputObject: output];
 
   [asmModelSwarm setParamsModel: asmModelParams BF: bfParams];
 
   [asmModelSwarm buildObjects];
 
-  output = [asmModelSwarm getOutput];
+  [output createTimePlots];
   [output prepareCOutputFile];
   [output writeParams: asmModelParams BFAgent: bfParams Time: 0];
   
@@ -56,7 +58,8 @@ instructed to write results"*/
        
       displayActions = [ActionGroup create: [self getZone]];
       [displayActions createActionTo: output message: M(writeCData)];
-					    
+      [displayActions createActionTo: output     message: M(stepPlots)];			
+	    
       displaySchedule = [Schedule createBegin: [self getZone]];
       [displaySchedule setRepeatInterval: loggingFrequency];
       displaySchedule = [displaySchedule createEnd];

@@ -1,5 +1,13 @@
 2003-05-18  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
+	* Output.m ([Output -calculateBitData]): csfreq is new ivar to
+	remember important values that are graphed.
+
+	* BFParams.m: delete getDouble because of memory leak.
+
+	* ASMBatchSwarm.m ([ASMBatchSwarm -buildActions]): output updates
+	to suit graph usage changes in Output
+
 	* Output.m ([Output -createEnd]): simplified data storage options.
 	Now only save time streams as C fprintf text and HDF vectors
 	through graphs.

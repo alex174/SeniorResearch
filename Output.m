@@ -119,7 +119,7 @@ have a date string pasted into it:
   unlink ("settingsSaved.scm");
 
   for (i=0;i<16;i++) bs[i]=0;
-  for (i=0;i<3;i++) cs[i]=0;
+  for (i=0;i<3;i++) csfreq[i]=0;
   return self;
 }
 
@@ -244,18 +244,18 @@ have a date string pasted into it:
   [priceGraph setWindowGeometryRecordName: "priceGraph"];
   [priceGraph enableDestroyNotification: self
  	      notificationMethod: @selector (_priceGraphDeath_:)];
-  
+
+  if (swarmGUIMode == YES)
+    [priceGraph setGraphics: YES];
+  else
+    [priceGraph setGraphics: NO];
+    
   priceGraph =  [priceGraph createEnd];
 #ifndef NO_HDF5
   [priceGraph setFileOutput: YES];
   [priceGraph setFileName: "prices"]; //name inside hdf5 file
 #endif  
 
-  if (swarmGUIMode == YES)
-    [priceGraph setGraphics: YES];
-  else
-    [priceGraph setGraphics: NO];
-  
   prsequence[0] = [priceGraph createSequence: "actual price" 
 			      withFeedFrom: outputWorld
 			      andSelector: M(getPrice)];
@@ -272,6 +272,11 @@ have a date string pasted into it:
   [volumeGraph  setTitle: "Volume v. time"];
   [volumeGraph  setAxisLabelsX: "time" Y: "volume"];
   [volumeGraph  setWindowGeometryRecordName: "volumeGraph"];
+  if (swarmGUIMode == YES)
+      [volumeGraph setGraphics: YES];
+  else
+      [volumeGraph setGraphics: NO];
+
   
   volumeGraph = [volumeGraph createEnd];
 #ifndef NO_HDF5
@@ -285,10 +290,6 @@ have a date string pasted into it:
 			     withFeedFrom: outputSpecialist
 			     andSelector: M(getVolume)];
   
-  if (swarmGUIMode == YES)
-      [volumeGraph setGraphics: YES];
-  else
-      [volumeGraph setGraphics: NO];
 
 
   bitGraph = [EZGraph createBegin: [self getZone]];
@@ -298,6 +299,10 @@ have a date string pasted into it:
   [bitGraph  setTitle: "bit usage"];
   [bitGraph  setAxisLabelsX: "time" Y: "frequency"];
   [bitGraph  setWindowGeometryRecordName: "bitGraph"];
+  if (swarmGUIMode == YES)
+      [bitGraph setGraphics: YES];
+  else
+      [bitGraph setGraphics: NO];
   
   bitGraph = [bitGraph createEnd];
 #ifndef NO_HDF5
@@ -310,17 +315,13 @@ have a date string pasted into it:
   for ( i = 0; i < 3; i++)
     {
       char name[10];
-      sprintf (name, "cs[%d]",i);
+      sprintf (name, "csfreq[%d]",i);
       cssequence[i] = [bitGraph createSequence: name
 				withFeedFrom: self
-				andSelector: M(getCS:)];
+				andSelector: M(getCSfreq:)];
       [cssequence[i] setUnsignedArg: i];
     }
  
-  if (swarmGUIMode == YES)
-      [bitGraph setGraphics: YES];
-  else
-      [bitGraph setGraphics: NO];
 
 
   return self;
@@ -348,17 +349,19 @@ have a date string pasted into it:
   BOOL cum;
   id index, agent; 
   long t = getCurrentTime();
+  int condbits = 16;
+  int cs[3];
 
   cum = NO;
-  countpointer = calloc(4,sizeof(int));
+  countpointer = calloc(4,sizeof(int*));
   
-  for (i=0;i<16;i++) bs[i]=0;
+  for (i=0; i < condbits; i++) bs[i]=0;
   now = time(NULL);
   if (t%10000 == 0) printf("at time %s %7ld runs complete\n",asctime(localtime(&now)),t);
   index = [agentList begin: [self getZone]];
   while ((agent = [index next]))
     {
-      //printf("Agent number %3d\n",[agent getID]);
+      //printf("Agent number %3d bits: %d\n",[agent getID],[agent nbits]);
       [agent bitDistribution: countpointer cumulative:cum];
       for (i = 0; i < [agent nbits];i++ ) 
 	{
@@ -373,20 +376,24 @@ have a date string pasted into it:
   
   cs[0]=0; cs[1]=0; cs[2]=0;
   
-  for (i = 0; i < 16;i++ )
+  for (i = 0; i < condbits;i++ )
     {
       if (i < 10) cs[0] = cs[0]+bs[i];
       else if ( i >= 10 && i < 13) cs[1] = cs[1]+bs[i];
       else cs[2] = cs[2]+bs[i];
     }
 
+  csfreq[0] = (double)cs[0]/10.0;
+  csfreq[1] = (double)cs[1]/4.0;
+  csfreq[2] = (double)cs[2]/2.0;
+
   free (countpointer);
   return self;
 }
 
-- (double)getCS: (unsigned) i
+- (double)getCSfreq: (unsigned) i
 {
-  return cs[i];
+  return csfreq[i];
 }
 
 
@@ -411,7 +418,7 @@ have a date string pasted into it:
  
   for (i=0;i<16;i++) fprintf(dataOutputFile,"%3d ",bs[i]);
   //for (i=0;i<16;i++) fprintf(stderr,"%3d ",bs[i]);fprintf(stderr,"\n");
-  fprintf(dataOutputFile,"%f %f %f", (double)cs[0]/10.0,(double)cs[1]/4.0,(double)cs[2]/10.0);
+  fprintf(dataOutputFile,"%f %f %f", csfreq[0], csfreq[1], csfreq[2]);
   fprintf(dataOutputFile,"\n");
  
 

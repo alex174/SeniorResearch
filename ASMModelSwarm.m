@@ -198,14 +198,11 @@
   [specialist setREB: asmModelParams->reb];
   specialist = [specialist createEnd];
  
- 
-  /* Initialize the agent modules and create the agents */
-  agentList = [List create: [self getZone]];  //create list for agents
 
 
   [output setWorld: world];
   [output setSpecialist: specialist];
-  [output setAgentlist: agentList];
+ 
 
   /* Set class variables */
   [BFagent init];
@@ -215,6 +212,10 @@
 
   if (![(Parameters *)arguments getFilename])
    {
+     
+     /* Initialize the agent modules and create the agents */
+     agentList = [List create: [self getZone]];  //create list for agents
+
      [self createAgents];
    }
   
@@ -223,7 +224,7 @@
       [self lispLoadAgents: [(Parameters *)arguments getFilename]];
     }
 
-
+  [output setAgentlist: agentList];
   return self;
 }
 
