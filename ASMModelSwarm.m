@@ -244,17 +244,65 @@
   [periodActions createActionTo:     self
 		 message: M(periodStepDividend)];
 
-// Tell agents to credit their earnings and pay taxes
-  [periodActions createActionForEach:    agentList     
-		 message: M(creditEarningsAndPayTaxes)];
+  // Tell agents to credit their earnings and pay taxes.
+  // There are 3 ways you might do this
+  // 1. The FAction way: fastest Swarm way, replaces old 
+  // createActionForEach.  
+/*  {
+
+    id call =
+      [FCall create: self
+             target: [agentList getFirst]
+             selector: M(creditEarningsAndPayTaxes)
+             arguments:
+               [[[FArguments createBegin: self]
+                  setSelector: M(creditEarningsAndPayTaxes)]
+                 createEnd]];
+                                                                                
+    
+      [periodActions createFActionForEachHomogeneous: agentList call: call];
+
+
+  }
+*/
+  // 2. write a loop method in self to go through agents. Just as fast as
+  // method 1, perhaps simpler.
+  [periodActions createActionTo: self message: M(creditAgentEarningsAndPayTaxes)];
+
+
+  // 3. The old, slow way is Swarm's createActionForEach.
+//  [periodActions createActionForEach:    agentList     
+//		 message: M(creditEarningsAndPayTaxes)];
 
 // Update world -- moving averages, bits, etc
   [periodActions createActionTo:     world     
 		 message: M(updateWorld)];
 
 // Tell BFagents to get ready for trading (they may run GAs here)
-  [periodActions createActionForEach:     agentList
-		   message: M(prepareForTrading)];
+
+/*  {
+
+    id call =
+      [FCall create: self
+             target: [agentList getFirst]
+             selector: M(prepareForTrading)
+             arguments:
+               [[[FArguments createBegin: self]
+                  setSelector: M(prepareForTrading)]
+                 createEnd]];
+                                                                                
+    
+      [periodActions createFActionForEachHomogeneous: agentList call: call];
+
+
+  }
+*/
+
+  [periodActions createActionTo: self message: M(prepareAgentsForTrading)];
+
+
+  // [periodActions createActionForEach:     agentList
+  //		   message: M(prepareForTrading)];
 
 // Do the trading -- agents make bids/offers at one or more trial prices
 // and price is set.  This is defined below.
@@ -265,9 +313,33 @@
   [periodActions createActionTo:     specialist     
 		 message: M(completeTrades:Market:):agentList:world];
 
-// Tell the agents to update their performance
-  [periodActions createActionForEach: agentList     
-		 message: M(updatePerformance)];
+  // One way To Tell the agents to update their performance
+  /*
+    {
+    
+    id call =
+    [FCall create: self
+    target: [agentList getFirst]
+    selector: M(updatePerformance)
+    arguments:
+    [[[FArguments createBegin: self]
+    setSelector: M(updatePerformance)]
+    createEnd]];
+    
+    
+    [periodActions createFActionForEachHomogeneous: agentList call: call];
+    
+    
+    }
+  */
+  
+  // Another way to tell agents to update their performance, equally fast
+  [periodActions createActionTo: self message: M(updateAgentPerformance)];
+
+
+  // The really slow old way to tell agents to update their performance
+  //  [periodActions createActionForEach: agentList     
+  //		 message: M(updatePerformance)];
 
 // Create the model schedule
 
@@ -300,6 +372,45 @@
 
   return self;
 }
+
+
+
+- (void)updateAgentPerformance
+{
+  id index = [agentList begin: self];
+  id anAgent;
+  for (anAgent = [index next]; [index getLoc]==Member; anAgent= [index next])
+    {
+      [anAgent updatePerformance];
+    }
+   [index drop];
+}
+
+
+- (void)prepareAgentsForTrading
+{
+  id index = [agentList begin: self];
+  id anAgent;
+  for (anAgent = [index next]; [index getLoc]==Member; anAgent= [index next])
+    {
+      [anAgent prepareForTrading];
+    }
+  [index drop];
+}
+
+
+
+- (void)creditAgentEarningsAndPayTaxes
+{
+  id index = [agentList begin: self];
+  id anAgent;
+  for (anAgent = [index next]; [index getLoc]==Member; anAgent= [index next])
+    {
+      [anAgent creditEarningsAndPayTaxes ];
+    }
+  [index drop];
+}
+
 
 /*"Ask the dividend object for a draw from the dividend distribution, then tell the world about it. Tell the world to do an update of to respond to the dividend. Then calculate the price the divident implies and insert it into the world"*/
 -doWarmupStep

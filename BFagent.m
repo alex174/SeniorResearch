@@ -709,27 +709,30 @@ same bitlist."*/
   index=[ oldActiveList begin: [self getZone] ];
     for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
       {
-      [aForecast setLforecast: [aForecast getForecast]];
+	[aForecast setLforecast: [aForecast getForecast]];
       }
     [index drop];
 
 
   switch (privateParams->condwords) {
   case 1:
-
-    index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
-      if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0] ) 
-	 {
- 	   continue ;
-	 }
-      [activeList addLast: aForecast];
+      int real0 = [worldvalues getConditionsWord: 0];
+      
+      
+      index=[ fcastList begin: [self getZone]];
+      for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+	{
+	  if ( [aForecast getConditionsWord: 0] & real0 ) 
+	    {
+	      continue ;
+	    }
+	  [activeList addLast: aForecast];
+	}
+      [index drop];
+      
+      break;
     }
-    [index drop];
-
-    break;
-  
     case 2:
       //pj: here is how it used to be in ASM-2.0
 //      real1 = worldvalues[1];
@@ -741,60 +744,75 @@ same bitlist."*/
 //  	*nextptr = fptr;
 //  	nextptr = &fptr->next;
 //        }
-
-   index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-       if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0] ) continue ;
-       if ( [aForecast getConditionsWord: 1] & [worldvalues getConditionsWord: 1] ) continue ;
-       [activeList addLast: aForecast];
-    }
-    [index drop];
-
-      break;
-   
- case 3:
+      {
+	int * real = [worldvalues getConditions];
     
-  index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-       if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0] ) continue ;
-       if ( [aForecast getConditionsWord: 1] & [worldvalues getConditionsWord: 1] ) continue ;
-       if ( [aForecast getConditionsWord: 2] & [worldvalues getConditionsWord: 2] ) continue ;
-       [activeList addLast: aForecast];
+	
+	index=[ fcastList begin: [self getZone]];
+	for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+	  {
+	    int * conditions = [aForecast getConditions];
+	    if ( conditions[0] & real[0] ) continue ;
+	    if ( conditions[1] & real[1] ) continue ;
+	    [activeList addLast: aForecast];
+	  }
+	[index drop];
+	
+	break;
+      }
+  case 3:
+    { 
+      int * real = [worldvalues getConditions];
+   
+      
+      index=[ fcastList begin: [self getZone]];
+      for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+	{
+	  int * conditions = [aForecast getConditions];
+	  if ( conditions[0] & real[0] ) continue ;
+	  if ( conditions[1] & real[1] ) continue ;
+	  if ( conditions[2] & real[2] ) continue ;
+	  [activeList addLast: aForecast];
+	}
+      [index drop];
+      break;
     }
-    [index drop];
-     break;
     case 4:
- 
-    index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-      if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0]) continue ;
-      if ( [aForecast getConditionsWord: 1] &  [worldvalues getConditionsWord: 1] ) continue ;
-      if ( [aForecast getConditionsWord: 2] &  [worldvalues getConditionsWord: 2] ) continue ;
-      if ( [aForecast getConditionsWord: 3] &  [worldvalues getConditionsWord: 3] ) continue ;
-       [activeList addLast: aForecast];
-    }
-    [index drop];
+      { 
+	int * real = [worldvalues getConditions];
+	
+	index=[ fcastList begin: [self getZone]];
+	for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+	  {
+	    int * conditions = [aForecast getConditions];
+	    if ( conditions[0] & real[0] ) continue ;
+	    if ( conditions[1] & real[1] ) continue ;
+	    if ( conditions[2] & real[2] ) continue ;
+	    if ( conditions[3] & real[3] ) continue ;
+	    [activeList addLast: aForecast];
+	  }
+	[index drop];
 
       break;
+      }
     case 5:
- 
-    index=[ fcastList begin: [self getZone]];
-    for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-       if ( [aForecast getConditionsWord: 0] & [worldvalues getConditionsWord: 0] ) continue ;
-       if ( [aForecast getConditionsWord: 1] & [worldvalues getConditionsWord: 1] ) continue ;
-       if ( [aForecast getConditionsWord: 2] & [worldvalues getConditionsWord: 2] ) continue ;
-       if ( [aForecast getConditionsWord: 3] & [worldvalues getConditionsWord: 3] ) continue ;
-       if ( [aForecast getConditionsWord: 4] & [worldvalues getConditionsWord: 4] ) continue ;
-       [activeList addLast: aForecast];
-    }
-    [index drop];
-      break;
-        }
-
+      {
+ 	int * real = [worldvalues getConditions];
+	index=[ fcastList begin: [self getZone]];
+	for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+	  {
+	    int * conditions = [aForecast getConditions];
+	    if ( conditions [0] & real[0] ) continue ;
+	    if ( conditions [1] & real[1] ) continue ;
+	    if ( conditions [2] & real[2] ) continue ;
+	    if ( conditions [3] & real[3] ) continue ;
+	    if ( conditions [4] & real[4] ) continue ;
+	    [activeList addLast: aForecast];
+	  }
+	[index drop];
+	break;
+      }
+  }
 #if MAXCONDBITS > 5*16
 #error Too many condition bits (MAXCONDBITS)
 #endif

@@ -44,6 +44,12 @@
 - buildObjects;
 - writeParams;
 - buildActions;
+
+- (void)updateAgentPerformance;
+- (void)prepareAgentsForTrading;
+- (void)creditAgentEarningsAndPayTaxes;
+
+
 - activateIn: (id)swarmContext;
 - doWarmupStep;
 

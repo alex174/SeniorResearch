@@ -1,3 +1,26 @@
+2003-03-18  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
+
+	* BFagent.m ([BFagent -updateActiveList:]): Looking for speedups in
+	calculations after gcc profiling pointed at this as a slow down. Done
+	by saving values of real world once for each batch of forecasts and only
+	making one "getConditions" call on each forecast.
+
+	    int * real = [worldvalues getConditions];
+	    index=[ fcastList begin: [self getZone]];
+      for ( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
+	{
+	  int * conditions = [aForecast getConditions];
+	  if ( conditions[0] & real[0] ) continue ;
+	  if ( conditions[1] & real[1] ) continue ;
+	  if ( conditions[2] & real[2] ) continue ;
+	  [activeList addLast: aForecast];
+	}
+      [index drop];
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildActions]): explore variations to
+	make model run faster. Stop using createActionForEach. Consider 2 alternatives,
+	both equally fast. See comments.
+
 2003-03-11  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
 
 	* World.m ([World +nameOfBit:]): NUMWORLDBITS is an unsigned, have
