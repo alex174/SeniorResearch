@@ -25,8 +25,8 @@ static double gset;
 - initNormal
 {
   
-  id myMTgen = [PMMLCG1gen create: [self getZone]  setStateFromSeed: [randomGenerator getInitialSeed] + 5];
-  //id myMTgen = [MT19937gen create: [self getZone]  setStateFromSeed: [randomGenerator getInitialSeed] + 5]
+  //id myMTgen = [PMMLCG1gen create: [self getZone]  setStateFromSeed: [randomGenerator getInitialSeed] + 5];
+  id myMTgen = [MT19937gen create: [self getZone]  setStateFromSeed: [randomGenerator getInitialSeed] + 5];
 
   normal = [NormalDist  create: [self getZone]  setGenerator: myMTgen setMean: 0 setVariance: 1];
 
