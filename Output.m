@@ -120,6 +120,7 @@ stockData-Sun_May_18_10_47_58_2003.hdf
 
   for (i=0; i<12; i++) bs[i]=0;
   for (i=0; i<4; i++) csfreq[i]=0;
+  for (i=0; i<8; i++) moments[i]=0;
   return self;
 }
 
@@ -379,6 +380,7 @@ BFParams.m, where 0-5 are fundamental, 6-9 are technical,
   while ((agent = [index next]))
     {
       [agent bitDistribution: countpointer cumulative:cum];
+      [agent fMoments: moments cumulative:cum];
       for (i = 0; i < [agent nbits];i++ ) 
 	{
 	  bs[i]=bs[i]+(*countpointer)[1][i]+(*countpointer)[2][i]; 
@@ -436,7 +438,8 @@ BFParams.m, where 0-5 are fundamental, 6-9 are technical,
 
  
   for (i=0;i<12;i++) fprintf(dataOutputFile,"%3d ",bs[i]);
-  fprintf(dataOutputFile,"%f %f %f %f", csfreq[0], csfreq[1], csfreq[2], csfreq[3]);
+  fprintf(dataOutputFile,"%f %f %f %f ", csfreq[0], csfreq[1], csfreq[2], csfreq[3]);
+  fprintf(dataOutputFile,"%f %f %f %f ",moments[0],moments[1],moments[6],moments[7]);
   fprintf(dataOutputFile,"\n");
  
 

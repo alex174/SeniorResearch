@@ -946,7 +946,7 @@ according to the currently active linear rule. "*/
   int i;
   int condbits;
   double weight, sumweight = 0;
-  double mt[8];
+  double mt[7];
   double medstrength;
 
   id index;
