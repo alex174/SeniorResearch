@@ -5,6 +5,11 @@
 	ASMModelParams.m because they are not needed, since pj introduced
 	the BFParams
 
+	* BFagent.m ([BFagent -prepareForTrading]) cured the memory leak
+	at the very end of the method. it now says
+	divisor=privateParams->lambda*forecastvar; instead of 
+	divisor =getDouble(privateParams,"lambda")*forecastvar;
+
 2003-03-25  Paul E. Johnson  <pauljohn@pjdell.pols.ukans.edu>
 
 	* ASMObserverSwarm.m ([ASMObserverSwarm
