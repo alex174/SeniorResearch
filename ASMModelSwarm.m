@@ -3,6 +3,7 @@
 #import "Output.h"
 //#import "random.h"
 #import "BFParams.h"
+#import "BFCast.h"
 
 #import <random.h>
 
@@ -271,10 +272,12 @@
        [lispAppArchiver getWithZone: self key: "bfParams"]) == nil)
     raiseEvent(InvalidOperation,
                "Can't find the modelSwarm parameters");
-  [bfParams init];
+   [bfParams init];
+
+   [BFCast init];
 
    [BFagent setBFParameterObject: bfParams];
-   [BFagent init];
+   //[BFagent init];
    [BFagent setWorld: world];
     
 //nowObject create the agents themselves
@@ -293,7 +296,7 @@
 	  [agentList addLast: agent];
 	}
       
-      [BFagent didInitialize];
+      //  [BFagent didInitialize];
     
   
 //Give the specialist access to the agentList

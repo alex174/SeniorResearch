@@ -1,3 +1,51 @@
+2000-05-30  Paul Johnson  <pauljohn@ukans.edu>
+
+	* BFagent.m (prepareForTrading): lActiveList commented out. It is never used!
+
+	* ASMModelSwarm.m: [BFagent init] no longer needed.
+	[BFagent didInitialize] no longer needed.
+
+	
+	* BFagent.m: Note makebittables is now moved to BFCast.m.
+	"free" method removed, now handled by drop method in BFCast.m
+	Commented out usage of lActiveList, since it is a memory leak and seems to serve no purpose
+
+2000-05-28  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
+
+	* BFCast.m: This is a new class that has the same basic structure
+	as the BF_Cast struct that used to be in BFagent.h.  It has
+	get/set methods for all the variables. Most importantly, is has
+	the makebittables() function and the bit management
+	interface/functions.  All bit management is handled by methods
+	like getConditions, getConditionsBit: , setConditions:
+	setConditionsBit: To:, and so forth.
+
+	*  BFagent.m:  A complete  clarification/reconstruction  of  the
+	BFagent  code, that  eliminates as  much  as possible  any of  the
+	"spaghetti" flavor of the previous BFagent code.
+
+	1. Separates into 2 new classes the 2 big structs in BFagent.h,
+	and creates an interface for putting information into BFCasts (the
+	bit string forecast class) and BFParams ( the parameter keeping
+	object).  The beauty of this is that almost all (99.5%) of the bit
+	math is moved into that separate class, and the BFagent can change
+	the values of bits by just telling a forecast object to do it, as
+	in
+	
+       [heyYouForecast setConditionsbit: 22 To: 1];
+
+	2. Complete and total elimination of all global variables.
+
+	3. Replacement of pointer-based "homemade" linked lists with Swarm
+	Arrays and Lists.  This eliminates the need for "hands on" processing
+	of dynamic memory.
+
+	4. Conversion of the GA functions into Obj-c methods. They do the
+	same thing, but don't require all those global declarations.  Now
+	more arguments are passed into these methods so they know which
+	lists to manipulate without having all those global variables
+	sitting around.
+
 2000-05-25  Paul Johnson  <pauljohn@ukans.edu>
 
 	* BFagent.m: changed IVAR "p" to "privateParams" to ease editing
@@ -13,7 +61,7 @@
 	performGA method, so they have automatic access to Ivars and we no
 	longer need to declare all those global variables or functions.  *
 
-	* BFParams.m: new object to old parameters, which were previously
+	* BFParams.m: new object to hold parameters, which were previously
 	kept in a struct.
 
 2000-05-24  Paul Johnson  <pauljohn@ukans.edu>

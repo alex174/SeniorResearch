@@ -1,12 +1,6 @@
 #import "BFParams.h"
 #import "World.h"
 
-//These 3 are "convenience" functions that other objects can use to get
-//values out of the Parameters object.
-
-
-
-
 // Values in table of special bit names (negative, avoiding NULLBIT)
 #define ENDLIST		-2
 #define ALL		-3
@@ -110,7 +104,7 @@ getInt (id obj, const char *ivarName)
 
 // Allocate space for our world bits, clear initially
 
-  condwords = (condbits+15)/16;
+   condwords = (condbits+15)/16;
 
    myworld = [[self getZone] allocBlock: condwords* sizeof(unsigned int)];
 
@@ -157,8 +151,7 @@ getInt (id obj, const char *ivarName)
 int ReadBitname(const char *variable, const struct keytable *table)
 /*
  * Like ReadKeyword, but looks up the name first as the name of a bit
- * and then (if there's no match) in table if it's non-NULL.  Declared
- * in BFagent.m
+ * and then (if there's no match) in table if it's non-NULL.
  */
 {
   const struct keytable *ptr;

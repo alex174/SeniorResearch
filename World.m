@@ -202,6 +202,7 @@ static struct bitnamestruct
 {"p100>p500", "price: 100-period MA > 500-period MA"}
 };
 
+
 #define NWORLDBITS	(sizeof(bitnamelist)/sizeof(struct bitnamestruct))
 #define NULLBIT         -1
 
@@ -667,6 +668,10 @@ static double ratios[] =
 
 
 @end
+
+
+
+
 
 
 
