@@ -1,3 +1,21 @@
+2000-05-31  Paul E. Johnson  <pauljohn@dv241s58.lawrence.ks.us>
+
+	* BFagent.m:  Crossover:  added  calculation  of  new  forecast's
+	Strength,   based   on   bfagent   code.   Tried   to   sort   out
+	mistake/differences between bfagent and BFagent.
+
+	* BFagent.m: Use "updateSpecfactor" whenever conditions are changed in a
+	BFCast.
+
+	* BFagent.m: prepareForTrading: commented out previous code to select
+	activeList on grounds it was false. Instead, created routine to
+	check forcast's bits, and for each non 00 bit, check if it matches
+	the world.  There's some fat to be removed here, but at least it
+	is not logically wrong.
+
+	* BFCast.m: added "updateSpecfactor" method.
+
+
 2000-05-30  Paul Johnson  <pauljohn@ukans.edu>
 
 	* BFagent.m: Found vital flaw in original ASM model--forecasts

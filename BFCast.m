@@ -1,4 +1,5 @@
 #import "BFCast.h"
+#import "BFParams.h"
 #import <misc.h>  //for limits.h in print method
 
 #define WORD(bit)	(bit>>4)
@@ -58,6 +59,16 @@ static void makebittables(void);
   condbits=x;
 }
 
+- (void) setNNulls: (int) x
+{
+  nnulls= nnulls;
+}
+
+- (void) setBitcost: (double) x
+{
+  bitcost = x;
+}
+  
 
 -(void) setConditions: (int *) x
 {
@@ -150,9 +161,12 @@ static void makebittables(void);
   return c;
 }
 
--(void) setSpecFactorParam: (int) x
+-(void) updateSpecfactor
 {
-  specfactor = 1.0/(1.0 + x*specificity);
+  //was in BFagent: specfactor = 1.0/(1.0 + x*specificity);
+  //but the bfagent.m way is so much nicer
+   specfactor= condbits - nnulls - specificity* bitcost;
+  
 }
 
 -(void) setSpecfactor: (double) x

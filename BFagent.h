@@ -42,7 +42,7 @@
   //id <Array> newconds;
 
   id <List> activeList;
-  id <List> lActiveList;
+  id <List> oldActiveList;
 }
 
 +(void)setBFParameterObject: x;
@@ -56,9 +56,9 @@
 -createEnd;
 -initForecasts;
 
+- (BFCast *) createNewForecast;  //all conditions=0
 
--(BFCast*) createNewForecast: (int) agentID;
--setConditionsRandomly: (BFCast *) fcastObject;
+-setConditionsRandomly: (BFCast *) fcastObject; //apply to forecast
 //-free;
 -prepareForTrading;
 -getInputValues;  //does nothing, used only if their are ANNagents
@@ -73,6 +73,8 @@
 -(int)lastgatime;
 
 -printcond: (int) word;
+
+- copyList: list To: outputList;
 
 //-(int)bitDistribution:(int *(*)[4])countptr cumulative:(BOOL)cum;
 //pj:-(int)fMoments: (double *)moment cumulative: (BOOL)cum;

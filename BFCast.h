@@ -11,6 +11,8 @@
   double b;		// dividend coefficient
   double c;		// constant term
   double specfactor;	// specificity factor; strength=specfactor/variance
+  double bitcost;
+
 //    struct BF_fcast *next;	// linked list of ACTIVE forecasts
 //    struct BF_fcast *lnext;
   unsigned int *conditions;
@@ -19,6 +21,7 @@
   int count;
   int condwords;
   int condbits;
+  int nnulls;
 };
 
 
@@ -35,6 +38,11 @@
 -(void) setConditions: (int *) x;
 
 -(int *) getConditions;
+
+
+- (void) setNNulls: (int) x;
+
+- (void) setBitcost: (double) x;
 
 -(void) setConditionsWord: (int) i To: (int) value;
 
@@ -64,7 +72,7 @@
 
 - (double) getCval;
 
--(void) setSpecFactorParam: (int) x;
+-(void) updateSpecfactor;
 
 -(void) setSpecfactor: (double) x;
 
