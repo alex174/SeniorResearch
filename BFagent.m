@@ -187,7 +187,7 @@ in this file.  Some cleanup can still be made.  */
 
 extern World *worldForAgent;
 //pj: wish I could get rid of that one too, since each agent could
-//just have a pointer pj: to a common world object. However, there are
+//just have a pointer to a common world object. However, there are
 //serveral class methods that use it.
 
 //pj: 
@@ -1196,7 +1196,7 @@ according to the currently active linear rule. "*/
       moment[2] += [aForecast getBval];
       moment[3] += [aForecast getBval]*[aForecast getBval];
       moment[4] += [aForecast getCval];
-      moment[5] += [aForecast getAval]*[aForecast getAval];
+      moment[5] += [aForecast getCval]*[aForecast getCval];
    }
  [index drop];  
   return privateParams->numfcasts;
@@ -1452,7 +1452,7 @@ _{plinear    -- linear combination "crossover" prob.}
 
     for (f = 0; f < privateParams->numfcasts; f++) 
       {
-	parent1 = [fcastList atOffset:0];
+	parent1 = [fcastList atOffset: f];
 	specificity += [parent1 getSpecificity];
       }
     avspecificity = ((double) specificity)/(double)privateParams->numfcasts;

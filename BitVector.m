@@ -1,6 +1,5 @@
 #import "BitVector.h"
 #import <misc.h>  //for limits.h in print method
-
 //needed for bit math. same as in BFAgent was.
 
 #define WORD(bit)	(bit>>4)

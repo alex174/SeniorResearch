@@ -156,7 +156,7 @@ instnce is instantiated."*/
 {
   if (n == NULLBIT)
     return "(Unused bit for spacing)";
-  else if (n < 0 || n >= NWORLDBITS)
+  else if (n < 0 || n >= (int)NWORLDBITS)
     return "(Invalid world bit)";
   return bitnamelist[n].description;
 }
@@ -171,7 +171,7 @@ instnce is instantiated."*/
 {
   if (n == NULLBIT)
     return "null";
-  else if (n < 0 || n >= NWORLDBITS)
+  else if (n < 0 || n >= (int)NWORLDBITS)
     return "";
   return bitnamelist[n].name;
 }
@@ -183,7 +183,7 @@ instnce is instantiated."*/
  * (linear search). Could be made faster with a hash table etc, but
  * that's not worth it for the intended usage.  "*/
 {
-  int n;
+  unsigned n;
   
   for (n = 0; n < NWORLDBITS; n++)
     if (strcmp(name,bitnamelist[n].name) == EQ)
@@ -456,13 +456,13 @@ same as in bitnamelist[]. "*/
 
   /* Dividend as multiple of meandividend */
   multiple = dividend/dividendscale;
-  for (j = 0; j < NRATIOS; j++)
+  for (j = 0; j < (int)NRATIOS; j++)
     realworld[i++] = multiple > ratios[j];
 
   /* Price as multiple of dividend/intrate.  Here we use olddividend to
    * make a more reasonable comparison with the [old] price. */
   multiple = price*intrate/olddividend;
-  for (j = 0; j < NRATIOS; j++)
+  for (j = 0; j < (int)NRATIOS; j++)
     realworld[i++] = multiple > ratios[j];
 
   /* Price went up or down, now and for last few periods */
@@ -495,7 +495,7 @@ same as in bitnamelist[]. "*/
  *  no  -> 2    (10)
  * Then we're able to check rule satisfaction with simple ANDs.
  */
-  for (i = 0; i < NWORLDBITS; i++)
+  for (i = 0; i < (int)NWORLDBITS; i++)
     realworld[i] = 2 - realworld[i];
 
   return self;

@@ -1,3 +1,12 @@
+2003-03-11  Paul E Johnson  <pauljohn@pauljohn.pols.ukans.edu>
+
+	* World.m ([World +nameOfBit:]): NUMWORLDBITS is an unsigned, have
+	to cast as (int) in order to do comparisons. Necessitated by
+	gcc-3.3
+
+	* BFagent.m ([BFagent -performGA]): Thomas Badegruber pointed out
+	typos on lines 1199 1455. He says they don't affect results.
+
 2002-10-02  Paul E Johnson  <pauljohn@ukans.edu>
 
 	* World.m (bitnamelist): Put parens around GETMA macro. Thanks to
