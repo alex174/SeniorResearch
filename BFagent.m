@@ -639,7 +639,7 @@ getConditionsbit: x].  "*/
       [index drop];
     }
 
-  divisor = getDouble(privateParams,"lambda")*forecastvar;
+  divisor = privateParams->lambda*forecastvar;
     
   return self;
 }
