@@ -128,6 +128,9 @@
   CREATE_ARCHIVED_PROBE_DISPLAY (asmModelParams);
   CREATE_ARCHIVED_PROBE_DISPLAY (bfParams);
   [controlPanel setStateStopped];
+  
+  if ([controlPanel getState] == ControlStateQuit)
+    return self;
 
   // Don't set the parameter objects until the model starts up That
   // way, any changes typed into the gui will be taken into account by
@@ -158,7 +161,7 @@
 	       withFeedFrom: [asmModelSwarm getSpecialist]
 	       andSelector: M(getVolume)];
   
-  [priceGraph enableDestroyNotification: self
+  [volumeGraph enableDestroyNotification: self
 	      notificationMethod: @selector (_volumeGraphDeath_:)];
 
   positionHisto = [Histogram createBegin: [self getZone]];
@@ -408,6 +411,10 @@
 -(void) drop
 {
   [self expostParamWrite];
+  [priceGraph drop];
+  [volumeGraph drop];
+  [positionHisto drop];
+  [relativeWealthHisto drop];
   [asmModelSwarm drop];
   [super drop];
 }

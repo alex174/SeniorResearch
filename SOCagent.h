@@ -5,11 +5,7 @@
 
 @interface SOCagent:BFagent
 {
-
-}
-
-
-
+};
 @end
 
 

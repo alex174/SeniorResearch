@@ -1,8 +1,8 @@
 #import "ASMModelSwarm.h"
 #import <simtools.h>
 #import "Output.h"
-
-#import "BFCast.h"
+#import "BFParams.h"
+//#import "BFCast.h"
 #import "BFagent.h"
 #import "SOCagent.h"
 #import <random.h>

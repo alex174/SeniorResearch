@@ -7,17 +7,9 @@
 #import "World.h"
 
 
-//pj:   // Structure for list of individual forecasts
-//pj:  struct BF_fcast 
-//pj:  THIS STRUCT HAS MOVED INTO ITS OWN CLASS, BFCast. Go see.
-
-//pj:  struct BFparams moved to its own class, BFParams.
-//pj: I did not rename for fun, but to help make sure all code was completely updated.
-
 @interface BFagent:Agent
 {
   int currentTime; /*"The agent regularly checks with Swarm to see what time it is"*/
-  int lastgatime;	/*" last time period when the GeneticAlgorithm was run"*/
   double avspecificity; /*'average specificity of active forecasts"*/
   double forecast;       /*"prediction of stock price: (trialprice+dividend)*pdcoeff + offset."*/
   double lforecast; /*"lagged forecast: forecast value from previous period"*/
@@ -28,7 +20,7 @@
   double offset;    /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
   double divisor;   /*" a coefficient used to calculate demand for stock. It is a proportion (lambda) of forecastvar (basically, accuracy of forecasts)"*/
   int gacount;     /*" how many times has the Genetic Algorithm been used?"*/
-  // int nactive;     
+       
   BFParams * privateParams;     /*"BFParams object holds parameters of this object"*/
 
   id <Array> fcastList;        /*"A Swarm Array, holding the forecasts that the agent might use"*/
@@ -50,18 +42,14 @@
 - (BitVector *) collectWorldData: aZone;
 - updateActiveList: (BitVector *)worldvalues;
 
-- getInputValues;  //does nothing, used only if their are ANNagents
-- feedForward;     //does nothing, used only if their are ANNagents
 - (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice;
 - (double)getRealForecast;
 - updatePerformance;
 - (double)getDeviation;
-- updateWeights;   //does nothing, used only if their are ANNagents
 - (int)nbits;
 - (int)nrules;
 
 - performGA;
-- (int)lastgatime;
 
 - printcond: (int)word;
 

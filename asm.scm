@@ -52,7 +52,7 @@
   #:maxdividend 100D0
   #:amplitude 0.1417D0
   #:period 100D0
-  #:maxprice 99999D0
+  #:maxprice 300D0
   #:minprice 0.001D0
   #:taup 50.0D0
   #:sptype 1

@@ -8,7 +8,7 @@
   double forecast;	/*" this forecast of return"*/
   double lforecast;	/*" previous forecast"*/
   double variance;	/*" variance of this forecast"*/
-  double strength;      /*"strength=maxdev - variance +specfactor. This was the original sfsm specification, not the ASM-2.0 specification"*/
+  double strength;      /*"strength=maxdev - variance +specfactor.*/
   double a;		/*" (price + dividend) coefficient"*/
   double b;		/*" dividend coefficient "*/
   double c;		/*" constant term"*/
