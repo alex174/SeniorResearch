@@ -14,19 +14,19 @@
   set the stock price.  It also manages the market-level parameters."*/
 
 
-/*" Sets a list of agents who are in the market "*/
-- setAgentList: (id)aList
-{
-  agentList = aList;
-  return self;
-}
+// /*" Sets a list of agents who are in the market "*/
+// - setAgentList: (id)aList
+// {
+//   agentList = aList;
+//   return self;
+// }
 
 /*" Sets a reference to the world, where price and dividend information is kept"*/
-- setWorld: (World *)myWorld;
-{
-  worldForSpec = myWorld;
-  return self;
-}
+// - setWorld: (World *)myWorld;
+// {
+//   worldForSpec = myWorld;
+//   return self;
+// }
 
 
 - setMaxPrice: (double)maximumPrice
@@ -106,7 +106,7 @@ and give a warning in the terminal"*/
 //  -init
 
 
-- (double)performTrading
+- (double)performTrading: (id) agentList Market: (id) worldForSpec
 /*" This is the core method that sets a succession of trial prices and
  *  asks the agents for their bids or offer at each, generally
  *  adjusting the price towards reducing |bids - offers|.  * It gets
@@ -231,7 +231,7 @@ and give a warning in the terminal"*/
 }
 
 
-- completeTrades
+- completeTrades: agentList Market: worldForSpec
 /*"Updates the agents cash and position to consummate the trades
   previously negotiated in -performTrading, with rationing if
   necessary.

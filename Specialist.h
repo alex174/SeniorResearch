@@ -23,18 +23,18 @@ typedef enum
   double bidfrac; /*"used in completing trades: volume/bidtotal"*/
   double offerfrac; /*"used in completing trades: volume/offertotal"*/
   int maxiterations; /*" maximum passes while adjusting trade conditions"*/
-  id agentList; /*" set of traders whose demands must be reconciled"*/
+  //  id agentList; /*" set of traders whose demands must be reconciled"*/
   double volume; /*" volume of trades conducted"*/
   double taupdecay; /*"The agent's profit is calculated as an exponentially weighted moving average.  This coefficient weights old inputs in the EWMA"*/ 
   double taupnew; /*"Used in calculating exponentially weighted moving average;  taupnew = -expm1(-1.0/aTaup); taupdecay =  1.0 - taupnew; "*/ 
   @private
-    World * worldForSpec; /*" reference to World object that keeps data"*/
+    //   World * worldForSpec; /*" reference to World object that keeps data"*/
   SpecialistType sptype; /*" an enumerated type indicating the sort of Specialist is being used, valued 0, 1, or 2"*/
 }
 
 // Methods to set parameters
-- setAgentList: (id)aList;
-- setWorld: (World *)myWorld;
+//- setAgentList: (id)aList;
+//- setWorld: (World *)myWorld;
 - setMaxPrice: (double)maximumPrice;
 - setMinPrice: (double)minimumPrice;
 - setTaup: (double)aTaup;
@@ -47,9 +47,9 @@ typedef enum
 - setREB: (double)REB;
 
 
-- (double)performTrading;
+- (double)performTrading: (id)agentList Market: (id)worldForSpec;
 - (double)getVolume;
--completeTrades;
+- completeTrades: agentList Market: worldForSpec;
 
 
 @end

@@ -1,3 +1,16 @@
+2001-11-25    <pauljohn@dv01m45.lawrence.ks.us>
+
+	* ASMModelSwarm.m ([ASMModelSwarm -buildObjects]): No need to set
+	world or agentList in Specialist anymore.  See below where performTrading
+	and completeTrading are discussed.
+
+	* Specialist.h: changed performTrading method to performTrading:
+	Market: and completeTrades is now completeTrades: Market:.  This
+	way, the agent list and the market are explicitly passed in every
+	time. There is no need for Specialist class to have IVARs world
+	and agentList, so now the Specialist class can be archived without
+	any hassle. That is, putShallow should work.
+
 2001-11-08    <pauljohn@dv01m45.lawrence.ks.us>
 
 	* Output.m ([Output -writeData]): Necessary to have hdf5 archives

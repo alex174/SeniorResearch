@@ -186,7 +186,7 @@
   [specialist setETA: asmModelParams-> eta];
   [specialist setREA: asmModelParams-> rea];
   [specialist setREB: asmModelParams->reb];
-  [specialist setWorld: world];
+  //  [specialist setWorld: world];
   specialist = [specialist createEnd];
  
   [output setWorld: world];
@@ -218,7 +218,7 @@
     }
       
   //Give the specialist access to the agentList
-  [specialist setAgentList: agentList];
+  //[specialist setAgentList: agentList];
   return self;
 }
 
@@ -266,7 +266,7 @@
 
 // Complete the trades -- change agents' position, cash, and profit
   [periodActions createActionTo:     specialist     
-		 message: M(completeTrades)];
+		 message: M(completeTrades:Market:):agentList:world];
 
 // Tell the agents to update their performance
   [periodActions createActionForEach: agentList     
@@ -327,7 +327,7 @@
 /*"Have the Specialist perform the trading process. Then tell the world about the price that resulted from the Specialist's action."*/
 - periodStepPrice 
 {
-  [world setPrice: [specialist performTrading]];
+  [world setPrice: [specialist performTrading: agentList Market: world]];
   return self;
 }
 
