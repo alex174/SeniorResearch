@@ -56,7 +56,7 @@ instructed to write results"*/
 /*"Create schedules.  Assures that the output object writes the data when needed and checks to see if the required number of time steps has been completed"*/
 - buildActions
 { 
-  id agentlist;
+  id agentlist; //BaT 11.09.2002
   [super buildActions];
   
   [asmModelSwarm buildActions];

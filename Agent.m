@@ -8,9 +8,8 @@
 World * worldForAgent;
 
 @implementation Agent
-/*" This is the abstract superclass of all agent classes; all agent classes
-// must be direct or indirect descendants of this one.
-"*/
+/*" This is the abstract superclass of all agent classes; all agent
+// classes must be direct or indirect descendants of this one.  "*/
 
 
 /*" Sets a world for an agent.  It is a class method as it is used in
@@ -27,6 +26,12 @@ both class and instance methods in BFagent."*/
 {
   myID = iD;
   return self;
+}
+
+/* Returns the integer name of the agent 10.09.2002 BaT*/
+-(int)getID;
+{
+return myID;
 }
 
 

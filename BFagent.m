@@ -174,15 +174,7 @@ static double minstrength;
 
 // PRIVATE METHODS
 @interface BFagent(Private)
-//pj: methods now replace previous functions:
-- (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
-- (void) MakePool: (id <List>)rejects From: (id <Array>) list;
-- (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed;
-- (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2;
-- (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects; 
-- (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects;
-- (void) Generalize: (id) list AvgStrength: (double) avgstrength;
-- (BFCast *) Tournament: (id <Array>) list;
+
 
 @end
 
@@ -264,12 +256,9 @@ getConditionsbit: x].  "*/
   would be allowed for in the ASM-2.0."*/
 - initForecasts
 {
-  int  sumspecificity = 0;
   int i;
-  BFCast * aForecast; 
   int numfcasts;
-  id index;
-
+ 
 // Initialize our instance variables
 
   // All instances of BFagent have a copy of the same BFParams object
@@ -281,8 +270,6 @@ getConditionsbit: x].  "*/
   numfcasts = privateParams->numfcasts;
 
   fcastList=[Array create: [self getZone] setCount: numfcasts];
-
-  avspecificity = 0.0;
   gacount = 0;
 
   variance = privateParams->initvar;
@@ -305,15 +292,6 @@ getConditionsbit: x].  "*/
       [fcastList atOffset: i put: aForecast]; //put aForecast into Swarm array "fcastlist"
      }
 
-/* Compute average specificity */
-
-  index=[ fcastList begin: [self getZone] ];
-  for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
-    {
-    sumspecificity += [aForecast getSpecificity];
-    }
-  avspecificity = (double) sumspecificity/(double)numfcasts;
-  [index drop];
   return self;
 }
 
@@ -403,6 +381,8 @@ getConditionsbit: x].  "*/
  * for later updates.
  "*/
 {
+  //register struct BF_fcast *fptr, *topfptr, **nextptr;
+  //unsigned int real0, real1, real2, real3, real4 = 0 ;
   double weight, countsum, forecastvar=0.0;
   int mincount;
   int nactive;
@@ -772,8 +752,8 @@ according to the currently active linear rule. "*/
   realDeviation = deviation = ftarget - lforecast;
   if (fabs(deviation) > maxdev) deviation = maxdev;
   global_mean = b*global_mean + a*ftarget;
-
-  if (currentTime > 1) variance = b*variance + a*deviation*deviation;
+  
+  variance = b*variance + a*deviation*deviation;
 
   index = [ activeList begin: [self getZone]];
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
@@ -1029,60 +1009,106 @@ _{plinear    -- linear combination "crossover" prob.}
 
 //  _{ genfrac	-- fraction of 0/1 bits to make don't-care when generalising}
 "*/
+
+
 - performGA
 {
-  register int f;
   int  new;
-  BFCast * parent1, * parent2;
- 
-  double ava,avb,avc,sumc;
-  double madv=0.0; 
-  double meanv = 0.0;
-  double temp;  //for holding values needed shortly
-  //pj: previously declared as globals
-  int * bitlist;
+  double madv = 0.0; 
 
+  //int * bitlist;
   id newList = [List create: [self getZone]]; //to collect the new forecasts; 
   id rejectList = [Array create: [self getZone] setCount: getInt(privateParams,"npoolmax")];
-
   static double avstrength;//static inside a method has a different effect than static in a class
 
   ++gacount;
   currentTime = getCurrentTime();
-
-  bitlist = privateParams->bitlist;
+  //bitlist = privateParams->bitlist;
 
   // Find the npool weakest rules, for later use in TrnasferFcasts
   [self  MakePool: rejectList From: fcastList];
 
-
   // Compute average strength (for assignment to new rules)
-  avstrength = ava = avb = avc = sumc = 0.0;
+  avstrength = [self CalculateAvAndMinstrength];
+  madv = [self CalculateAndUseMadv];
+     
+  // Loop to construct nnew new rules
+  for (new = 0; new < privateParams->nnew; new++) 
+    {
+      BOOL changed = NO;
+
+      // Loop used if we force diversity
+      do 
+	{
+	   BFCast * aNewForecast=nil;
+	   aNewForecast = [self CreateGAForecast: aNewForecast Avstrength: avstrength Madv: madv];
+	   [newList addLast: aNewForecast]; //?? were these not initialized in original?//
+	   changed = [self PickParents: aNewForecast Status: changed];
+	   	   
+	} while (0);
+      /* Replace while(0) with while(!changed) to force diversity */
+    }
+
+  // Replace nnew of the weakest old rules by the new ones
+  [self  TransferFcastsFrom: newList To: fcastList Replace: rejectList];
+
+  // Generalize any rules that haven't been used for a long time
+  [self Generalize: fcastList AvgStrength: avstrength ];
+
+  [newList deleteAll]; 
+  [newList drop];
+  [rejectList drop]; 
+
+  return self;
+}
+
+//************************************************************************+
+- (double)CalculateAvAndMinstrength
+{
+  int f;
+  double average = 0.0;
+  double temp;  //for holding values needed shortly
   minstrength = 1.0e20;
 
   for (f=0; f < privateParams->numfcasts; f++) 
     {
       BFCast * aForecast = [fcastList atOffset: f];
-      double varvalue = 0;
+      if ( [aForecast  getCnt] > 0)
+	{
+	  average += [ [ fcastList atOffset: f] getStrength];
+	  if( (temp = [ aForecast getStrength ]) < minstrength)
+	    minstrength = temp;
+	}
+    }
+  average /= privateParams->numfcasts;
 
+  return (average);
+}
+
+//************************************************************************+
+- (double)CalculateAndUseMadv
+{
+  double madv,ava,avb,avc,sumc,varvalue;
+  double meanv = 0.0;
+  int f;
+  madv = ava = avb = avc = sumc = 0.0;
+  
+  for (f=0; f < privateParams->numfcasts; f++) 
+    {
+      BFCast * aForecast = [fcastList atOffset: f];
       varvalue= [ aForecast getVariance];
       meanv += varvalue;
       if ( [aForecast  getCnt] > 0)
 	{
 	  if ( varvalue !=0  )
 	    {
-	      avstrength += [ [ fcastList atOffset: f] getStrength];
 	      sumc += 1.0/ varvalue ;
 	      ava +=  [ aForecast getAval ] / varvalue ;
 	      avb +=  [ aForecast getBval ] / varvalue;
 	      avc +=  [ aForecast getCval ] / varvalue ;
 	    }
-	  if( (temp = [ aForecast getStrength ]) < minstrength)
-	    minstrength = temp;
 	}
     }
-  avstrength /= privateParams->numfcasts;
-
   meanv = meanv/ privateParams->numfcasts;
 
   for (f=0; f < privateParams->numfcasts; f++) 
@@ -1102,96 +1128,66 @@ _{plinear    -- linear combination "crossover" prob.}
   [[fcastList atOffset: 0] setBval: avb/ sumc ];
   [[fcastList atOffset: 0] setCval: avc/ sumc ];
   
-    
-// Loop to construct nnew new rules
-  for (new = 0; new < privateParams->nnew; new++) 
-    {
-      BOOL changed;
- 
-      changed = NO;
-      // Loop used if we force diversity
-      do 
-	{
-	  double varvalue, altvarvalue = 999999999;
-	  BFCast * aNewForecast=nil;
 
-	  aNewForecast = [ self createNewForecast ];
-	  [aNewForecast updateSpecfactor];
-	  [aNewForecast setStrength: avstrength];
-   
-          [aNewForecast setLastactive: currentTime];
-	  varvalue =  privateParams->maxdev-avstrength+[aNewForecast getSpecfactor];
-
-	  [aNewForecast setVariance: varvalue];
-	  altvarvalue = [[fcastList atOffset: 0] getVariance]- madv;
-	  if ( varvalue < altvarvalue )
-	  {
-	    [aNewForecast setVariance: altvarvalue];
-	    [aNewForecast setStrength: privateParams->maxdev - altvarvalue + [aNewForecast getSpecfactor]];
-	   }
-	  [aNewForecast setLastactive: currentTime];
-	  
-	  [newList addLast: aNewForecast]; //?? were these not initialized in original?//
-          
-	  // Pick first parent using touranment selection
-	  do
-	    parent1 = [ self Tournament: fcastList ] ;
-	  while (parent1 == nil);
-
-	  // Perhaps pick second parent and do crossover; otherwise just copy
-	  if (drand() < privateParams->pcrossover) 
-	    {
-	      do
-		parent2 = [self  Tournament: fcastList];
-	      while (parent2 == parent1 || parent2 == nil) ;
-
-	      [self Crossover:  aNewForecast Parent1:  parent1 Parent2:  parent2];
-	      if (aNewForecast==nil) {raiseEvent(WarningMessage,"got nil back from crossover");}
-	      changed = YES;
-	    }
-	  else
-	    {
-	      [self CopyRule: aNewForecast From: parent1];
-	      if(!aNewForecast)raiseEvent(WarningMessage,"got nil back from CopyRule");
-	
-	      changed = [self Mutate: aNewForecast Status: changed];
-	    }
-	  //It used to only do this if changed, but why not all??
-	 
-	} while (0);
-      /* Replace while(0) with while(!changed) to force diversity */
-    }
-
-  // Replace nnew of the weakest old rules by the new ones
-
-  [self  TransferFcastsFrom: newList To: fcastList Replace: rejectList];
-
-// Generalize any rules that haven't been used for a long time
-  [self Generalize: fcastList AvgStrength: avstrength ];
-
-  // Compute average specificity
-  {
-    int specificity = 0;
-    //note here a "raw" for loop around the fcastList. I could create an index
-    //and do the swarm thing, but I leave this here to keep myself humble.
-
-    for (f = 0; f < privateParams->numfcasts; f++) 
-      {
-	parent1 = [fcastList atOffset: f];
-	specificity += [parent1 getSpecificity];
-      }
-    avspecificity = ((double) specificity)/(double)privateParams->numfcasts;
-
-  }
-
-  [newList deleteAll]; 
-  [newList drop];
-
-  [rejectList drop]; 
-
-  return self;
+  return (madv);
 }
 
+//************************************************************************+
+- (BFCast *)CreateGAForecast: (BFCast *)aNewForecast Avstrength: (double)avstrength Madv:  (double)madv
+{
+  double varvalue, altvarvalue = 999999999;
+ 
+  aNewForecast = [ self createNewForecast ];
+  [aNewForecast updateSpecfactor];
+  [aNewForecast setStrength: avstrength];
+ 
+  [aNewForecast setLastactive: currentTime];
+  varvalue =  privateParams->maxdev-avstrength+[aNewForecast getSpecfactor];
+ 
+  [aNewForecast setVariance: varvalue];
+  altvarvalue = [[fcastList atOffset: 0] getVariance]- madv;
+  if ( varvalue < altvarvalue )
+    {
+      [aNewForecast setVariance: altvarvalue];
+      [aNewForecast setStrength: privateParams->maxdev - altvarvalue + [aNewForecast getSpecfactor]];
+    }
+  [aNewForecast setLastactive: currentTime];
+  
+  return aNewForecast;
+}
+
+//************************************************************************+
+- (BOOL)PickParents: (BFCast *)aNewForecast Status: (BOOL) changed
+{
+  BFCast * parent1, * parent2;
+   
+  // Pick first parent using touranment selection
+  do
+    parent1 = [ self Tournament: fcastList ] ;
+  while (parent1 == nil);
+  
+  // Perhaps pick second parent and do crossover; otherwise just copy
+  if (drand() < privateParams->pcrossover) 
+    {
+      do
+	parent2 = [self  Tournament: fcastList];
+      while (parent2 == parent1 || parent2 == nil) ;
+      
+      [self Crossover:  aNewForecast Parent1:  parent1 Parent2:  parent2];
+      if (aNewForecast==nil) {raiseEvent(WarningMessage,"got nil back from crossover");}
+      changed = YES;
+    }
+  else
+    {
+      [self CopyRule: aNewForecast From: parent1];
+      if(!aNewForecast)raiseEvent(WarningMessage,"got nil back from CopyRule");
+      
+      changed = [self Mutate: aNewForecast Status: changed];
+    }
+  //It used to only do this if changed, but why not all??
+  
+  return (changed);
+}
 
 
 /*"This is a method that copies the instance variables out of one
@@ -1647,7 +1643,6 @@ list (actually, a Swarm Array) and the Array of forecasts. "*/
   register int f;
   int bit, j;
   BOOL changed;
-  // int currentTime;
   int * bitlist = NULL;
 
   bitlist = [privateParams getBitListPtr];

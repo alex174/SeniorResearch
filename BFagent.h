@@ -10,7 +10,6 @@
 @interface BFagent:Agent
 {
   int currentTime; /*"The agent regularly checks with Swarm to see what time it is"*/
-  double avspecificity; /*'average specificity of active forecasts"*/
   double forecast;       /*"prediction of stock price: (trialprice+dividend)*pdcoeff + offset."*/
   double lforecast; /*"lagged forecast: forecast value from previous period"*/
   double global_mean; /*"price+dividend"*/
@@ -50,6 +49,21 @@
 - (int)nrules;
 
 - performGA;
+
+- (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
+- (void) MakePool: (id <List>)rejects From: (id <Array>) list;
+- (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed;
+- (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2;
+- (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects; 
+- (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects;
+- (void) Generalize: (id) list AvgStrength: (double) avgstrength;
+- (BFCast *) Tournament: (id <Array>) list;
+- (double) CalculateAndUseMadv;
+- (double) CalculateAvAndMinstrength;
+- (BFCast *) CreateGAForecast: (BFCast *) aNewForecast Avstrength: (double)avstrength Madv: (double)madv;
+
+
+- (BOOL) PickParents: (BFCast *) aNewForecast Status: (BOOL) changed;
 
 - printcond: (int)word;
 

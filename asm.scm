@@ -9,7 +9,7 @@
   #:mincount  2
   #:subrange   1  
   #:gafrequency   500 
-  #:firstgatime   100
+  #:firstgatime   1
   #:longtime   4000
   #:individual   1
   #:a_min   0.7D0

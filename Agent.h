@@ -5,7 +5,7 @@
 @interface Agent:SwarmObject          
 {
   @public
-    double demand;	/*" bid or -offer"*/ 
+  double demand;	/*" bid or -offer"*/ 
   double profit;	/*" exp-weighted moving average "*/
   double wealth;	/*" total agent wealth "*/
   double position;	/*" total shares of stock "*/
@@ -24,6 +24,7 @@
 +setWorld: (World *)aWorld;
 
 -setID: (int)iD;
+-(int)getID;
 -setPosition: (double)aDouble;
 -setintrate: (double)rate;
 -setminHolding: (double)holding   minCash: (double)minimumcash;

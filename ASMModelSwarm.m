@@ -3,7 +3,7 @@
 #import "Output.h"
 #import "BFParams.h"
 //#import "BFCast.h"
-#import "BFagent.h"
+//#import "BFagent.h"
 #import "SOCagent.h"
 #import <random.h>
 
@@ -201,15 +201,15 @@
 
 
   /* Set class variables */
-  [BFagent init];
-  [BFagent setBFParameterObject: bfParams];
-  [BFagent setWorld: world];
+  [SOCagent init];
+  [SOCagent setBFParameterObject: bfParams];
+  [SOCagent setWorld: world];
     
   //nowObject create the agents themselves
   for (i = 0; i < asmModelParams->numBFagents; i++) 
     {
-      BFagent * agent;
-      agent = [BFagent createBegin: [self getZone]];
+      SOCagent * agent;
+      agent = [SOCagent createBegin: [self getZone]];
       [agent setID: i];
       [agent setintrate: asmModelParams->intrate];
       [agent setminHolding: asmModelParams->minholding   minCash:asmModelParams-> mincash];
