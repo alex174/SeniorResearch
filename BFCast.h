@@ -16,6 +16,7 @@
   double specfactor;	/*" specificty=(condbits - nnulls - specificity)* bitcost. "*/
   double bitcost; /*" cost of using bits in forecasts"*/
   int lastactive;  /*" last time period in which this forecast was active"*/
+  int lastused; 
   int specificity; /*" specificity "*/
   int count; /*" number of times this forecast has been active"*/
   int condwords; /*"number of words of memory needed to hold the conditions"*/
@@ -105,6 +106,10 @@
 - (void)setLastactive: (int)x;
 
 - (int)getLastactive;
+
+- (void)setLastused: (int)x;
+
+- (int)getLastused;
 
 - (void)setCnt: (int)x;
 

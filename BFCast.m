@@ -30,7 +30,7 @@
 {
   forecast= 0.0;
   count = 0;
-  lastactive = 1;
+  lastactive = lastused = 1;
   specificity = 0;
   variance = 999999999;
   if (!condwords || !condbits ){fprintf(stderr,"BFCast: Must have condwords to create BFCast."); exit(1);}
@@ -258,6 +258,19 @@ specfactor= (condbits - specificity)* bitcost
 - (int)getLastactive
 {
   return lastactive;
+
+}
+
+/*"Set the time on which this forecast was last active to an input value"*/
+- (void)setLastused: (int)x
+{
+  lastused = x;
+}
+
+/*"Return the time on which this forecast was last active"*/
+- (int)getLastused
+{
+  return lastused;
 
 }
 

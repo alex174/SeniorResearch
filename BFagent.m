@@ -456,6 +456,7 @@ getConditionsbit: x].  "*/
       pdcoeff = [bestForecast getAval];
       offset = [bestForecast getBval]*dividend + [bestForecast getCval];
       forecastvar = (privateParams->individual? [bestForecast getVariance]: variance);
+      [bestForecast setLastused: currentTime];
     }
 
   else  // meaning "nactive" zero, no forecasts are active 
@@ -904,6 +905,8 @@ according to the currently active linear rule. "*/
   (*countptr)[2] = count[2];
   (*countptr)[3] = count[3];
 
+  currentTime = getCurrentTime()+1;
+
   if (!cum)
     for(i=0;i<condbits;i++)
       count[0][i] = count[1][i] = count[2][i] = count[3][i] = 0;
@@ -912,10 +915,9 @@ according to the currently active linear rule. "*/
   for( aForecast=[index next]; [index getLoc]==Member; aForecast=[index next] )
     {
       agntcond = [aForecast getConditions];
+      if ((currentTime - [aForecast getLastused]) < 10000)
       for (i = 0; i < condbits; i++)
-	{
 	  count[ (int)[aForecast getConditionsbit: i]][i]++;
-	}
     }
   [index drop];
   

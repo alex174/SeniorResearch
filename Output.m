@@ -373,7 +373,8 @@ BFParams.m, where 0-5 are fundamental, 6-9 are technical,
   //assumes all agents use the same N of forecasts. 
   //can easly generalize.
  
-  numFcasts = [ [agentList atOffset:0] getNfcasts];
+  //numFcasts = [ [agentList atOffset:0] getNfcasts];
+  numFcasts = 100;
 
   index = [agentList begin: [self getZone]];
   while ((agent = [index next]))
