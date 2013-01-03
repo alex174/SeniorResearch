@@ -12,7 +12,7 @@ OBJECTS = Agent.o Dividend.o World.o \
 OTHERCLEAN =  param.data_* output.data* 
 DATAFILES = batch.setup param.data
 
-include $(SWARMHOME)/etc/swarm/Makefile.appl
+include /etc/swarm/Makefile.appl
 
 main.o: main.m ASMObserverSwarm.h ASMBatchSwarm.h
 Agent.o: Agent.h Agent.m

@@ -1,3 +1,9 @@
+2013-01-03 Paul E Johnson <pauljohn@ku.edu>
+	* Insert proper imports for object types to silence compiler
+	warnings.
+	* Output.m: change to snprintf because of segmentation fault
+	in usage of string variable name
+
 2003-06-27  Paul E Johnson  <pauljohn@ukans.edu>
 
 	* ASMObserverSwarm.m, ASMBatchSwarm.m: recast (id)arguments as

@@ -1,5 +1,6 @@
 #import "ASMObserverSwarm.h"
 #import <simtoolsgui.h>
+#import <objectbase/EmptyProbeMap.h>
 #import "Parameters.h"
 
 #include <misc.h>

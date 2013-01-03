@@ -1,7 +1,7 @@
 #import "BFParams.h"
 #import "World.h"
 #import <objectbase.h>
-
+#import <objectbase/VarProbe.h>
 
 // Values in table of special bit names (negative, avoiding NULLBIT)
 #define ENDLIST		-2

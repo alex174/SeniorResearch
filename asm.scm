@@ -74,11 +74,7 @@
   (cons 'asmBatchSwarm
 	(make-instance 'ASMBatchSwarm
   #:loggingFrequency 1000 
-<<<<<<< asm.scm
   #:experimentDuration 50000
-=======
-  #:experimentDuration 350000
->>>>>>> 1.14
  ))
 )
 
