@@ -3,7 +3,7 @@ All code and material is drawn from http://artstkmkt.sourceforge.net
 This repo is a conversion of the CVS repository available at that address. 
 
 # Purpose
-SFI-ASM is, to me, an captivating, enigmatic thing, part fascinating research, part  intriguing model, part important academic history and part computing history artifact. My interest is first the  preservation of the artifact, second the understanding of them model, and third the understanding of the academic-historical context of the model's creation.  
+SFI-ASM is a captivating, enigmatic thing. My interest is first the  preservation of the historical artifact, second the understanding of them model, and third the understanding of the academic-historical context of the model's creation.  
 To that end, this repository tracks the source code through all of the releases I can find, and will try to modify the code and codify its environment sufficiently s.t. it can be built on a well specified VM.
 
 # SFI-ASM
