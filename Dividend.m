@@ -6,8 +6,6 @@
 
 #import "Dividend.h"
 #import <random.h>  //swarm library to get NormalDist
-#import <random/MT19937gen.h>
-#import <random/NormalDist.h>
 #include <math.h>
 #include <misc.h>
 

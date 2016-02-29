@@ -4,7 +4,6 @@
 #import "BFagent.h" 
 #import "BFCast.h" //for bitDist
 #import <analysis.h>
-#import <analysis/EZGraph.h>
 #import "Parameters.h"
 
 /*"
@@ -316,11 +315,11 @@ stockData-Sun_May_18_10_47_58_2003.hdf
   
   for ( i = 0; i < 4; i++)
     {
-      char name[20];
-      if (i == 0) snprintf (name, 19, "fundamental bits");
-      else if (i == 1) snprintf (name, 19, "technical bits");
-      else if (i == 2) snprintf (name, 19, "dummy bits");
-      else if (i == 3) snprintf (name, 19, "total bits");
+      char name[10];
+      if (i == 0) sprintf (name, "fundamental bits");
+      else if (i == 1) sprintf (name, "technical bits");
+      else if (i == 2) sprintf (name, "dummy bits");
+      else if (i == 3) sprintf (name, "total bits");
      
       cssequence[i] = [bitGraph createSequence: name
 				withFeedFrom: self

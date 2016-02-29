@@ -20,7 +20,6 @@ then get the output object from the model.  Later the output object is
 instructed to write results"*/
 -buildObjects
 {
-  id modelZone;
   BFParams * bfParams = [(Parameters *)arguments getBFParams];
 
   ASMModelParams * asmModelParams = [(Parameters *)arguments getModelParams];
@@ -89,7 +88,7 @@ instructed to write results"*/
 /*"Tell the objects that are keeping records on parameter values to write them to files at the end of the simulation."*/ 
 - expostParamWrite
 {
- [[asmModelSwarm getOutput] writeParams: [(Parameters *)arguments getModelParams] BFAgent: [(Parameters *)arguments getBFParams] Time: [asmModelSwarm getModelTime]]; 
+ [[asmModelSwarm getOutput] writeParams: [(Parameters *)arguments getModelParams] BFAgent: [(Parameters *) arguments getBFParams] Time: [asmModelSwarm getModelTime]]; 
   return self;
 }
 

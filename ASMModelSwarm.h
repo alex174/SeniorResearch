@@ -1,5 +1,6 @@
 #import <objectbase/Swarm.h>
-#import "BFagent.h"
+//#import "BFagent.h"
+#import "SOCagent.h"
 #import "Specialist.h"
 #import "Dividend.h"
 #import "World.h"

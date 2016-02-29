@@ -1,6 +1,5 @@
 #import "ASMObserverSwarm.h"
 #import <simtoolsgui.h>
-#import <objectbase/EmptyProbeMap.h>
 #import "Parameters.h"
 
 #include <misc.h>
@@ -246,7 +245,7 @@
 - writeSimulationParams
 {
   writeParams = 1;
-  [output writeParams: [(Parameters *)arguments getModelParams] BFAgent: [(Parameters *)arguments getBFParams] Time: [asmModelSwarm getModelTime]];
+  [output writeParams: [(Parameters *) arguments getModelParams] BFAgent: [(Parameters *) arguments getBFParams] Time: [asmModelSwarm getModelTime]];
   
   return self;
 }
@@ -257,7 +256,7 @@
 - expostParamWrite
 {
   if (writeParams == 1)
-    [output writeParams: [(Parameters *)arguments getModelParams] BFAgent: [(Parameters *)arguments getBFParams] Time:[asmModelSwarm getModelTime]]; 
+    [output writeParams: [(Parameters *) arguments getModelParams] BFAgent: [(Parameters *) arguments getBFParams] Time:[asmModelSwarm getModelTime]]; 
   return self;
 }
 
