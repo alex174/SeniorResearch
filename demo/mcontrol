@@ -1,0 +1,92 @@
+# General control parameters for the Santa Fe Stock Market
+# Parameters are recognized solely by position within file -- watch out!
+
+# Unless specified on the command line, this control file itself is normally
+# looked for first in the current working directory and then in the directory
+# where the program resides.
+#
+# Under NeXTSTEP, the current working directory is the user's home directory
+# if the program is launched from the Workspace Manager, and the "directory
+# where the program resides" is taken to mean either outside or inside the
+# application's file package (normally Market.app).
+#
+# Debugging flags
+# ---------------
+# These can be specified here, or on the command line with a -dxxx option,
+# where xxx is a string of desired flags.  The union (OR) of the two
+# specifications is used.  Use "0" here if no flags are specified.
+# The flags are:
+#   a	Debug agents (depends on individual agent classes)
+#   b	Debug agent browser; report fixable inconsistencies
+#   c	Show CPU time at certain times
+#   d	Debug dividend process -- show some internal parameters
+#   e	Show each event returned (except display events)
+#   f	Show filenames and path computations (-df *option* shows more)
+#   h	Debug holding; check conservation of the total
+#   n	Debug NameTree, show number of nodes in use
+#   o   Debug Output
+#   t	Debug types and classes -- checks lists, reports summary
+#   w	Debug world; check moving averages and record-keeping
+#   A	Turn on ALL of the the above flags
+#   0	No effect; use if no other flags are specified
+0	# debugflags
+
+# Random number seed for market and agents
+# ----------------------------------------
+# Use a positive integer for reproducible results, or 0 to choose randomly,
+# or -1 to chain from the previous run.  Note that the dividend process
+# has a separate seed, specified in the dparams file.  The log file always
+# shows the value to use to reproduce the run.
+0	# mseed
+
+# Filenames
+# ---------
+# Unless filenames start with / or ~/ they are taken to be relative to the
+# directory in which this control file was found.  Absolute and relative
+# pathnames are fully implemented for Unix, but only partially for MSDOS
+# or Windows (use \ for separators, but no drive letters), and not at all
+# for VMS.
+#
+# Surround the whole filename in double quotes if it includes spaces or #'s.
+#
+# "-" may be used to specify stdin or stdout.
+#
+# "=" may be used for input files to mean the same file as before so, for
+# example, specifying "=" for the dparamfilename would mean that the
+# dividend parameters would be read from this file, following the control
+# parameters.  This allows concatenation of all the input files into a
+# single file, in the order listed here.  The log file produced by a run
+# is just such a file, and may be used as a single input file (in place of
+# this one) to reproduce that run exactly.
+#
+# Other input files may be needed for specific agents.  These are
+# specified in the agentlist file, and follow the same naming
+# conventions as those here.  They are read after the agentlist file
+# and before the timelist file, in order of the agent specifications.
+# If "=" is used for the timelist file, it means the same file as the
+# agentlist file, which is not necessarily the same as the last such
+# agent-specific file.
+#
+#  "=" may also be used for the output streams (except the first), thus
+# merging their output.
+#
+# "<none>" may be used for output files to turn off their output.
+#
+# Output filenames may contain one or more #'s, which are replaced by digits
+# of the run number, from right to left.  In this case the filename MUST
+# be enclosed in double quotes.  Output filenames may also be prefixed
+# by a "+" to imply append-mode (append to an existing file) and/or by
+# a "*" to suppress the normal heading block at the start of the output.
+
+#Input files
+# -----------
+dparams		# dparamfilename -- parameters for dividend process
+mparams		# mparamfilename -- parameters for market & specialist
+agntlist	# agentlistfilename -- list of agents in market
+output		# outputfilename -- specifications
+timelist	# timefilename -- list of times to produce output or display
+
+# Log file
+# --------
+"log###"	# logfilename -- log of parameters
+

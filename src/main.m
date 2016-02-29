@@ -1,53 +1,81 @@
-#import <simtools.h>
-#import "ASMObserverSwarm.h"
-#import "ASMBatchSwarm.h"
-#import "Parameters.h"
+// The Santa Fe Stock Market -- main() and error handler for batch version
+// Copyright (C) The Santa Fe Institute, 1995.
+// No warranty implied; see LICENSE for terms.
 
-// The main() function is the top-level place where everything starts.
-// For a typical Swarm simulation, in main() you create a toplevel
-// Swarm, let it build and activate, and set it to running.
+// This file is only used for the batch version, when there's no graphical
+// frontend.  It contains the main() routine and a fatalerror() routine,
+// replacing those in Market_main.m and MarketApp.m respectively in the
+// frontend version.
 
-int
-main (int argc, const char **argv) 
+
+// IMPORTS
+//
+// Note for NextStep only : these includes are NOT handled automatically by
+// "make depend" or  ProjectBuilder.  Change the list in Makefile.postamble
+// if you change these imports.
+//
+#include "global.h"
+#include <stdlib.h>
+#include RUNTIME_DEFS
+#include "control.h"
+#include "error.h"
+
+
+int main(int argc, char *argv[])
+/*
+ * Main program for batch version.
+ */
 {
-  id theTopLevelSwarm;
+// Set the error handler (defined in util.m)
+#if defined ERROR_HANDLER_1
+    _error = objcerror;
+#elif defined ERROR_HANDLER_2
+    objc_set_error_handler(objcerror);
+#elif defined ERROR_HANDLER_3
+    extern void (*_objc_error)(id object, const char *format, va_list);
+    _objc_error = objcerror;
+#else
+#error no ERROR_HANDLER defined
+#endif
 
+    marketApp = nil;
 
+// Set up the basic environment (paths, options, run number)
+    setEnvironment(argc, argv, NULL);
 
-  // Swarm initialization: all Swarm apps must call this first.
-  initSwarmArguments (argc, argv, [Parameters class]);
+// Start up the market and agents, initializing everything
+    startup();
 
-  arguments= [(Parameters *) arguments init];
+// Perform any events scheduled for startup
+    performEvents();
 
+// Main loop on periods
+    while (t < lasttime) {
 
-  if(swarmGUIMode == 1)
-    theTopLevelSwarm = [ASMObserverSwarm create: globalZone];
-  else
-    if ((theTopLevelSwarm =
-	 [lispAppArchiver getWithZone: globalZone key: "asmBatchSwarm"]) == nil)
-    raiseEvent(InvalidOperation,
-               "Can't find the batchSwarm parameters");
+    // Either perform a fake warmup period or a normal one (increments t)
+	if (t < 0)
+	    warmup();
+	else
+	    period();
 
+    // Perform any scheduled events
+	performEvents();
+    }
 
-  [theTopLevelSwarm buildObjects];
-  [theTopLevelSwarm buildActions];
-  
- //   while (1)
-      {
-      id <SwarmActivity> activity = [theTopLevelSwarm activateIn: nil];
-      [theTopLevelSwarm go];
-      [activity drop];
-      if (swarmGUIMode == 0)
-	[theTopLevelSwarm expostParamWrite];
-      [theTopLevelSwarm drop];
-       }
-  // The toplevel swarm has finished processing, so it's time to quit.
-  return 0;
+// Finish up everything and exit
+    finished();
+    marketDebug();
+    closeall();
+    exit(0);
 }
 
 
-
-
-
-
+void volatile fatalerror(const char * errorstring)
+/*
+ * Fatal error handling routine -- just writes the message and quits.
+ */
+{
+    fprintf(msgfile,"Fatal error: %s\n", errorstring);
+    exit(1);
+}
 

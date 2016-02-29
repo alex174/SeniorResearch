@@ -1,0 +1,16 @@
+# Fixed Forecaster agent parameters for Santa Fe Stockmarket.
+# Parameters are recognized solely by position within file -- watch out
+
+# Rule-related parameters
+3	# numfcasts -- number of forecasts per agent
+500.0	# tauv -- moving average healing time for variances
+1	# lambda -- risk aversion parameter
+1.0	# maxbid -- maximum bid or offer
+0.0	# fcastmin -- minimum forecast for price + dividend
+200	# fcastmax -- maximum forecast for price + dividend
+roulette# selectionmethod -- best or roulette
+1.0	# beta -- strength scaling Boltzmann parameter
+2.0	# maxdev -- clipping value for forecast error
+11.0	# a1 -- for forecast = a1*dividend + a2
+0.0	# a1 -- for forecast = a1*dividend + a2
+

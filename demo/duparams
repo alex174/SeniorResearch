@@ -1,0 +1,16 @@
+# Dumb agent (DU) parameters for Santa Fe Stockmarket.
+# Parameters are recognized solely by position within file -- watch out
+
+# This agent has only 2 parameters; how large a bid or offer to make (bidsize)
+# and which of the world bits to use (keybit).  If the key bit is on then
+# the bid is bidsize; if it is off the bid is -bidsize.  A negative bid
+# is an offer.  bidsize itself may negative.  The actual bid or offer is
+# also limited by the mincash and minholding constraints.
+
+# The bit names that can be used for the "keybit" parameter are listed in the
+# "names" file.  Note that using "random" for the keybit gives a simple
+# noise trader.
+
+1.0	# bidsize
+pup	# keybit
+
