@@ -1,0 +1,187 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/Output">Output</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>Output.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+createEnd does a lot of specific things that make the data output 
+objects work. It gets the system time, uses that to fashion a 
+filename that includes the time, then where necessary it creates 
+archivers which will later be called on to get readings on the 
+system and record them.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>BOOL <B>dataFileExists</B>;</CODE><BR>
+		<CODE>World * <B>outputWorld</B>;</CODE><BR>
+		<CODE>Specialist * <B>outputSpecialist</B>;</CODE><BR>
+		<CODE>id archiver, <B>dataArchiver</B>;</CODE><BR>
+		<CODE>time_t <B>runTime</B>;</CODE><BR>
+		<CODE>char <B>timeString</B>[100];</CODE><BR>
+		<CODE>FILE * <B>dataOutputFile</B>;</CODE><BR>
+		<CODE>id &lt;EZGraph&gt; <B>hdfWriter</B>;</CODE><BR>
+		<CODE>id &lt;HDF5&gt; <B>hdf5container</B>;</CODE><BR>
+		<CODE>int <B>currentTime</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>dataFileExists</TD><TD>Indicator that dataFile initialization has alreadyoccurred</TD></TR>
+	
+		<TR><TD>outputWorld</TD><TD>Reference to the world, where we can get data!</TD></TR>
+	
+		<TR><TD>outputSpecialist</TD><TD>Reference to the Specialist object, where we can get data!</TD></TR>
+	
+		<TR><TD>dataArchiver</TD><TD>hdf5 or LISP objects, depending on the CPP flags</TD></TR>
+	
+		<TR><TD>runTime</TD><TD>Return from the systems time() function</TD></TR>
+	
+		<TR><TD>timeString</TD><TD>a verbose description of current time</TD></TR>
+	
+		<TR><TD>dataOutputFile</TD><TD>FILE handle for output from C style fprintf</TD></TR>
+	
+		<TR><TD>hdfWriter</TD><TD>EZGraph object that is used only to create hdf5 formatted output</TD></TR>
+	
+		<TR><TD>hdf5container</TD><TD>HDF5 data container object used by hdfWriter</TD></TR>
+	
+		<TR><TD>currentTime</TD><TD>current time of simulation</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#- setSpecialist:">- setSpecialist:</A></DD>
+		
+			<DD> <A HREF="#- setWorld:">- setWorld:</A></DD>
+		
+			<DD> <A HREF="#- writeParams:BFAgent:Time:">- writeParams:BFAgent:Time:</A></DD>
+		
+			<DD> <A HREF="#- prepareOutputFile">- prepareOutputFile</A></DD>
+		
+			<DD> <A HREF="#- initializeHDFWriter">- initializeHDFWriter</A></DD>
+		
+			<DD> <A HREF="#- writeData">- writeData</A></DD>
+		
+			<DD> <A HREF="#- drop">- drop</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- drop"></A><H3><A NAME="//apple_ref/occ/instm/Output/drop">drop</A></H3><P>
+		<CODE>- (void)<B>drop</B>
+		</CODE><P>
+		It is necessary to drop the data writing objects in order to make 
+sure they finish their work.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- initializeHDFWriter"></A><H3><A NAME="//apple_ref/occ/instm/Output/initializeHDFWriter">initializeHDFWriter</A></H3><P>
+		<CODE>- (void)<B>initializeHDFWriter</B>
+		</CODE><P>
+		In case the Output class is told to write output data and there is 
+no hdfWriter object yet, then this method will be run. I could not 
+find another way to make sure that this object was not created unless 
+the system actually tries to write data. It cannot be done in the 
+prepareOutputFile method, because that method can be called from the 
+GUI before the Specialist and World objects exist. Those objects are 
+necessary to initialize an hdfWriter, as seen in this code.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- prepareOutputFile"></A><H3><A NAME="//apple_ref/occ/instm/Output/prepareOutputFile">prepareOutputFile</A></H3><P>
+		<CODE>- <B>prepareOutputFile</B>
+		</CODE><P>
+		Because it is possible for users to turn on data writing during a 
+run of the simulation, it is necessary to have this method which can 
+initialize the data output files. Each time this is called, it 
+checks to see if the files have already been initialized. That way 
+it does not initialize everything twice.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setSpecialist:"></A><H3><A NAME="//apple_ref/occ/instm/Output/setSpecialist:">setSpecialist:</A></H3><P>
+		<CODE>- <B>setSpecialist:</B>(Specialist *)<EM>theSpec</EM>
+			
+		</CODE><P>
+		The output object needs to have a reference to a Specialist object, from whom it can gather data on the volume of trade.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setWorld:"></A><H3><A NAME="//apple_ref/occ/instm/Output/setWorld:">setWorld:</A></H3><P>
+		<CODE>- <B>setWorld:</B>(World *)<EM>theWorld</EM>
+			
+		</CODE><P>
+		The output object must have a reference to a World object, from which it can get price, dividend, or any other information it wants
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- writeData"></A><H3><A NAME="//apple_ref/occ/instm/Output/writeData">writeData</A></H3><P>
+		<CODE>- <B>writeData</B>
+		</CODE><P>
+		The write data method dumps out measures of the price, dividend, and volume indicators into several formats
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- writeParams:BFAgent:Time:"></A><H3><A NAME="//apple_ref/occ/instm/Output/writeParams:BFAgent:Time:">writeParams:BFAgent:Time:</A></H3><P>
+		<CODE>- <B>writeParams:</B><EM>modelParam</EM> <B>BFAgent:</B><EM>bfParms</EM> <B>Time:</B>(long int)<EM>t</EM>
+			
+		</CODE><P>
+		This flushes a snapshot of the current parameter settings from 
+both the ASMModelParams and BFAgentParams into a file
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

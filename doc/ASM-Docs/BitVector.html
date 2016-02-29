@@ -1,0 +1,318 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/BitVector">BitVector</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>BitVector.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+This class is the &quot;hairy guts&quot; that makes bit forecasts possible.<P>
+
+A bit vector is a group of &quot;words&quot;, and each &quot;word&quot; contains 16 
+indicators. In this model, the bit vectors have 5 words, which means 
+there are 80 indicators possible.<P>
+
+In the substance of this model, a &quot;bit&quot; is an aspect of the world 
+being monitored. In genetic algorithm terms, one can say &quot;NO&quot;, &quot;YES&quot; 
+or &quot;don't care&quot;, for each piece of information. A bit has values in 
+integer format of 0, 1, or 2. But in binary, that is 00, 01, and 10, 
+and in this class those binary representations are clumped together to 
+be represented by a 32 bit integer, as in<P>
+
+0110001000011000010101100100100101010101<P>
+
+which holds the status of 16 bits. There can be as many as 5 of these 
+in a BitVector. Those words are referred to by the pointer 
+&quot;conditions&quot;. The first word can be found at conditions[0], the 
+second at conditions[1], and so forth. Note that these are integer 
+values, but the bit math does work on the binary values. I probably 
+need a computer scientist to translate this for me...<P>
+
+The world in the ASM can give a vector as well, telling us in binary 
+many indicators, whether they are good or bad, 0 or 1. So the bit 
+forecasting agent takes the 0's and 1's from the world, and checks to 
+see if they are used in the forecast, and makes a forecast. All of 
+the checking and setting of forecast bits is handled by this BitVector 
+class.<P>
+
+I suppose, if you are like me and don't like bit math, this is all 
+confusing and you don't care, in which case you can readily ignore the 
+details and just proceed to set the values of bits according to the 
+interface below. Its pretty obvious.<P>
+
+But if you want details, here is a very telling piece of documentation 
+that goes with the function &quot;makebittables&quot;, which used to be at the 
+top of BFagent, but now its here, hidden in the dark and not so scary 
+to users:<P>
+
+Construct tables for fast bit packing and condition checking for 
+classifier systems. Assumes 32 bit words, and storage of 16 ternary 
+values (0, 1, or *) per word, with one of the following codings: 
+Value Message-board coding Rule coding<P>
+
+0 2			1 
+1 1			2 
+* -			0<P>
+
+Thus rule satisfaction can be checked with a simple AND between 
+the two types of codings.<P>
+
+Sets up the tables to store MAXCONDBITS ternary values in 
+CONDWORDS = ceiling(MAXCONDBITS/16) words.<P>
+
+After calling this routine, given an array declared as 
+int array[CONDWORDS]; 
+you can do the following:<P>
+
+a. Store &quot;value&quot; (0, 1, 2, using one of the codings above) for bit n with 
+array[WORD(n)] |= value &lt;&lt; SHIFT[n]; 
+if the stored value was previously 0; or<P>
+
+b. Store &quot;value&quot; (0, 1, 2, using one of the codings above) for bit n with 
+array[WORD(n)] = (array[WORD(n)] &amp; NMASK[n]) | (value &lt;&lt; SHIFT[n]); 
+if the initial state is unknown.<P>
+
+c. Store value 0 for bit n with 
+array[WORD(n)] &amp;= NMASK[n];<P>
+
+d. Extract the value of bit n (0, 1, 2, or possibly 3) with 
+value = (array[WORD(n)] &gt;&gt; SHIFT[n]) &amp; 3;<P>
+
+e. Test for value 0 for bit n with 
+if ((array[WORD(n)] &amp; MASK[n]) == 0) ...<P>
+
+f. Check whether a condition is fulfilled (using the two codings) with 
+for (i=0; i&lt;CONDWORDS; i++) 
+if (condition[i] &amp; array[i]) break; 
+if (i != CONDWORDS) ...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>int <B>condwords</B>;</CODE><BR>
+		<CODE>int <B>condbits</B>;</CODE><BR>
+		<CODE>unsigned int *<B>conditions</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>condwords</TD><TD>Number of words of memory required to hold bits in this model</TD></TR>
+	
+		<TR><TD>condbits</TD><TD>The number of conditions bits we expect to actually use</TD></TR>
+	
+		<TR><TD>conditions</TD><TD>No description.</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#- createEnd">- createEnd</A></DD>
+		
+			<DD> <A HREF="#+ init">+ init</A></DD>
+		
+			<DD> <A HREF="#- setCondwords:">- setCondwords:</A></DD>
+		
+			<DD> <A HREF="#- setCondbits:">- setCondbits:</A></DD>
+		
+			<DD> <A HREF="#- setConditions:">- setConditions:</A></DD>
+		
+			<DD> <A HREF="#- getConditions">- getConditions</A></DD>
+		
+			<DD> <A HREF="#- setConditionsWord:To:">- setConditionsWord:To:</A></DD>
+		
+			<DD> <A HREF="#- getConditionsWord:">- getConditionsWord:</A></DD>
+		
+			<DD> <A HREF="#- setConditionsbit:To:">- setConditionsbit:To:</A></DD>
+		
+			<DD> <A HREF="#- getConditionsbit:">- getConditionsbit:</A></DD>
+		
+			<DD> <A HREF="#- setConditionsbitToThree:">- setConditionsbitToThree:</A></DD>
+		
+			<DD> <A HREF="#- switchConditionsbit:">- switchConditionsbit:</A></DD>
+		
+			<DD> <A HREF="#- setConditionsbit:FromZeroTo:">- setConditionsbit:FromZeroTo:</A></DD>
+		
+			<DD> <A HREF="#- maskConditionsbit:">- maskConditionsbit:</A></DD>
+		
+			<DD> <A HREF="#- drop">- drop</A></DD>
+		
+			<DD> <A HREF="#- printcond:">- printcond:</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Class Methods</H2>
+ 
+	
+		
+		<A NAME="+ init"></A><H3><A NAME="//apple_ref/occ/clm/BitVector/init">init</A></H3>
+		<CODE>+ <B>init</B>
+		</CODE><P>
+		init runs the makebittables function, which creates some statically allocated vectors that are used in bit math.
+	
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- createEnd"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/createEnd">createEnd</A></H3><P>
+		<CODE>- <B>createEnd</B>
+		</CODE><P>
+		Allocate dynamic memory to hold the bit vector. There are &quot;condwords&quot;*sizeof(unsigned int) words of memory allocated.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- drop"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/drop">drop</A></H3><P>
+		<CODE>- (void)<B>drop</B>
+		</CODE><P>
+		Release freed memory
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getConditions"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/getConditions">getConditions</A></H3><P>
+		<CODE>- (int *)<B>getConditions</B>
+		</CODE><P>
+		Returns a pointer to the current conditions of the bit vector
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getConditionsWord:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/getConditionsWord:">getConditionsWord:</A></H3><P>
+		<CODE>- (int)<B>getConditionsWord:</B>(int)<EM>i</EM>
+			
+		</CODE><P>
+		Returns the <I>i</I>'th word of conditions
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getConditionsbit:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/getConditionsbit:">getConditionsbit:</A></H3><P>
+		<CODE>- (int)<B>getConditionsbit:</B>(int)<EM>bit</EM>
+			
+		</CODE><P>
+		Returns an integer (0,1,2) indicating the status of a given <I>bit</I>
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- maskConditionsbit:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/maskConditionsbit:">maskConditionsbit:</A></H3><P>
+		<CODE>- (void)<B>maskConditionsbit:</B>(int)<EM>bit</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- printcond:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/printcond:">printcond:</A></H3><P>
+		<CODE>- <B>printcond:</B>(int)<EM>word</EM>
+			
+		</CODE><P>
+		Dump the current conditions to the screen. Use for debugging
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setCondbits:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/setCondbits:">setCondbits:</A></H3><P>
+		<CODE>- (void)<B>setCondbits:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Sets the number of bits that this bit vector is supposed to take care of
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditions:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/setConditions:">setConditions:</A></H3><P>
+		<CODE>- (void)<B>setConditions:</B>(int *)<EM>x</EM>
+			
+		</CODE><P>
+		Suppose a pointer to a set of conditions, <I>x</I>, already exists. This 
+method takes that pointer and then copies its values into the 
+conditions of the current bit vector
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditionsWord:To:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/setConditionsWord:To:">setConditionsWord:To:</A></H3><P>
+		<CODE>- (void)<B>setConditionsWord:</B>(int)<EM>i</EM> <B>To:</B>(int)<EM>value</EM>
+			
+		</CODE><P>
+		Set the <I>i</I>'th word of condition to a <I>value</I>
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditionsbit:FromZeroTo:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/setConditionsbit:FromZeroTo:">setConditionsbit:FromZeroTo:</A></H3><P>
+		<CODE>- (void)<B>setConditionsbit:</B>(int)<EM>bit</EM> <B>FromZeroTo:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Change a given <I>bit</I> from zero to 1 or 2
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditionsbit:To:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/setConditionsbit:To:">setConditionsbit:To:</A></H3><P>
+		<CODE>- (void)<B>setConditionsbit:</B>(int)<EM>bit</EM> <B>To:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Dig into the conditions, find the given <I>bit</I>, and set its value to <I>x</I>
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditionsbitToThree:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/setConditionsbitToThree:">setConditionsbitToThree:</A></H3><P>
+		<CODE>- (void)<B>setConditionsbitToThree:</B>(int)<EM>bit</EM>
+			
+		</CODE><P>
+		The value 3 is used to indicate that a <I>bit</I> is not in use
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setCondwords:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/setCondwords:">setCondwords:</A></H3><P>
+		<CODE>- (void)<B>setCondwords:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Sets the number of words-worth of memory will be used
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- switchConditionsbit:"></A><H3><A NAME="//apple_ref/occ/instm/BitVector/switchConditionsbit:">switchConditionsbit:</A></H3><P>
+		<CODE>- (void)<B>switchConditionsbit:</B>(int)<EM>bit</EM>
+			
+		</CODE><P>
+		If the <I>bit</I> is 1, change it to 2, or vice versa
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

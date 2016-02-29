@@ -1,0 +1,183 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/ASMBatchSwarm">ASMBatchSwarm</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>Swarm</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>ASMBatchSwarm.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+If the model is started with ./asm -b, then this ASMBatchSwarm acts 
+as the top level Swarm. The benefit here is that the model runs 
+faster because it is not driving a graphical interface. It also 
+turns on data-writing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>int <B>loggingFrequency</B>;</CODE><BR>
+		<CODE>int <B>experimentDuration</B>;</CODE><BR>
+		<CODE>id &lt;ActionGroup&gt; <B>displayActions</B>;</CODE><BR>
+		<CODE>id &lt;Schedule&gt; <B>displaySchedule</B>;</CODE><BR>
+		<CODE>id &lt;Schedule&gt; <B>stopSchedule</B>;</CODE><BR>
+		<CODE>ASMModelSwarm * <B>asmModelSwarm</B>;</CODE><BR>
+		<CODE>id <B>output</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>loggingFrequency</TD><TD>how often to write data</TD></TR>
+	
+		<TR><TD>experimentDuration</TD><TD>how long should a run last</TD></TR>
+	
+		<TR><TD>displayActions</TD><TD>Set of actions that update output</TD></TR>
+	
+		<TR><TD>displaySchedule</TD><TD>Schedule for periodic actions</TD></TR>
+	
+		<TR><TD>stopSchedule</TD><TD>Schedule which checks to see if the simulation has completed its requisite number of timesteps</TD></TR>
+	
+		<TR><TD>asmModelSwarm</TD><TD>Instance of ASMModelSwarm, where agents and the world are created and scheduled</TD></TR>
+	
+		<TR><TD>output</TD><TD>Reference to instance of Output class, the place where data file output is controlled</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#+ createBegin:">+ createBegin:</A></DD>
+		
+			<DD> <A HREF="#- buildObjects">- buildObjects</A></DD>
+		
+			<DD> <A HREF="#- buildActions">- buildActions</A></DD>
+		
+			<DD> <A HREF="#- activateIn:">- activateIn:</A></DD>
+		
+			<DD> <A HREF="#- expostParamWrite">- expostParamWrite</A></DD>
+		
+			<DD> <A HREF="#- go">- go</A></DD>
+		
+			<DD> <A HREF="#- stopRunning">- stopRunning</A></DD>
+		
+			<DD> <A HREF="#- drop">- drop</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Class Methods</H2>
+ 
+	
+		
+		<A NAME="+ createBegin:"></A><H3><A NAME="//apple_ref/occ/clm/ASMBatchSwarm/createBegin:">createBegin:</A></H3>
+		<CODE>+ <B>createBegin:</B><EM>aZone</EM>
+			
+		</CODE><P>
+		No method description.
+	
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- activateIn:"></A><H3><A NAME="//apple_ref/occ/instm/ASMBatchSwarm/activateIn:">activateIn:</A></H3><P>
+		<CODE>- <B>activateIn:</B><EM>swarmContext</EM>
+			
+		</CODE><P>
+		activateIn: is required to preserve the hierarchy of schedules across many levels
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- buildActions"></A><H3><A NAME="//apple_ref/occ/instm/ASMBatchSwarm/buildActions">buildActions</A></H3><P>
+		<CODE>- <B>buildActions</B>
+		</CODE><P>
+		Create schedules. Assures that the output object writes the data when needed and checks to see if the required number of time steps has been completed
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- buildObjects"></A><H3><A NAME="//apple_ref/occ/instm/ASMBatchSwarm/buildObjects">buildObjects</A></H3><P>
+		<CODE>- <B>buildObjects</B>
+		</CODE><P>
+		Create a model swarm, have the model swarm build its objects, and 
+then get the output object from the model. Later the output object is 
+instructed to write results
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- drop"></A><H3><A NAME="//apple_ref/occ/instm/ASMBatchSwarm/drop">drop</A></H3><P>
+		<CODE>- (void)<B>drop</B>
+		</CODE><P>
+		The drop method lets objects know the simulation is coming to an 
+end, so if they are waiting to write some data, they should do it
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- expostParamWrite"></A><H3><A NAME="//apple_ref/occ/instm/ASMBatchSwarm/expostParamWrite">expostParamWrite</A></H3><P>
+		<CODE>- <B>expostParamWrite</B>
+		</CODE><P>
+		Tell the objects that are keeping records on parameter values to write them to files at the end of the simulation.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- go"></A><H3><A NAME="//apple_ref/occ/instm/ASMBatchSwarm/go">go</A></H3><P>
+		<CODE>- <B>go</B>
+		</CODE><P>
+		Once schedules are created and activatedIn to the right part of the 
+hierarchy, then go makes processing start with actions at time 0, 
+then 1, then...
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- stopRunning"></A><H3><A NAME="//apple_ref/occ/instm/ASMBatchSwarm/stopRunning">stopRunning</A></H3><P>
+		<CODE>- <B>stopRunning</B>
+		</CODE><P>
+		tell the top level swarm to terminate the simulation
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

@@ -1,0 +1,336 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/ASMModelSwarm">ASMModelSwarm</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>Swarm</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>ASMModelSwarm.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+The ASMModelSwarm is where the substantive work of the simulation 
+is orchestrated. The ASMModelSwarm object is told where to get its 
+parameters, and then it buildsObjects (agents, markets, etc), it 
+builds up a phony history of the market, and then it schedules the 
+market opening and gives the agents a chance to buy and sell.<P>
+
+This model presents an interesting scheduling challenge. We want to 
+generate 501 periods of history that agents can refer to when they 
+make decisions. The warmUp schedule is a repeating schedule, and we 
+want its actions done 501 times, and when that is finished, we want 
+the periodSchedule to begin at time 0, the starting time of actual 
+agent involvement. When I looked at the original, I shuddered at 
+the complexity of it. I thought to myself, there must be a simpler 
+way to do this [grin :)], and it turns out there is. Now, in case 
+you are comparing the new code against the old code, understand that 
+the old ASM-2.0 way was like this. First, the warmUp schedule is 
+created. Then a second nonrepeating schedule is created, called 
+&quot;startupSchedule.&quot; At time 0 in the model, that startupSchedule 
+controls the first action, and the action it executes is a method 
+that causes the warmUp schedule to run 501 steps of prehistory. I 
+don't know why they had 501 steps, but they did. That's the warmUp 
+method. The warmUp method gets that done by creating a temporary 
+Swarm class without any context (activateIn: <B>nil</B>) and then 
+activating the startupSchedule in there, so it runs &quot;doWarmupStep&quot; 
+501 steps, but none of the 501 steps count against time in the 
+larger context of the model.<P>
+
+As of ASM-2.2, I have gotten rid of that complicated setup. Instead 
+of creating the phony swarm and activating the warmup schedule 
+inside it, I created a method in ASMModelSwarm.m that carries out 
+one time step's worth of warmup. And then I dumped 501 
+createActionTo methods on the startup schedule that execute the 
+required startup steps. I've verified the results are numerically 
+identical to the original model. And the scheduling is much easier 
+to understand.<P>
+
+After the warmUp, then an ActionGroup called &quot;periodActions&quot; comes 
+to the forefront. The periodSchedule is a repeating schedule, which 
+causes the periodActions to happen at every time step in the larger 
+model.<P>
+
+In ASM-2.0, there was another initial schedule called 
+initPeriodSchedule. After looking at it for a long time, I 
+concluded it was doing nothing necessary, it was basically just 
+running the periodActions at time 0 only. We might as well just 
+schedule that action at time 0 in the startupSchedule. I have 
+verified that the model runs exactly the same (numerically 
+identical). Now, as noted below, I think this step is logically 
+unnecessary, but removing it changes the numerical path of the 
+simulation, so I'm leaving it in for comparison.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>int <B>modelTime</B>;</CODE><BR>
+		<CODE>id &lt;ActionGroup&gt; <B>periodActions</B>;</CODE><BR>
+		<CODE>id &lt;Schedule&gt; <B>periodSchedule</B>;</CODE><BR>
+		<CODE>id &lt;Schedule&gt; <B>startupSchedule</B>;</CODE><BR>
+		<CODE>id &lt;List&gt; <B>agentList</B>;</CODE><BR>
+		<CODE>Specialist * <B>specialist</B>;</CODE><BR>
+		<CODE>Dividend * <B>dividendProcess</B>;</CODE><BR>
+		<CODE>World * <B>world</B>;</CODE><BR>
+		<CODE>Output * <B>output</B>;</CODE><BR>
+		<CODE>BFParams * <B>bfParams</B>;</CODE><BR>
+		<CODE>ASMModelParams * <B>asmModelParams</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>modelTime</TD><TD>An integer used to represent the current timestep</TD></TR>
+	
+		<TR><TD>periodActions</TD><TD>An ActionGroup that collects things that are supposed to happen in a particular sequential order during each timestep</TD></TR>
+	
+		<TR><TD>periodSchedule</TD><TD>Schedule on which we add period (repeating) actions, most importantly, the action group periodActions</TD></TR>
+	
+		<TR><TD>startupSchedule</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>agentList</TD><TD>A Swarm collection of agents</TD></TR>
+	
+		<TR><TD>specialist</TD><TD>Specialist who clears the market</TD></TR>
+	
+		<TR><TD>dividendProcess</TD><TD>Dividend process that generates dividends</TD></TR>
+	
+		<TR><TD>world</TD><TD>A World object, a price historian, really</TD></TR>
+	
+		<TR><TD>output</TD><TD>An Output object</TD></TR>
+	
+		<TR><TD>bfParams</TD><TD>A (BFParams) parameter object holding BFagent parameters</TD></TR>
+	
+		<TR><TD>asmModelParams</TD><TD>A (ASMModelParms) parameter object holding parameters of Models</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#- createEnd">- createEnd</A></DD>
+		
+			<DD> <A HREF="#- setParamsModel:BF:">- setParamsModel:BF:</A></DD>
+		
+			<DD> <A HREF="#- setOutputObject:">- setOutputObject:</A></DD>
+		
+			<DD> <A HREF="#- getAgentList">- getAgentList</A></DD>
+		
+			<DD> <A HREF="#- getNumBFagents">- getNumBFagents</A></DD>
+		
+			<DD> <A HREF="#- getInitialCash">- getInitialCash</A></DD>
+		
+			<DD> <A HREF="#- getWorld">- getWorld</A></DD>
+		
+			<DD> <A HREF="#- getSpecialist">- getSpecialist</A></DD>
+		
+			<DD> <A HREF="#- getOutput">- getOutput</A></DD>
+		
+			<DD> <A HREF="#- setBatchRandomSeed:">- setBatchRandomSeed:</A></DD>
+		
+			<DD> <A HREF="#- buildObjects">- buildObjects</A></DD>
+		
+			<DD> <A HREF="#- writeParams">- writeParams</A></DD>
+		
+			<DD> <A HREF="#- buildActions">- buildActions</A></DD>
+		
+			<DD> <A HREF="#- activateIn:">- activateIn:</A></DD>
+		
+			<DD> <A HREF="#- doWarmupStep">- doWarmupStep</A></DD>
+		
+			<DD> <A HREF="#- periodStepDividend">- periodStepDividend</A></DD>
+		
+			<DD> <A HREF="#- periodStepPrice">- periodStepPrice</A></DD>
+		
+			<DD> <A HREF="#- getModelTime">- getModelTime</A></DD>
+		
+			<DD> <A HREF="#- drop">- drop</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- activateIn:"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/activateIn:">activateIn:</A></H3><P>
+		<CODE>- <B>activateIn:</B>(id)<EM>swarmContext</EM>
+			
+		</CODE><P>
+		The activities of the ASMModelSwarm are brought into time-sync with 
+higher level Swarm activities. Basically, each time the higher level 
+takes a step, this one will too, and the higher one won't step again 
+until this one is finished with its turn.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- buildActions"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/buildActions">buildActions</A></H3><P>
+		<CODE>- <B>buildActions</B>
+		</CODE><P>
+		Create the model actions, separating into two different action 
+groups, the warmup period and the actual period. Note that time is 
+not calculated by a t counter but internally within Swarm. Time is 
+recovered by the getTime message
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- buildObjects"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/buildObjects">buildObjects</A></H3><P>
+		<CODE>- <B>buildObjects</B>
+		</CODE><P>
+		Build and initialize objects
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- createEnd"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/createEnd">createEnd</A></H3><P>
+		<CODE>- <B>createEnd</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- doWarmupStep"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/doWarmupStep">doWarmupStep</A></H3><P>
+		<CODE>- <B>doWarmupStep</B>
+		</CODE><P>
+		Ask the dividend object for a draw from the dividend distribution, then tell the world about it. Tell the world to do an update of to respond to the dividend. Then calculate the price the divident implies and insert it into the world
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- drop"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/drop">drop</A></H3><P>
+		<CODE>- (void)<B>drop</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getAgentList"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/getAgentList">getAgentList</A></H3><P>
+		<CODE>- <B>getAgentList</B>
+		</CODE><P>
+		Returns a list that contains all the agents
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getInitialCash"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/getInitialCash">getInitialCash</A></H3><P>
+		<CODE>- (double)<B>getInitialCash</B>
+		</CODE><P>
+		Returns the initialcash value, which is held in asmModelParams
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getModelTime"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/getModelTime">getModelTime</A></H3><P>
+		<CODE>- (long int)<B>getModelTime</B>
+		</CODE><P>
+		Returns the integer time-step of the current simulation.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getNumBFagents"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/getNumBFagents">getNumBFagents</A></H3><P>
+		<CODE>- (int)<B>getNumBFagents</B>
+		</CODE><P>
+		Returns the number of BFagents, which is held in asmModelParams
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getOutput"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/getOutput">getOutput</A></H3><P>
+		<CODE>- (Output *)<B>getOutput</B>
+		</CODE><P>
+		Return a pointer to an object of the Output class. Sometimes it is 
+necessary for other classes to find out who the output record keeper 
+is and send that class a message.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getSpecialist"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/getSpecialist">getSpecialist</A></H3><P>
+		<CODE>- (Specialist *)<B>getSpecialist</B>
+		</CODE><P>
+		Return a pointer to the Specialist object
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getWorld"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/getWorld">getWorld</A></H3><P>
+		<CODE>- (World *)<B>getWorld</B>
+		</CODE><P>
+		Returns a handle of the world object, the place where historical 
+price/dividend information is maintained. It is also the place 
+where the BFagents can retrieve information in bit string form.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- periodStepDividend"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/periodStepDividend">periodStepDividend</A></H3><P>
+		<CODE>- <B>periodStepDividend</B>
+		</CODE><P>
+		Have the dividendProcess calculate a new dividend. Then tell the 
+world about the dividendProcess output. Also this increment the 
+modelTime variable
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- periodStepPrice"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/periodStepPrice">periodStepPrice</A></H3><P>
+		<CODE>- <B>periodStepPrice</B>
+		</CODE><P>
+		Have the Specialist perform the trading process. Then tell the world about the price that resulted from the Specialist's action.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setBatchRandomSeed:"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/setBatchRandomSeed:">setBatchRandomSeed:</A></H3><P>
+		<CODE>- <B>setBatchRandomSeed:</B>(int)<EM>newSeed</EM>
+			
+		</CODE><P>
+		The value of the randomSeed that starts the simulation will remain 
+fixed, unless you change it by using this method
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setOutputObject:"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/setOutputObject:">setOutputObject:</A></H3><P>
+		<CODE>- <B>setOutputObject:</B>(Output *)<EM>obj</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setParamsModel:BF:"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/setParamsModel:BF:">setParamsModel:BF:</A></H3><P>
+		<CODE>- <B>setParamsModel:</B>(ASMModelParams *)<EM>modelParams</EM> <B>BF:</B>(BFParams *)<EM>bfp</EM>
+			
+		</CODE><P>
+		This is very vital. When the ASMModelSwarm is created, it needs to 
+be told where to find many constants that determine how agents are 
+created. This passes handles of objects that have the required 
+data.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- writeParams"></A><H3><A NAME="//apple_ref/occ/instm/ASMModelSwarm/writeParams">writeParams</A></H3><P>
+		<CODE>- <B>writeParams</B>
+		</CODE><P>
+		This triggers a writing of the model parameters, for record keeping.
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

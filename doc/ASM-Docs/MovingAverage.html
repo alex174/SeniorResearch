@@ -1,0 +1,173 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/MovingAverage">MovingAverage</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>MovingAverage.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+This is a general purpose class for creating Moving Averages, either flat &quot;equally weighted&quot; moving averages or exponentially weighted moving averages
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>int <B>width</B>;</CODE><BR>
+		<CODE>int <B>numInputs</B>;</CODE><BR>
+		<CODE>double *<B>maInputs</B>;</CODE><BR>
+		<CODE>int <B>arrayPosition</B>;</CODE><BR>
+		<CODE>double <B>sumOfInputs</B>;</CODE><BR>
+		<CODE>double <B>uncorrectedSum</B>;</CODE><BR>
+		<CODE>double <B>expWMA</B>;</CODE><BR>
+		<CODE>double aweight, <B>bweight</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>width</TD><TD>number of observations used for a fixed interval moving average</TD></TR>
+	
+		<TR><TD>numInputs</TD><TD>number of observations that have already been inserted</TD></TR>
+	
+		<TR><TD>maInputs</TD><TD>historical inputs are kept in this array.</TD></TR>
+	
+		<TR><TD>arrayPosition</TD><TD>element of maInputs that has been most recently inserted</TD></TR>
+	
+		<TR><TD>sumOfInputs</TD><TD>sum of the last 'width' inputs</TD></TR>
+	
+		<TR><TD>uncorrectedSum</TD><TD>sum of all inputs since object was created</TD></TR>
+	
+		<TR><TD>expWMA</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>bweight</TD><TD>Weights used to calculate exponentially weighted moving averages. These depend on the specified 'width' according to: bweight = -expm1(-1.0/w);aweight = 1.0 - bweight; ewma=aweight*ma(x)+bweight*x</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#- initWidth:">- initWidth:</A></DD>
+		
+			<DD> <A HREF="#- initWidth:Value:">- initWidth:Value:</A></DD>
+		
+			<DD> <A HREF="#- getNumInputs">- getNumInputs</A></DD>
+		
+			<DD> <A HREF="#- getMA">- getMA</A></DD>
+		
+			<DD> <A HREF="#- getAverage">- getAverage</A></DD>
+		
+			<DD> <A HREF="#- getEWMA">- getEWMA</A></DD>
+		
+			<DD> <A HREF="#- addValue:">- addValue:</A></DD>
+		
+			<DD> <A HREF="#- drop">- drop</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- addValue:"></A><H3><A NAME="//apple_ref/occ/instm/MovingAverage/addValue:">addValue:</A></H3><P>
+		<CODE>- (void)<B>addValue:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- drop"></A><H3><A NAME="//apple_ref/occ/instm/MovingAverage/drop">drop</A></H3><P>
+		<CODE>- (void)<B>drop</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getAverage"></A><H3><A NAME="//apple_ref/occ/instm/MovingAverage/getAverage">getAverage</A></H3><P>
+		<CODE>- (double)<B>getAverage</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getEWMA"></A><H3><A NAME="//apple_ref/occ/instm/MovingAverage/getEWMA">getEWMA</A></H3><P>
+		<CODE>- (double)<B>getEWMA</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getMA"></A><H3><A NAME="//apple_ref/occ/instm/MovingAverage/getMA">getMA</A></H3><P>
+		<CODE>- (double)<B>getMA</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getNumInputs"></A><H3><A NAME="//apple_ref/occ/instm/MovingAverage/getNumInputs">getNumInputs</A></H3><P>
+		<CODE>- (int)<B>getNumInputs</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- initWidth:"></A><H3><A NAME="//apple_ref/occ/instm/MovingAverage/initWidth:">initWidth:</A></H3><P>
+		<CODE>- <B>initWidth:</B>(int)<EM>w</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- initWidth:Value:"></A><H3><A NAME="//apple_ref/occ/instm/MovingAverage/initWidth:Value:">initWidth:Value:</A></H3><P>
+		<CODE>- <B>initWidth:</B>(int)<EM>w</EM> <B>Value:</B>(double)<EM>val</EM>
+			
+		</CODE><P>
+		No method description.
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

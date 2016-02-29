@@ -1,0 +1,274 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/Specialist">Specialist</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>Specialist.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+One instance of this class is used to manage the trading and 
+set the stock price. It also manages the market-level parameters.
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Defined Types</H2>
+	<blockquote>
+	
+		
+		<H4>Synopsis:</H4>
+		
+			<CODE><A NAME="//apple_ref/c/tdef/SpecialistType">
+			typedef enum <BR>
+{&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;SP_RE = 0,<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;SP_SLOPE = 1,<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;SP_ETA = 2<BR>
+} <B>SpecialistType</B>;</A></CODE><BR>
+		
+		
+	
+	</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>double <B>maxprice</B>;</CODE><BR>
+		<CODE>double <B>minprice</B>;</CODE><BR>
+		<CODE>double <B>eta</B>;</CODE><BR>
+		<CODE>double <B>minexcess</B>;</CODE><BR>
+		<CODE>double <B>rea</B>;</CODE><BR>
+		<CODE>double <B>reb</B>;</CODE><BR>
+		<CODE>double <B>bidfrac</B>;</CODE><BR>
+		<CODE>double <B>offerfrac</B>;</CODE><BR>
+		<CODE>int <B>maxiterations</B>;</CODE><BR>
+		<CODE>double <B>volume</B>;</CODE><BR>
+		<CODE>double <B>taupdecay</B>;</CODE><BR>
+		<CODE>double <B>taupnew</B>;</CODE><BR>
+		<CODE>SpecialistType <B>sptype</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>maxprice</TD><TD>Ceiling on stock price</TD></TR>
+	
+		<TR><TD>minprice</TD><TD>Floor under stock price</TD></TR>
+	
+		<TR><TD>eta</TD><TD>Used in adjusting price to balance supply/demand</TD></TR>
+	
+		<TR><TD>minexcess</TD><TD>excess demand must be smaller than this if the price adjustment process is to stop</TD></TR>
+	
+		<TR><TD>rea</TD><TD>rational expectations benchmark</TD></TR>
+	
+		<TR><TD>reb</TD><TD>trialprice = rea*dividend + reb</TD></TR>
+	
+		<TR><TD>bidfrac</TD><TD>used in completing trades: volume/bidtotal</TD></TR>
+	
+		<TR><TD>offerfrac</TD><TD>used in completing trades: volume/offertotal</TD></TR>
+	
+		<TR><TD>maxiterations</TD><TD>maximum passes while adjusting trade conditions</TD></TR>
+	
+		<TR><TD>volume</TD><TD>volume of trades conducted</TD></TR>
+	
+		<TR><TD>taupdecay</TD><TD>The agent's profit is calculated as an exponentially weighted moving average. This coefficient weights old inputs in the EWMA</TD></TR>
+	
+		<TR><TD>taupnew</TD><TD>Used in calculating exponentially weighted moving average; taupnew = -expm1(-1.0/aTaup); taupdecay =  1.0 - taupnew;</TD></TR>
+	
+		<TR><TD>sptype</TD><TD>an enumerated type indicating the sort of Specialist is being used, valued 0, 1, or 2</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#- setMaxPrice:">- setMaxPrice:</A></DD>
+		
+			<DD> <A HREF="#- setMinPrice:">- setMinPrice:</A></DD>
+		
+			<DD> <A HREF="#- setTaup:">- setTaup:</A></DD>
+		
+			<DD> <A HREF="#- setSPtype:">- setSPtype:</A></DD>
+		
+			<DD> <A HREF="#- setMaxIterations:">- setMaxIterations:</A></DD>
+		
+			<DD> <A HREF="#- setMinExcess:">- setMinExcess:</A></DD>
+		
+			<DD> <A HREF="#- setETA:">- setETA:</A></DD>
+		
+			<DD> <A HREF="#- setREA:">- setREA:</A></DD>
+		
+			<DD> <A HREF="#- setREB:">- setREB:</A></DD>
+		
+			<DD> <A HREF="#- performTrading:Market:">- performTrading:Market:</A></DD>
+		
+			<DD> <A HREF="#- getVolume">- getVolume</A></DD>
+		
+			<DD> <A HREF="#- completeTrades:Market:">- completeTrades:Market:</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- completeTrades:Market:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/completeTrades:Market:">completeTrades:Market:</A></H3><P>
+		<CODE>- <B>completeTrades:</B><EM>agentList</EM> <B>Market:</B><EM>worldForSpec</EM>
+			
+		</CODE><P>
+		Updates the agents cash and position to consummate the trades 
+previously negotiated in -performTrading, with rationing if 
+necessary.<P>
+
+Makes the actual trades at the last trial price (which is now the 
+market price), by adjusting the agents' holdings and cash. The 
+actual purchase/sale my be less than that requested if rationing 
+is imposed by the specialist -- usually one of &quot;bidfrac&quot; and 
+&quot;offerfrac&quot; will be less than 1.0.<P>
+
+This could easiliy be done by the agents themselves, but we let 
+the specialist do it for efficiency.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getVolume"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/getVolume">getVolume</A></H3><P>
+		<CODE>- (double)<B>getVolume</B>
+		</CODE><P>
+		Returns the volume of trade to anybody that wants, such as the observer or output objects
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- performTrading:Market:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/performTrading:Market:">performTrading:Market:</A></H3><P>
+		<CODE>- (double)<B>performTrading:</B>(id)<EM>agentList</EM> <B>Market:</B>(id)<EM>worldForSpec</EM>
+			
+		</CODE><P>
+		This is the core method that sets a succession of trial prices and 
+asks the agents for their bids or offer at each, generally 
+adjusting the price towards reducing |bids - offers|. * It gets 
+bids and offers from the agents and * adjuss the price. Returns 
+the final trading price, which becomes * the next market price. 
+Various methods are implemented, but all * have the structure: 
+1. Set a trial price<P>
+
+2. Send each agent a -getDemandAndSlope:forPrice: message and accumulate the total 
+number of bids and offers at that price.<P>
+
+3. [In some cases] go to 1.<P>
+
+4. Return the last trial price.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setETA:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setETA:">setETA:</A></H3><P>
+		<CODE>- <B>setETA:</B>(double)<EM>ETA</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setMaxIterations:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setMaxIterations:">setMaxIterations:</A></H3><P>
+		<CODE>- <B>setMaxIterations:</B>(int)<EM>someIterations</EM>
+			
+		</CODE><P>
+		Set the maximum number of interations to be done while looking for a market clearing price
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setMaxPrice:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setMaxPrice:">setMaxPrice:</A></H3><P>
+		<CODE>- <B>setMaxPrice:</B>(double)<EM>maximumPrice</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setMinExcess:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setMinExcess:">setMinExcess:</A></H3><P>
+		<CODE>- <B>setMinExcess:</B>(double)<EM>minimumExcess</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setMinPrice:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setMinPrice:">setMinPrice:</A></H3><P>
+		<CODE>- <B>setMinPrice:</B>(double)<EM>minimumPrice</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setREA:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setREA:">setREA:</A></H3><P>
+		<CODE>- <B>setREA:</B>(double)<EM>REA</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setREB:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setREB:">setREB:</A></H3><P>
+		<CODE>- <B>setREB:</B>(double)<EM>REB</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setSPtype:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setSPtype:">setSPtype:</A></H3><P>
+		<CODE>- <B>setSPtype:</B>(int)<EM>i</EM>
+			
+		</CODE><P>
+		The specialist can be set to type 0, 1, or 2. If this variable is 
+set to any other value, the model will set the Specialist to type 1 
+and give a warning in the terminal
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setTaup:"></A><H3><A NAME="//apple_ref/occ/instm/Specialist/setTaup:">setTaup:</A></H3><P>
+		<CODE>- <B>setTaup:</B>(double)<EM>aTaup</EM>
+			
+		</CODE><P>
+		No method description.
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

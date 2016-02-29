@@ -1,0 +1,198 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/Dividend">Dividend</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>Dividend.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+This object produces a stochastic sequence of dividends. The process 
+is independent of the market and agents, depending only the parameters 
+that are set for the dividend process (and on the random number generator).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>double <B>baseline</B>;</CODE><BR>
+		<CODE>double <B>amplitude</B>;</CODE><BR>
+		<CODE>int <B>period</B>;</CODE><BR>
+		<CODE>double <B>mindividend</B>;</CODE><BR>
+		<CODE>double <B>maxdividend</B>;</CODE><BR>
+		<CODE>double <B>deviation</B>;</CODE><BR>
+		<CODE>double <B>rho</B>;</CODE><BR>
+		<CODE>double <B>gauss</B>;</CODE><BR>
+		<CODE>double <B>dvdnd</B>;</CODE><BR>
+		<CODE>id <B>normal</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>baseline</TD><TD>The centerline around which deviations are computed. 
+This is equal to the mean for a symmetric process 
+(i.e., if asymmetry = 0). &quot;baseline&quot; is set only 
+from the parameter file, and should NOT normally 
+be changed from the default value (10.0).</TD></TR>
+	
+		<TR><TD>amplitude</TD><TD>The amplitude of the deviations from the baseline. 
+Measured in units of &quot;baseline&quot;. The standard 
+deviation of the process is proportional to this.</TD></TR>
+	
+		<TR><TD>period</TD><TD>The period or auto-correlation time of the process.</TD></TR>
+	
+		<TR><TD>mindividend</TD><TD>floor under dividend values</TD></TR>
+	
+		<TR><TD>maxdividend</TD><TD>ceiling for dividend values</TD></TR>
+	
+		<TR><TD>deviation</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>rho</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>gauss</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>dvdnd</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>normal</TD><TD>A Swarm Normal Generator object</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#- initNormal">- initNormal</A></DD>
+		
+			<DD> <A HREF="#- setBaseline:">- setBaseline:</A></DD>
+		
+			<DD> <A HREF="#- setmindividend:">- setmindividend:</A></DD>
+		
+			<DD> <A HREF="#- setmaxdividend:">- setmaxdividend:</A></DD>
+		
+			<DD> <A HREF="#- setAmplitude:">- setAmplitude:</A></DD>
+		
+			<DD> <A HREF="#- setPeriod:">- setPeriod:</A></DD>
+		
+			<DD> <A HREF="#- setDerivedParams">- setDerivedParams</A></DD>
+		
+			<DD> <A HREF="#- dividend">- dividend</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- dividend"></A><H3><A NAME="//apple_ref/occ/instm/Dividend/dividend">dividend</A></H3><P>
+		<CODE>- (double)<B>dividend</B>
+		</CODE><P>
+		Returns the next value of the dividend. This is the core method 
+of the Dividend object, for which all else exists. It does NOT use 
+the global time, but simply assumes that one period passes between 
+each call. Note that &quot;time&quot; may not be the same as the global 
+variable &quot;t&quot; because shifts are introduced to maintain phase when 
+certain parameters are changed.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- initNormal"></A><H3><A NAME="//apple_ref/occ/instm/Dividend/initNormal">initNormal</A></H3><P>
+		<CODE>- <B>initNormal</B>
+		</CODE><P>
+		Creates a Swarm Normal Distribution object
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setAmplitude:"></A><H3><A NAME="//apple_ref/occ/instm/Dividend/setAmplitude:">setAmplitude:</A></H3><P>
+		<CODE>- (double)<B>setAmplitude:</B>(double)<EM>theAmplitude</EM>
+			
+		</CODE><P>
+		Sets the &quot;amplitude&quot; parameter. Returns the 
+value actually set, which may be clipped or rounded compared to the 
+supplied argument. See &quot;-setDivType:&quot;.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setBaseline:"></A><H3><A NAME="//apple_ref/occ/instm/Dividend/setBaseline:">setBaseline:</A></H3><P>
+		<CODE>- <B>setBaseline:</B>(double)<EM>theBaseline</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setDerivedParams"></A><H3><A NAME="//apple_ref/occ/instm/Dividend/setDerivedParams">setDerivedParams</A></H3><P>
+		<CODE>- <B>setDerivedParams</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setPeriod:"></A><H3><A NAME="//apple_ref/occ/instm/Dividend/setPeriod:">setPeriod:</A></H3><P>
+		<CODE>- (int)<B>setPeriod:</B>(int)<EM>thePeriod</EM>
+			
+		</CODE><P>
+		Sets the &quot;period&quot; parameter. Returns the 
+value actually set, which may be clipped compared to the supplied 
+argument. See &quot;-setDivType:&quot;.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setmaxdividend:"></A><H3><A NAME="//apple_ref/occ/instm/Dividend/setmaxdividend:">setmaxdividend:</A></H3><P>
+		<CODE>- <B>setmaxdividend:</B>(double)<EM>maximumDividend</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setmindividend:"></A><H3><A NAME="//apple_ref/occ/instm/Dividend/setmindividend:">setmindividend:</A></H3><P>
+		<CODE>- <B>setmindividend:</B>(double)<EM>minimumDividend</EM>
+			
+		</CODE><P>
+		No method description.
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

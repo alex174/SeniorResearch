@@ -1,0 +1,319 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/ASMObserverSwarm">ASMObserverSwarm</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>GUISwarm</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>ASMObserverSwarm.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+The ASMObserverSwarm is a Swarm with a graphical user interface 
+(GUI). It follows the prototype Swarm model, in that the Observer 
+Swarm is thought of an entity that can describe or report on the 
+state of a simulation, but not interact with it. The Observer 
+causes the ASMModelSwarm to be created, and it monitors various 
+variables by checking directly with the agents.<P>
+
+Note that the ASMObserverSwarm has a set of &quot;standard&quot; methods that 
+Swarms have--buildObjects:, buildActions, activateIn:--and inside 
+each one it makes sure that the next-lower level, the ASMModelSwarm, 
+is sent the same message.<P>
+
+If you don't want to watch the GUI, run the model in batch mode, 
+meaning you use the -b flag on the command line.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>int <B>displayFrequency</B>;</CODE><BR>
+		<CODE>id &lt;ActionGroup&gt; <B>displayActions</B>;</CODE><BR>
+		<CODE>id &lt;Schedule&gt; <B>displaySchedule</B>;</CODE><BR>
+		<CODE>Output * <B>output</B>;</CODE><BR>
+		<CODE>ASMModelSwarm *<B>asmModelSwarm</B>;</CODE><BR>
+		<CODE>BOOL <B>writeParams</B>;</CODE><BR>
+		<CODE>BOOL <B>writeData</B>;</CODE><BR>
+		<CODE>id &lt;EZGraph&gt; <B>priceGraph</B>;</CODE><BR>
+		<CODE>id &lt;EZGraph&gt; <B>volumeGraph</B>;</CODE><BR>
+		<CODE>id &lt;Histogram&gt; <B>positionHisto</B>;</CODE><BR>
+		<CODE>id &lt;Histogram&gt; <B>relativeWealthHisto</B>;</CODE><BR>
+		<CODE>id &lt;Graph&gt; <B>deviationGraph</B>;</CODE><BR>
+		<CODE>id &lt;Averager&gt; <B>deviationAverager</B>;</CODE><BR>
+		<CODE>id &lt;GraphElement&gt; <B>deviationData</B>;</CODE><BR>
+		<CODE>id &lt;ActiveGraph&gt; <B>deviationGrapher</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>displayFrequency</TD><TD>update frequency for graphs</TD></TR>
+	
+		<TR><TD>displayActions</TD><TD>set of actions necessary to keep display up to date</TD></TR>
+	
+		<TR><TD>displaySchedule</TD><TD>Schedule that causes the displayActions to be carried out</TD></TR>
+	
+		<TR><TD>output</TD><TD>An output object</TD></TR>
+	
+		<TR><TD>asmModelSwarm</TD><TD>Instance of ASMModelSwarm, where agents and the world are created and scheduled</TD></TR>
+	
+		<TR><TD>writeParams</TD><TD>Indicator that files including parameter values should be written</TD></TR>
+	
+		<TR><TD>writeData</TD><TD>Indicator that files including output values should be written</TD></TR>
+	
+		<TR><TD>priceGraph</TD><TD>Time plot of risk neutral and observed market price</TD></TR>
+	
+		<TR><TD>volumeGraph</TD><TD>Time plot of market trading volume</TD></TR>
+	
+		<TR><TD>positionHisto</TD><TD>Histogram showing amount of stock held by each individual agent</TD></TR>
+	
+		<TR><TD>relativeWealthHisto</TD><TD>Histogram showing wealth of agents</TD></TR>
+	
+		<TR><TD>deviationGraph</TD><TD>As of ASM-2.0, this was commented out in ASMObserverSwarm.m</TD></TR>
+	
+		<TR><TD>deviationAverager</TD><TD>ditto</TD></TR>
+	
+		<TR><TD>deviationData</TD><TD>ditto</TD></TR>
+	
+		<TR><TD>deviationGrapher</TD><TD>ditto</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#+ createBegin:">+ createBegin:</A></DD>
+		
+			<DD> <A HREF="#- printPriceGraph">- printPriceGraph</A></DD>
+		
+			<DD> <A HREF="#- printVolumeGraph">- printVolumeGraph</A></DD>
+		
+			<DD> <A HREF="#- printDeviationGraph">- printDeviationGraph</A></DD>
+		
+			<DD> <A HREF="#- printRelWealthHisto">- printRelWealthHisto</A></DD>
+		
+			<DD> <A HREF="#- createEnd">- createEnd</A></DD>
+		
+			<DD> <A HREF="#- _writeRawData_">- _writeRawData_</A></DD>
+		
+			<DD> <A HREF="#- buildObjects">- buildObjects</A></DD>
+		
+			<DD> <A HREF="#- priceGraphDeath_:">- priceGraphDeath_:</A></DD>
+		
+			<DD> <A HREF="#- volumeGraphDeath_:">- volumeGraphDeath_:</A></DD>
+		
+			<DD> <A HREF="#- updateHistos">- updateHistos</A></DD>
+		
+			<DD> <A HREF="#- writeSimulationParams">- writeSimulationParams</A></DD>
+		
+			<DD> <A HREF="#- ifParamWrite">- ifParamWrite</A></DD>
+		
+			<DD> <A HREF="#- expostParamWrite">- expostParamWrite</A></DD>
+		
+			<DD> <A HREF="#- toggleDataWrite">- toggleDataWrite</A></DD>
+		
+			<DD> <A HREF="#- buildActions">- buildActions</A></DD>
+		
+			<DD> <A HREF="#- activateIn:">- activateIn:</A></DD>
+		
+			<DD> <A HREF="#- drop">- drop</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Class Methods</H2>
+ 
+	
+		
+		<A NAME="+ createBegin:"></A><H3><A NAME="//apple_ref/occ/clm/ASMObserverSwarm/createBegin:">createBegin:</A></H3>
+		<CODE>+ <B>createBegin:</B><EM>aZone</EM>
+			
+		</CODE><P>
+		No method description.
+	
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- _writeRawData_"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/_writeRawData_">_writeRawData_</A></H3><P>
+		<CODE>- <B>_writeRawData_</B>
+		</CODE><P>
+		If data logging is turned on, this cause data to be written whenever it is called
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- activateIn:"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/activateIn:">activateIn:</A></H3><P>
+		<CODE>- <B>activateIn:</B><EM>swarmContext</EM>
+			
+		</CODE><P>
+		This method activates the model swarm within the context of this 
+observer, and then it activated the observer's schedules. This 
+makes sure that the actions inserted at time t inside the model are 
+placed into the overall time sequence before the observer scheduled 
+actions that update graphs which describe the results
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- buildActions"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/buildActions">buildActions</A></H3><P>
+		<CODE>- <B>buildActions</B>
+		</CODE><P>
+		Create actions and schedules onto which the actions are put. 
+Since this is an observer, the actions are intended to make sure 
+data is collected, displayed to the screen, and written to files 
+where appropriate
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- buildObjects"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/buildObjects">buildObjects</A></H3><P>
+		<CODE>- <B>buildObjects</B>
+		</CODE><P>
+		This creates the model swarm, and then creates a number of 
+monitoring objects, such a graphs which show the price trends, 
+volume of stock trade, and some excellent bar charts which show the 
+holdings and wealth of the agents. These bar charts (histograms) 
+are available in very few other Swarm programs and if you want to 
+know how it can be done, feel free to take a look!
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- createEnd"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/createEnd">createEnd</A></H3><P>
+		<CODE>- <B>createEnd</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- drop"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/drop">drop</A></H3><P>
+		<CODE>- (void)<B>drop</B>
+		</CODE><P>
+		In order to make sure that the data is actually written to disk, it 
+is necessary to pass a &quot;drop&quot; message down the hierarchy so that all 
+data writers know it is time to finish up their work. This drop 
+method is called at the end of the main.m file and it propogates 
+down to all objects created in asmModelSwarm
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- expostParamWrite"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/expostParamWrite">expostParamWrite</A></H3><P>
+		<CODE>- <B>expostParamWrite</B>
+		</CODE><P>
+		If the writeParams variable is set to YES, then this method cause 
+the system to save a snapshot of the parameters after the system's 
+run ends.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- ifParamWrite"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/ifParamWrite">ifParamWrite</A></H3><P>
+		<CODE>- (BOOL)<B>ifParamWrite</B>
+		</CODE><P>
+		Returns the condition of the writeParams variable, an indicator 
+that parameters should be written to files
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- priceGraphDeath_:"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/priceGraphDeath_:">priceGraphDeath_:</A></H3><P>
+		<CODE>- <B>priceGraphDeath_:</B><EM>caller</EM>
+			
+		</CODE><P>
+		This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- printDeviationGraph"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/printDeviationGraph">printDeviationGraph</A></H3><P>
+		<CODE>- <B>printDeviationGraph</B>
+		</CODE><P>
+		This is a legacy method. We need to update Swarm if it is ever to work again
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- printPriceGraph"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/printPriceGraph">printPriceGraph</A></H3><P>
+		<CODE>- <B>printPriceGraph</B>
+		</CODE><P>
+		This is a legacy method. We need to update Swarm if it is ever to work again
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- printRelWealthHisto"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/printRelWealthHisto">printRelWealthHisto</A></H3><P>
+		<CODE>- <B>printRelWealthHisto</B>
+		</CODE><P>
+		This is a legacy method. We need to update Swarm if it is ever to work again
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- printVolumeGraph"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/printVolumeGraph">printVolumeGraph</A></H3><P>
+		<CODE>- <B>printVolumeGraph</B>
+		</CODE><P>
+		This is a legacy method. We need to update Swarm if it is ever to work again
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- toggleDataWrite"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/toggleDataWrite">toggleDataWrite</A></H3><P>
+		<CODE>- (BOOL)<B>toggleDataWrite</B>
+		</CODE><P>
+		This toggles data writing features. It can be accessed by punching 
+a button in a probe display that is shown on the screen when the simulation begins
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- updateHistos"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/updateHistos">updateHistos</A></H3><P>
+		<CODE>- <B>updateHistos</B>
+		</CODE><P>
+		This method gathers data about the agents, puts it into arrays, 
+and then passes those arrays to the histogram objects. As soon as we 
+tell the histograms to draw themselves, we will see the result
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- volumeGraphDeath_:"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/volumeGraphDeath_:">volumeGraphDeath_:</A></H3><P>
+		<CODE>- <B>volumeGraphDeath_:</B><EM>caller</EM>
+			
+		</CODE><P>
+		This method is needed to stop run-time hangs when users close graph windows by clicking on their system's window close button
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- writeSimulationParams"></A><H3><A NAME="//apple_ref/occ/instm/ASMObserverSwarm/writeSimulationParams">writeSimulationParams</A></H3><P>
+		<CODE>- <B>writeSimulationParams</B>
+		</CODE><P>
+		This causes the system to save a copy of the current parameter 
+settings. It can be turned on by hitting a button in the probe 
+display that shows at the outset of the model run, or any time 
+thereafter.
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

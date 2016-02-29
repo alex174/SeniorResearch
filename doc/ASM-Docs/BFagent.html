@@ -1,0 +1,571 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/BFagent">BFagent</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>Agent</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>BFagent.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+The BFagent--&quot;bitstring forecasting agent&quot; is the centerpiece of 
+the ASM model. The agent competes in a stock market, it buy, it 
+sells. It decides to buy or sell by making predictions about what the 
+price of the stock is likely to do in future. In order to make 
+predictions, it keeps a large list of forecast objects on hand, and 
+each forecast object makes a price prediction. These forecasts, which 
+are created from the BFCast subclass, are fairly sophisticated 
+entities, they may monitor many different conditions of the world. 
+The forecast which has the best performance record at any given 
+instant is used to predict the future price, which in turn leads to 
+the buy/sell decision.<P>
+
+Inside the file BFagent.m, there is a long set of comments about the 
+updating that went on in the redesign of this code for ASM-2.2. In 
+order to faciliate this revision, several new classes were introduced. 
+BFParams is an object that keeps values of the parameters for 
+BFagents, and BFCast is the forecast object itself. BFCast, in turn, 
+keeps its conditions bits with a subclass called BitVector.<P>
+
+If you dig into the code of this agent, you will find a confusing 
+thing, so be warned. This code and articles based on it use the term 
+&quot;bit&quot; to refer to something that can be valued either 0, 1, or 2. 0 
+means &quot;don't care,&quot; 1 means &quot;NO&quot; and 2 means &quot;YES&quot;. The confusing 
+thing is that it takes two bits to represent this amount of 
+information. In binary, the values would be {00,01,10}, 
+respectively. I'm told some people call these trits to keep that in 
+mind that two digits are required. As a result of the fact that it 
+takes &quot;two bits&quot; to store &quot;one bit's&quot; worth of information, some 
+relatively complicated book keeping has to be done. That's where all 
+the parameters like &quot;condbits&quot; and &quot;condwors&quot; come into play. In 
+ASM-2.0, that book keeping was all &quot;manually done&quot; right here in 
+BFagent.m, but in the 2.2 version, it is all hidden in the subclass 
+BitVector. So, for purposes of the interface of this class, a bit is 
+a 3 valued piece of information, and values of bits inside forecasts 
+are set by messages to the forecast, like [aForecast setConditionsbit: 
+bit FromZeroTo: 2], for example, will set that bit to 2. If you want 
+to know if a forecast has YES or NO for a bit x, [aForecast 
+getConditionsbit: x].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>int <B>currentTime</B>;</CODE><BR>
+		<CODE>int <B>lastgatime</B>;</CODE><BR>
+		<CODE>double <B>avspecificity</B>;</CODE><BR>
+		<CODE>double <B>forecast</B>;</CODE><BR>
+		<CODE>double <B>lforecast</B>;</CODE><BR>
+		<CODE>double <B>global_mean</B>;</CODE><BR>
+		<CODE>double <B>realDeviation</B>;</CODE><BR>
+		<CODE>double <B>variance</B>;</CODE><BR>
+		<CODE>double <B>pdcoeff</B>;</CODE><BR>
+		<CODE>double <B>offset</B>;</CODE><BR>
+		<CODE>double <B>divisor</B>;</CODE><BR>
+		<CODE>int <B>gacount</B>;</CODE><BR>
+		<CODE>BFParams * <B>privateParams</B>;</CODE><BR>
+		<CODE>id &lt;Array&gt; <B>fcastList</B>;</CODE><BR>
+		<CODE>id &lt;List&gt; <B>activeList</B>;</CODE><BR>
+		<CODE>id &lt;List&gt; <B>oldActiveList</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>currentTime</TD><TD>The agent regularly checks with Swarm to see what time it is</TD></TR>
+	
+		<TR><TD>lastgatime</TD><TD>last time period when the GeneticAlgorithm was run</TD></TR>
+	
+		<TR><TD>avspecificity</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>forecast</TD><TD>prediction of stock price: (trialprice+dividend)*pdcoeff + offset.</TD></TR>
+	
+		<TR><TD>lforecast</TD><TD>lagged forecast: forecast value from previous period</TD></TR>
+	
+		<TR><TD>global_mean</TD><TD>price+dividend</TD></TR>
+	
+		<TR><TD>realDeviation</TD><TD>ftarget-lforecast: how far off was the agent's forecast?</TD></TR>
+	
+		<TR><TD>variance</TD><TD>an Exp.Weighted MA of the agent's historical variance: Combine the old variance with deviation^squared, as in: bv*variance + av*deviation*deviation</TD></TR>
+	
+		<TR><TD>pdcoeff</TD><TD>coefficient used in predicting stock price, recalculated each period in prepareForTrading</TD></TR>
+	
+		<TR><TD>offset</TD><TD>coefficient used in predicting stock price, recalculated each period in prepareForTrading</TD></TR>
+	
+		<TR><TD>divisor</TD><TD>a coefficient used to calculate demand for stock. It is a proportion (lambda) of forecastvar (basically, accuracy of forecasts)</TD></TR>
+	
+		<TR><TD>gacount</TD><TD>how many times has the Genetic Algorithm been used?</TD></TR>
+	
+		<TR><TD>privateParams</TD><TD>BFParams object holds parameters of this object</TD></TR>
+	
+		<TR><TD>fcastList</TD><TD>A Swarm Array, holding the forecasts that the agent might use</TD></TR>
+	
+		<TR><TD>activeList</TD><TD>A Swarm list containing a subset of all forecasts</TD></TR>
+	
+		<TR><TD>oldActiveList</TD><TD>A copy of the activeList from the previous time step</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#+ setBFParameterObject:">+ setBFParameterObject:</A></DD>
+		
+			<DD> <A HREF="#+ init">+ init</A></DD>
+		
+			<DD> <A HREF="#- createEnd">- createEnd</A></DD>
+		
+			<DD> <A HREF="#- initForecasts">- initForecasts</A></DD>
+		
+			<DD> <A HREF="#- createNewForecast">- createNewForecast</A></DD>
+		
+			<DD> <A HREF="#- setConditionsRandomly:">- setConditionsRandomly:</A></DD>
+		
+			<DD> <A HREF="#- prepareForTrading">- prepareForTrading</A></DD>
+		
+			<DD> <A HREF="#- collectWorldData:">- collectWorldData:</A></DD>
+		
+			<DD> <A HREF="#- updateActiveList:">- updateActiveList:</A></DD>
+		
+			<DD> <A HREF="#- getInputValues">- getInputValues</A></DD>
+		
+			<DD> <A HREF="#- feedForward">- feedForward</A></DD>
+		
+			<DD> <A HREF="#- getDemandAndSlope:forPrice:">- getDemandAndSlope:forPrice:</A></DD>
+		
+			<DD> <A HREF="#- getRealForecast">- getRealForecast</A></DD>
+		
+			<DD> <A HREF="#- updatePerformance">- updatePerformance</A></DD>
+		
+			<DD> <A HREF="#- getDeviation">- getDeviation</A></DD>
+		
+			<DD> <A HREF="#- updateWeights">- updateWeights</A></DD>
+		
+			<DD> <A HREF="#- nbits">- nbits</A></DD>
+		
+			<DD> <A HREF="#- nrules">- nrules</A></DD>
+		
+			<DD> <A HREF="#- performGA">- performGA</A></DD>
+		
+			<DD> <A HREF="#- lastgatime">- lastgatime</A></DD>
+		
+			<DD> <A HREF="#- printcond:">- printcond:</A></DD>
+		
+			<DD> <A HREF="#- copyList:To:">- copyList:To:</A></DD>
+		
+			<DD> <A HREF="#- bitDistribution:cumulative:">- bitDistribution:cumulative:</A></DD>
+		
+			<DD> <A HREF="#- fMoments:cumulative:">- fMoments:cumulative:</A></DD>
+		
+			<DD> <A HREF="#- descriptionOfBit:">- descriptionOfBit:</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Class Methods</H2>
+ 
+	
+		
+		<A NAME="+ init"></A><H3><A NAME="//apple_ref/occ/clm/BFagent/init">init</A></H3>
+		<CODE>+ (void)<B>init</B>
+		</CODE><P>
+		This is vital to set values in the forecast class, BFCast, which in 
+turn initializes BitVector class
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="+ setBFParameterObject:"></A><H3><A NAME="//apple_ref/occ/clm/BFagent/setBFParameterObject:">setBFParameterObject:</A></H3>
+		<CODE>+ (void)<B>setBFParameterObject:</B><EM>x</EM>
+			
+		</CODE><P>
+		This tells BFagents where they should look to get the default 
+parameters. it should give the agent an object from the BFParams 
+class.
+	
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- bitDistribution:cumulative:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/bitDistribution:cumulative:">bitDistribution:cumulative:</A></H3><P>
+		<CODE>- (int)<B>bitDistribution:</B>(int *(*)[4])<EM>countptr</EM> <B>cumulative:</B>(BOOL)<EM>cum</EM>
+			
+		</CODE><P>
+		Currently, this method is not called anywhere in ASM-2.2. It might 
+serve some purpose, past or present, I don't know (pj: 
+2001-11-26)
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- collectWorldData:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/collectWorldData:">collectWorldData:</A></H3><P>
+		<CODE>- (BitVector *)<B>collectWorldData:</B><EM>aZone</EM>
+			
+		</CODE><P>
+		A forecast has a set of conditions it is watching. These are packed 
+tight in a BitVector. We need the world data about the status of those 
+conditions packed the same way, in order to make quick checks to find 
+out if the world conditions are matched by the BitVector's 
+conditions. This method creates a BitVector to match the conditions 
+that are being monitored by the agent's forecasts. This requires the 
+use of the design assumption that all of an agent's forecasts have the 
+same bitlist.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- copyList:To:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/copyList:To:">copyList:To:</A></H3><P>
+		<CODE>- <B>copyList:</B><EM>list</EM> <B>To:</B><EM>outputList</EM>
+			
+		</CODE><P>
+		This is a general utility method for Swarm lists. It removes all 
+objects form the &quot;<I>outputList</I>&quot; and copies the elements from <I>list</I> into 
+it. It does not actually destroy any elements from either <I>list</I>, it 
+just updates references.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- createEnd"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/createEnd">createEnd</A></H3><P>
+		<CODE>- <B>createEnd</B>
+		</CODE><P>
+		This creates the container objects activeList and oldActiveList. 
+In addition, it makes sure that any initialization in the createEnd 
+of the <B>super</B> class is done.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- createNewForecast"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/createNewForecast">createNewForecast</A></H3><P>
+		<CODE>- (BFCast *)<B>createNewForecast</B>
+		</CODE><P>
+		Creates a new forecast object (instance of BFCast), with all 
+condition bits set to 00 here, meaning &quot;don't care. It also sets 
+values for the other coefficients inside the BFCast. This method is 
+accessed at several points throughout the BFagent class when new 
+forecasts are needed.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- descriptionOfBit:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/descriptionOfBit:">descriptionOfBit:</A></H3><P>
+		<CODE>- (const char *)<B>descriptionOfBit:</B>(int)<EM>bit</EM>
+			
+		</CODE><P>
+		Currently, this method is not called anywhere in ASM-2.2. It might 
+serve some purpose, past or present, I don't know (pj: 
+2001-10-26)
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- fMoments:cumulative:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/fMoments:cumulative:">fMoments:cumulative:</A></H3><P>
+		<CODE>- (int)<B>fMoments:</B>(double *)<EM>moment</EM> <B>cumulative:</B>(BOOL)<EM>cum</EM>
+			
+		</CODE><P>
+		Currently, this method is not called anywhere in ASM-2.2. It might 
+serve some purpose, past or present, I don't know (pj: 
+2001-11-26)
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- feedForward"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/feedForward">feedForward</A></H3><P>
+		<CODE>- <B>feedForward</B>
+		</CODE><P>
+		Currently does nothing, used only if their are ANNagents
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getDemandAndSlope:forPrice:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/getDemandAndSlope:forPrice:">getDemandAndSlope:forPrice:</A></H3><P>
+		<CODE>- (double)<B>getDemandAndSlope:</B>(double *)<EM>slope</EM> <B>forPrice:</B>(double)<EM>trialprice</EM>
+			
+		</CODE><P>
+		Returns the agent's requested bid (if &gt;0) or offer (if &lt;0) using 
+best (or mean) linear forecast chosen by -prepareForTrading. The 
+forecast is given by<P>
+
+forecast = pdcoeff*(<I>trialprice</I>+dividend) + offset<P>
+
+where pdcoeff and offset are set by -prepareForTrading.<P>
+
+A risk aversion computation gives a target holding, and its 
+derivative (&quot;<I>slope</I>&quot;) with respect to price. The <I>slope</I> is calculated 
+as the linear approximated response of a change in price on the 
+traders' demand at time t, based on the change in the forecast 
+according to the currently active linear rule.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getDeviation"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/getDeviation">getDeviation</A></H3><P>
+		<CODE>- (double)<B>getDeviation</B>
+		</CODE><P>
+		Returns the absolute value of realDeviation
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getInputValues"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/getInputValues">getInputValues</A></H3><P>
+		<CODE>- <B>getInputValues</B>
+		</CODE><P>
+		Currently does nothing, used only if their are ANNagents
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getRealForecast"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/getRealForecast">getRealForecast</A></H3><P>
+		<CODE>- (double)<B>getRealForecast</B>
+		</CODE><P>
+		Return agent's forecast
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- initForecasts"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/initForecasts">initForecasts</A></H3><P>
+		<CODE>- <B>initForecasts</B>
+		</CODE><P>
+		initForecasts. Creates BFCast objects (forecasts) and puts them 
+into an array called fCastList. These are the &quot;meat&quot; of this 
+agent's functionality, as they are repeatedly updated, improved, and 
+tested in the remainder of the class. Please note each BFagent has 
+a copy of the default params object called privateParams. It can be 
+used to set individualized values of settings in BFParams for each 
+agent. That would allow true diversity! I don't see how that diversity 
+would be allowed for in the ASM-2.0.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- lastgatime"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/lastgatime">lastgatime</A></H3><P>
+		<CODE>- (int)<B>lastgatime</B>
+		</CODE><P>
+		Return the last time the Genetic Algorithm was run. 
+Agents that don't use a genetic algorithm return MININT. This 
+may be used to see if the bit distribution might have changed, 
+since a change can only occur through a genetic algorithm.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- nbits"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/nbits">nbits</A></H3><P>
+		<CODE>- (int)<B>nbits</B>
+		</CODE><P>
+		Returns the &quot;condbits&quot; variable from parameters: the number of 
+condition bits that are monitored in the world, or 0 if 
+condition bits aren't used.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- nrules"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/nrules">nrules</A></H3><P>
+		<CODE>- (int)<B>nrules</B>
+		</CODE><P>
+		Returns the number of forecasts that are used. In the original 
+design, this was a constant set in the parameters, although revision 
+of the code for ASM-2.2 conceivably should allow agents to alter the 
+number of forecasts they maintain.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- performGA"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/performGA">performGA</A></H3><P>
+		<CODE>- <B>performGA</B>
+		</CODE><P>
+		Genetic algorithm. It relies on the following separate methods. 
+(pj: 2001-11-25. I still see some room for improvement here, but the 
+emphasis is to eliminate all global variables and explicitly pass 
+return values instead. Any values needed for computations should 
+either be passed explicitly or taken from someplace safe)<P>
+
+1. MakePool makes a list of the weakest forecasts: 
+rejectList. That is the &quot;npool&quot; weakest rules.<P>
+
+2. &quot;nnew&quot; new rules are created. They are put into a Swarm list 
+called newList. Their bit settings are taken from either crossover 
+(using tournament selection to get parents), or mutation. 
+&quot;Tournament selection&quot; means picking two candidates purely at 
+random and then choosing the one with the higher strength. See 
+the Crossover and Mutate methods for more details about how they 
+work.<P>
+
+3. The nnew new rules replace weakest old ones found in step 
+1. This is done by the method &quot;TransferFcastsFrom:To:&quot; It pays no 
+attention to strength, but looks at similarity of the bitstrings 
+-- rather like tournament selection, we pick two candidates from 
+the rejectList at random and choose the one with the MORE similar 
+bitstring to be replaced. This maintains more diversity.<P>
+
+4. Generalize looks for rules that haven't been triggered for 
+&quot;longtime&quot; and generalizes them by changing a randomly chosen 
+fraction &quot;genfrac&quot; of 0/1 bits to &quot;don't care&quot;. It does this 
+independently of strength to all rules in the population.<P>
+
+There are several private methods that take care of this 
+work. They don't show up in the public interface, but here they 
+are:<P>
+
+-(BFCast *) CopyRule:(BFCast *) to From: (BFCast *) from<P>
+
+-(void) MakePool: rejects From: (<B>id</B> &lt;Array&gt;) list<P>
+
+-(BOOL) Mutate: (BFCast *) new Status: (BOOL) changed<P>
+
+-(BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2<P>
+
+- (void) TransferFcastsFrom: newlist To: forecastList Replace: rejects<P>
+
+- (BFCast *) GetMort: (BFCast *) new Rejects: (<B>id</B> &lt;List&gt;) rejects<P>
+
+-(void) Generalize: (<B>id</B>) list AvgStrength: (double) avgstrength<P>
+
+Parameter list:<P>
+
+<TABLE BORDER="3">
+	<TR><TD>npool</TD><TD>-- size of pool of weakest rules for possible relacement; 
+specified as a fraction of numfcasts by &quot;poolfrac&quot;</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>nnew</TD><TD>-- number of new rules produced 
+specified as a fraction of numfcasts by &quot;newfrac&quot;</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>pcrossover</TD><TD>-- probability of running Crossover.</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>plinear</TD><TD>-- linear combination &quot;crossover&quot; prob.</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>prandom</TD><TD>-- random from each parent crossover prob.</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>pmutation</TD><TD>-- per bit mutation prob.</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>plong</TD><TD>-- long jump prob.</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>pshort</TD><TD>-- short (neighborhood) jump prob.</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>nhood</TD><TD>-- size of neighborhood.</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>longtime</TD><TD>-- generalize if rule unused for this length of time</TD></TR>
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+	<TR><TD>genfrac</TD><TD>-- fraction of 0/1 bits to make don't-care when generalising</TD></TR>
+</TABLE>
+
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- prepareForTrading"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/prepareForTrading">prepareForTrading</A></H3><P>
+		<CODE>- <B>prepareForTrading</B>
+		</CODE><P>
+		Set up a new active list for this agent's forecasts, and compute the 
+coefficients pdcoeff and offset in the equation 
+forecast = pdcoeff*(trialprice+dividend) + offset<P>
+
+The active list of all the fcasts matching the present conditions is saved 
+for later updates.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- printcond:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/printcond:">printcond:</A></H3><P>
+		<CODE>- <B>printcond:</B>(int)<EM>word</EM>
+			
+		</CODE><P>
+		in case you want to see the 0101 representation of an 
+integer. Sometimes this comes in handy if you are looking at a 
+particular forecast's value as an int and you need to convert it to 
+the 0's and 1's
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditionsRandomly:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/setConditionsRandomly:">setConditionsRandomly:</A></H3><P>
+		<CODE>- <B>setConditionsRandomly:</B>(BFCast *)<EM>fcastObject</EM>
+			
+		</CODE><P>
+		Take a forecast object and randomly change the bits that govern 
+which conditions it monitors. This appears to be a piece of 
+functionality that could move to the BFCast class itself. There were 
+quite a few of these details floating around in BFagent at one time, 
+many are gone now.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- updateActiveList:"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/updateActiveList:">updateActiveList:</A></H3><P>
+		<CODE>- <B>updateActiveList:</B>(BitVector *)<EM>worldvalues</EM>
+			
+		</CODE><P>
+		This is the main inner loop over forecasts. Go through the list 
+of active forecasts, compare how they did against the world. Notice 
+the switch that checks to see how big the bitvector (condwords) is 
+before proceeding. At one time, this gave a significant 
+speedup. The original sfsm authors say 'Its ugly, but it 
+works. Don't mess with it!' (pj: I've messed with it, and don't 
+notice much of a speed effect on modern computers with modern 
+compilers :&gt; My alternative implementation is commented out inside 
+this method)
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- updatePerformance"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/updatePerformance">updatePerformance</A></H3><P>
+		<CODE>- <B>updatePerformance</B>
+		</CODE><P>
+		Now update the variance and strength of all the forecasts that 
+were active in the previous period, since now we know how they 
+performed. This method causes an update of price/dividend 
+information from the world, then it measures how far off each 
+forecast was and puts the square of that &quot;deviance&quot; measure into the 
+forecast with the forecast's setVariance: method. Each forecast in 
+the active list is told to update its forecast. It also updates the 
+instance variable variance, which is calculated here as an 
+exponentially weignted moving average of that forecast's 
+squared-error (variance). Inside the code of updatePerformance, 
+there is a description of the strength formula that is used, and how 
+the formula now matches the formula used in the original sfsm, 
+rather than ASM-2.0.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- updateWeights"></A><H3><A NAME="//apple_ref/occ/instm/BFagent/updateWeights">updateWeights</A></H3><P>
+		<CODE>- <B>updateWeights</B>
+		</CODE><P>
+		Currently, does nothing, used only if their are ANNagents
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

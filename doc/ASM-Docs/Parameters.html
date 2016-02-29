@@ -1,0 +1,161 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/Parameters">Parameters</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>Arguments_c</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>Parameters.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+The Artificial Stock Market model has a very large set of 
+parameters. Until ASM-2.2, these paramters were set inside various 
+implementation files, making them difficult to find/maintain. Now all 
+parameters are set through separate objects, which can be called upon 
+whenever needed.<P>
+
+The Parameters class is an example of a general 
+purpose Swarm command-line processing class. In case one is designing 
+batch simulations, this is the place to customize the command line 
+options and read them into the program. From the command line, type 
+&quot;./asm --help&quot; to see a list of command line arguments this program 
+will respond to. You should see all default Swarm command line parameters 
+as well as --run, which is specific to this project. More parameters can be added in the parseKey:arg: method of this class.<P>
+
+This class also takes responsibility for making sure that objects to manager parameters for the ASMModelSwarm and the BFagents are created.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>ASMModelParams * <B>asmModelParams</B>;</CODE><BR>
+		<CODE>BFParams * <B>bfParams</B>;</CODE><BR>
+		<CODE>int <B>run</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>asmModelParams</TD><TD>parameter object used by ASMModelSwarm</TD></TR>
+	
+		<TR><TD>bfParams</TD><TD>parameter object used by BFagent and its various objects, such as BFCast</TD></TR>
+	
+		<TR><TD>run</TD><TD>No description.</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#+ createBegin:">+ createBegin:</A></DD>
+		
+			<DD> <A HREF="#- getModelParams">- getModelParams</A></DD>
+		
+			<DD> <A HREF="#- getBFParams">- getBFParams</A></DD>
+		
+			<DD> <A HREF="#- sayHello">- sayHello</A></DD>
+		
+			<DD> <A HREF="#- init">- init</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Class Methods</H2>
+ 
+	
+		
+		<A NAME="+ createBegin:"></A><H3><A NAME="//apple_ref/occ/clm/Parameters/createBegin:">createBegin:</A></H3>
+		<CODE>+ <B>createBegin:</B><EM>aZone</EM>
+			
+		</CODE><P>
+		No method description.
+	
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- getBFParams"></A><H3><A NAME="//apple_ref/occ/instm/Parameters/getBFParams">getBFParams</A></H3><P>
+		<CODE>- (BFParams*)<B>getBFParams</B>
+		</CODE><P>
+		Returns an instance of the BFParams class, an object which holds 
+the default parameter of the BFagents. If they desire to do so, 
+BFagents can create their own instances of BFParams, copy default 
+settings, and then allow their parameters to 'wander'. (As far as I 
+know, this potential did not exist before and has not been 
+used. PJ-2001-10-31)
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getModelParams"></A><H3><A NAME="//apple_ref/occ/instm/Parameters/getModelParams">getModelParams</A></H3><P>
+		<CODE>- (ASMModelParams*)<B>getModelParams</B>
+		</CODE><P>
+		Returns an instance of ASMModelParams, the object which holds the model-level input parameters
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- init"></A><H3><A NAME="//apple_ref/occ/instm/Parameters/init">init</A></H3><P>
+		<CODE>- <B>init</B>
+		</CODE><P>
+		This performs the vital job of using the lispAppArchiver to read 
+the baseline values of the parameters out of the asm.scm file and 
+then creating the parameter objects--asmModelParms and 
+bfParams--that hold those values and make them avalable to the 
+various objects in the model
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- sayHello"></A><H3><A NAME="//apple_ref/occ/instm/Parameters/sayHello">sayHello</A></H3><P>
+		<CODE>- <B>sayHello</B>
+		</CODE><P>
+		Sometimes we worry that the Parameter object did not get created properly, so this method tells it to speak to the command line with a warm greeting
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

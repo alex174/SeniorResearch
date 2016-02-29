@@ -1,0 +1,380 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/World">World</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>World.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+The World is a class that is mainly used to serve the information needs of BFagents. The WOrld takes price data and converts it into a number of trends, averages, and so forth.<P>
+
+One instance of this object is created to manage the &quot;world&quot; variables 
+-- the globally-visible variables that reflect the market itself, 
+including the moving averages and the world bits. Everything is based 
+on just two basic variables, price and dividend, which are set only by 
+the -setPrice: and -setDividend: messages.<P>
+
+The World also manages the list of bits, translating between bit names 
+and bit numbers, and providing descriptions of the bits' functions. 
+These are done by class methods because they are needed before the 
+instnce is instantiated.
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Symbolic Constants</H2>
+	<blockquote>
+	
+		
+		<H4>Synopsis:</H4>
+		
+			<CODE><B><A NAME="//apple_ref/c/econst/UPDOWNLOOKBACK">UPDOWNLOOKBACK</A></B>&nbsp;&nbsp;5</CODE><BR>
+		
+		
+		<H4>Description:</H4>
+		Macro: Number of up/down movements to store for price and dividend, 
+including the current values. Used for pup, pup1, 
+... pup[UPDOWNLOOKBACK-1], and similarly for dup[n], and for 
+-pricetrend:. The argument to -pricetrend: must be UPDOWNLOOKBACK 
+or less.
+		
+	
+		<hr WIDTH=25% ALIGN=LEFT>
+		<H4>Synopsis:</H4>
+		
+			<CODE><B><A NAME="//apple_ref/c/econst/NMAS">NMAS</A></B>&nbsp;&nbsp;4</CODE><BR>
+		
+		
+		<H4>Description:</H4>
+		Macro: Number of moving averages
+		
+	
+		<hr WIDTH=25% ALIGN=LEFT>
+		<H4>Synopsis:</H4>
+		
+			<CODE><B><A NAME="//apple_ref/c/econst/MAXHISTORY">MAXHISTORY</A></B>&nbsp;&nbsp;500</CODE><BR>
+		
+		
+		<H4>Description:</H4>
+		Macro: The longest allowed Moving Average
+		
+	
+	</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>double <B>intrate</B>;</CODE><BR>
+		<CODE>double <B>dividendscale</B>;</CODE><BR>
+		<CODE>int <B>pupdown</B>[UPDOWNLOOKBACK];</CODE><BR>
+		<CODE>int <B>dupdown</B>[UPDOWNLOOKBACK];</CODE><BR>
+		<CODE>int <B>history_top</B>;</CODE><BR>
+		<CODE>int <B>updown_top</B>;</CODE><BR>
+		<CODE>double <B>price</B>;</CODE><BR>
+		<CODE>double <B>oldprice</B>;</CODE><BR>
+		<CODE>double <B>dividend</B>;</CODE><BR>
+		<CODE>double <B>olddividend</B>;</CODE><BR>
+		<CODE>double <B>saveddividend</B>;</CODE><BR>
+		<CODE>double <B>savedprice</B>;</CODE><BR>
+		<CODE>double <B>riskNeutral</B>;</CODE><BR>
+		<CODE>double <B>profitperunit</B>;</CODE><BR>
+		<CODE>double <B>returnratio</B>;</CODE><BR>
+		<CODE>int <B>malength</B>[NMAS];</CODE><BR>
+		<CODE>int <B>nworldbits</B>;</CODE><BR>
+		<CODE>int * <B>realworld</B>;</CODE><BR>
+		<CODE>BOOL <B>exponentialMAs</B>;</CODE><BR>
+		<CODE>id <B>priceMA</B>[NMAS];</CODE><BR>
+		<CODE>id <B>divMA</B>[NMAS];</CODE><BR>
+		<CODE>id <B>oldpriceMA</B>[NMAS];</CODE><BR>
+		<CODE>id <B>olddivMA</B>[NMAS];</CODE><BR>
+		<CODE>double * <B>divhistory</B>;</CODE><BR>
+		<CODE>double * <B>pricehistory</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>intrate</TD><TD>interest rate</TD></TR>
+	
+		<TR><TD>dividendscale</TD><TD>The baseline dividend that is set by initWithBaseline:</TD></TR>
+	
+		<TR><TD>pupdown</TD><TD>array, dimension UPDOWNLOOKBACK</TD></TR>
+	
+		<TR><TD>dupdown</TD><TD>array, dimension UPDOWNLOOKBACK</TD></TR>
+	
+		<TR><TD>history_top</TD><TD>index value of current input into history arrays</TD></TR>
+	
+		<TR><TD>updown_top</TD><TD>number of time steps to look back to form pupdown and dupdown bits</TD></TR>
+	
+		<TR><TD>price</TD><TD>market clearning price</TD></TR>
+	
+		<TR><TD>oldprice</TD><TD>previous price</TD></TR>
+	
+		<TR><TD>dividend</TD><TD>dividend</TD></TR>
+	
+		<TR><TD>olddividend</TD><TD>previous dividend</TD></TR>
+	
+		<TR><TD>saveddividend</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>savedprice</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>riskNeutral</TD><TD>dividend/intrate</TD></TR>
+	
+		<TR><TD>profitperunit</TD><TD>price - oldprice + dividend</TD></TR>
+	
+		<TR><TD>returnratio</TD><TD>profitperunit/oldprice</TD></TR>
+	
+		<TR><TD>malength</TD><TD>For each MA, we must specify the length over which the average is calculated. This array has one integer for each of the moving averages we plan to keep, and it is used to set the widths covered by the moving averages.</TD></TR>
+	
+		<TR><TD>nworldbits</TD><TD>The number of aspects of the world that are recorded as bits</TD></TR>
+	
+		<TR><TD>realworld</TD><TD>An array (dynamically allocated, sorry) of ints, one for each bit being monitored. This is kept up-to-date. There's a lot of pointer math going on with this and I don't feel so glad about it (PJ: 2001-11-01)</TD></TR>
+	
+		<TR><TD>exponentialMAs</TD><TD>Indicator variable, YES if the World is supposed to report back exponentially weighted moving averages</TD></TR>
+	
+		<TR><TD>priceMA</TD><TD>MovingAverage objects which hold price information. There are NMAS of these, and have various widths for the moving averages</TD></TR>
+	
+		<TR><TD>divMA</TD><TD>MovingAverage objects which hold dividend moving averages.</TD></TR>
+	
+		<TR><TD>oldpriceMA</TD><TD>MovingAverage objects which hold lagged price moving averages</TD></TR>
+	
+		<TR><TD>olddivMA</TD><TD>MovingAverage objects which hold lagged dividend moving averages</TD></TR>
+	
+		<TR><TD>divhistory</TD><TD>dividend history array, goes back MAXHISTORY points</TD></TR>
+	
+		<TR><TD>pricehistory</TD><TD>price history array</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#+ descriptionOfBit:">+ descriptionOfBit:</A></DD>
+		
+			<DD> <A HREF="#+ nameOfBit:">+ nameOfBit:</A></DD>
+		
+			<DD> <A HREF="#+ bitNumberOf:">+ bitNumberOf:</A></DD>
+		
+			<DD> <A HREF="#- setintrate:">- setintrate:</A></DD>
+		
+			<DD> <A HREF="#- setExponentialMAs:">- setExponentialMAs:</A></DD>
+		
+			<DD> <A HREF="#- getNumWorldBits">- getNumWorldBits</A></DD>
+		
+			<DD> <A HREF="#- initWithBaseline:">- initWithBaseline:</A></DD>
+		
+			<DD> <A HREF="#- setPrice:">- setPrice:</A></DD>
+		
+			<DD> <A HREF="#- getPrice">- getPrice</A></DD>
+		
+			<DD> <A HREF="#- getProfitPerUnit">- getProfitPerUnit</A></DD>
+		
+			<DD> <A HREF="#- setDividend:">- setDividend:</A></DD>
+		
+			<DD> <A HREF="#- getDividend">- getDividend</A></DD>
+		
+			<DD> <A HREF="#- getRiskNeutral">- getRiskNeutral</A></DD>
+		
+			<DD> <A HREF="#- updateWorld">- updateWorld</A></DD>
+		
+			<DD> <A HREF="#- getRealWorld:">- getRealWorld:</A></DD>
+		
+			<DD> <A HREF="#- pricetrend:">- pricetrend:</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Class Methods</H2>
+ 
+	
+		
+		<A NAME="+ bitNumberOf:"></A><H3><A NAME="//apple_ref/occ/clm/World/bitNumberOf:">bitNumberOf:</A></H3>
+		<CODE>+ (int)<B>bitNumberOf:</B>(const char *)<EM>name</EM>
+			
+		</CODE><P>
+		Converts a bit <I>name</I> to a bit number. Supplies the number of a bit 
+given its <I>name</I>. Unknown names return NULLBIT. Relatively slow 
+(linear search). Could be made faster with a hash table etc, but 
+that's not worth it for the intended usage.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="+ descriptionOfBit:"></A><H3><A NAME="//apple_ref/occ/clm/World/descriptionOfBit:">descriptionOfBit:</A></H3>
+		<CODE>+ (const char *)<B>descriptionOfBit:</B>(int)<EM>n</EM>
+			
+		</CODE><P>
+		Supplies a description of the specified bit, taken from the 
+bitnamelist[] table below. Also works for NULLBIT.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="+ nameOfBit:"></A><H3><A NAME="//apple_ref/occ/clm/World/nameOfBit:">nameOfBit:</A></H3>
+		<CODE>+ (const char *)<B>nameOfBit:</B>(int)<EM>n</EM>
+			
+		</CODE><P>
+		Supplies the name of the specified bit, taken from the 
+bitnamelist[] table below. Also works for NULLBIT. Basically, 
+it converts a bit number to a bit name.
+	
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- getDividend"></A><H3><A NAME="//apple_ref/occ/instm/World/getDividend">getDividend</A></H3><P>
+		<CODE>- (double)<B>getDividend</B>
+		</CODE><P>
+		Returns the most recent dividend, used by many.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getNumWorldBits"></A><H3><A NAME="//apple_ref/occ/instm/World/getNumWorldBits">getNumWorldBits</A></H3><P>
+		<CODE>- (int)<B>getNumWorldBits</B>
+		</CODE><P>
+		Returns numworldbits; used by the BFagent.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getPrice"></A><H3><A NAME="//apple_ref/occ/instm/World/getPrice">getPrice</A></H3><P>
+		<CODE>- (double)<B>getPrice</B>
+		</CODE><P>
+		Returns the price, used by many classes.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getProfitPerUnit"></A><H3><A NAME="//apple_ref/occ/instm/World/getProfitPerUnit">getProfitPerUnit</A></H3><P>
+		<CODE>- (double)<B>getProfitPerUnit</B>
+		</CODE><P>
+		Returns profitperunit, used by Specialist.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getRealWorld:"></A><H3><A NAME="//apple_ref/occ/instm/World/getRealWorld:">getRealWorld:</A></H3><P>
+		<CODE>- <B>getRealWorld:</B>(int *)<EM>anArray</EM>
+			
+		</CODE><P>
+		Returns the real world array of bits. Used by BFagent to compare 
+their worlds to the real world.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getRiskNeutral"></A><H3><A NAME="//apple_ref/occ/instm/World/getRiskNeutral">getRiskNeutral</A></H3><P>
+		<CODE>- (double)<B>getRiskNeutral</B>
+		</CODE><P>
+		Returns the risk neutral price. It is just dividend/intrate.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- initWithBaseline:"></A><H3><A NAME="//apple_ref/occ/instm/World/initWithBaseline:">initWithBaseline:</A></H3><P>
+		<CODE>- <B>initWithBaseline:</B>(double)<EM>base</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- pricetrend:"></A><H3><A NAME="//apple_ref/occ/instm/World/pricetrend:">pricetrend:</A></H3><P>
+		<CODE>- (int)<B>pricetrend:</B>(int)<EM>n</EM>
+			
+		</CODE><P>
+		Returns +1, -1, or 0 according to whether the price has risen 
+monotonically, fallen monotonically, or neither, at the last 
+<I>n</I> updates. Causes 
+an error if nperiods is too large (see UPDOWNLOOKBACK).&quot;
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setDividend:"></A><H3><A NAME="//apple_ref/occ/instm/World/setDividend:">setDividend:</A></H3><P>
+		<CODE>- <B>setDividend:</B>(double)<EM>d</EM>
+			
+		</CODE><P>
+		Sets the global value of &quot;dividend&quot;. All dividend changes should 
+use this method. It checks for illegal changes, as does 
+-setPrice:.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setExponentialMAs:"></A><H3><A NAME="//apple_ref/occ/instm/World/setExponentialMAs:">setExponentialMAs:</A></H3><P>
+		<CODE>- <B>setExponentialMAs:</B>(BOOL)<EM>aBool</EM>
+			
+		</CODE><P>
+		Turns on the use of exponential MAs in calculations. Can be 
+turned on in GUI or ASMModelSwarm.m. If not, simple averages of 
+the last N periods.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setPrice:"></A><H3><A NAME="//apple_ref/occ/instm/World/setPrice:">setPrice:</A></H3><P>
+		<CODE>- <B>setPrice:</B>(double)<EM>p</EM>
+			
+		</CODE><P>
+		Sets the market price to &quot;<I>p</I>&quot;. All price changes (besides trial 
+prices) should use this method. Also computes profitperunit and 
+returnratio. Checks internally for illegal changes of &quot;price&quot;, giving us the 
+effective benefit of encapsulation with the simplicity of use of 
+a global variable.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setintrate:"></A><H3><A NAME="//apple_ref/occ/instm/World/setintrate:">setintrate:</A></H3><P>
+		<CODE>- <B>setintrate:</B>(double)<EM>rate</EM>
+			
+		</CODE><P>
+		Interest <I>rate</I> set in ASMModelSwarm.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- updateWorld"></A><H3><A NAME="//apple_ref/occ/instm/World/updateWorld">updateWorld</A></H3><P>
+		<CODE>- <B>updateWorld</B>
+		</CODE><P>
+		Updates the history records, moving averages, and world bits to 
+reflect the current price and dividend. Note that this is called 
+in each period after a new dividend has been declared but before 
+the bidding and price adjustment. The bits seen by the agents thus 
+do NOT reflect the trial price. The &quot;price&quot; here becomes the 
+&quot;oldprice&quot; by the end of the period. It is called once per period. 
+(This could be done automatically as part of -setDividend:).<P>
+
+The dividend used here is at present the latest value, though it 
+could be argued that it should be the one before, to match price. 
+For the p*r/d bits we do use the old one.
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

@@ -1,0 +1,540 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/BFCast">BFCast</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>BFCast.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+A BFCast is an object that holds all the forcecasting components of 
+a bit forecast. That means it has a BitVector (a thing called 
+&quot;conditions&quot; in the code that keeps track of which world bits are 
+being monitored) as well as other coefficients that are used to 
+calculate forecasts. It has instance variables that record when the 
+rule was last used, how many times it has been used, how accururate 
+its predictions are, and so forth.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>double <B>forecast</B>;</CODE><BR>
+		<CODE>double <B>lforecast</B>;</CODE><BR>
+		<CODE>double <B>variance</B>;</CODE><BR>
+		<CODE>double <B>strength</B>;</CODE><BR>
+		<CODE>double <B>a</B>;</CODE><BR>
+		<CODE>double <B>b</B>;</CODE><BR>
+		<CODE>double <B>c</B>;</CODE><BR>
+		<CODE>double <B>specfactor</B>;</CODE><BR>
+		<CODE>double <B>bitcost</B>;</CODE><BR>
+		<CODE>BitVector *<B>conditions</B>;</CODE><BR>
+		<CODE>int <B>lastactive</B>;</CODE><BR>
+		<CODE>int <B>specificity</B>;</CODE><BR>
+		<CODE>int <B>count</B>;</CODE><BR>
+		<CODE>int <B>condwords</B>;</CODE><BR>
+		<CODE>int <B>condbits</B>;</CODE><BR>
+		<CODE>int <B>nnulls</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>forecast</TD><TD>this forecast of return</TD></TR>
+	
+		<TR><TD>lforecast</TD><TD>previous forecast</TD></TR>
+	
+		<TR><TD>variance</TD><TD>variance of this forecast</TD></TR>
+	
+		<TR><TD>strength</TD><TD>strength=maxdev - variance +specfactor. This was the original sfsm specification, not the ASM-2.0 specification</TD></TR>
+	
+		<TR><TD>a</TD><TD>(price + dividend) coefficient</TD></TR>
+	
+		<TR><TD>b</TD><TD>dividend coefficient</TD></TR>
+	
+		<TR><TD>c</TD><TD>constant term</TD></TR>
+	
+		<TR><TD>specfactor</TD><TD>specificty=(condbits - nnulls - specificity)* bitcost.</TD></TR>
+	
+		<TR><TD>bitcost</TD><TD>cost of using bits in forecasts</TD></TR>
+	
+		<TR><TD>conditions</TD><TD>a BitVector object that holds records on which conditions in the world are being monitored by this forecast object</TD></TR>
+	
+		<TR><TD>lastactive</TD><TD>last time period in which this forecast was active</TD></TR>
+	
+		<TR><TD>specificity</TD><TD>specificity</TD></TR>
+	
+		<TR><TD>count</TD><TD>number of times this forecast has been active</TD></TR>
+	
+		<TR><TD>condwords</TD><TD>number of words of memory needed to hold the conditions</TD></TR>
+	
+		<TR><TD>condbits</TD><TD>number of bits of information monitored by this forecast</TD></TR>
+	
+		<TR><TD>nnulls</TD><TD>number of 'unused' bits that remain in the allocated vector after the 'condbits' bits have been used</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#- createEnd">- createEnd</A></DD>
+		
+			<DD> <A HREF="#- incrSpecificity">- incrSpecificity</A></DD>
+		
+			<DD> <A HREF="#- decrSpecificity">- decrSpecificity</A></DD>
+		
+			<DD> <A HREF="#- setSpecificity:">- setSpecificity:</A></DD>
+		
+			<DD> <A HREF="#- getSpecificity">- getSpecificity</A></DD>
+		
+			<DD> <A HREF="#- setConditions:">- setConditions:</A></DD>
+		
+			<DD> <A HREF="#- getConditions">- getConditions</A></DD>
+		
+			<DD> <A HREF="#- getConditionsObject">- getConditionsObject</A></DD>
+		
+			<DD> <A HREF="#- setNNulls:">- setNNulls:</A></DD>
+		
+			<DD> <A HREF="#- setBitcost:">- setBitcost:</A></DD>
+		
+			<DD> <A HREF="#- setConditionsWord:To:">- setConditionsWord:To:</A></DD>
+		
+			<DD> <A HREF="#- getConditionsWord:">- getConditionsWord:</A></DD>
+		
+			<DD> <A HREF="#- setConditionsbit:To:">- setConditionsbit:To:</A></DD>
+		
+			<DD> <A HREF="#- setConditionsbit:FromZeroTo:">- setConditionsbit:FromZeroTo:</A></DD>
+		
+			<DD> <A HREF="#- maskConditionsbit:">- maskConditionsbit:</A></DD>
+		
+			<DD> <A HREF="#- switchConditionsbit:">- switchConditionsbit:</A></DD>
+		
+			<DD> <A HREF="#- getConditionsbit:">- getConditionsbit:</A></DD>
+		
+			<DD> <A HREF="#- setAval:">- setAval:</A></DD>
+		
+			<DD> <A HREF="#- setBval:">- setBval:</A></DD>
+		
+			<DD> <A HREF="#- setCval:">- setCval:</A></DD>
+		
+			<DD> <A HREF="#- getAval">- getAval</A></DD>
+		
+			<DD> <A HREF="#- getBval">- getBval</A></DD>
+		
+			<DD> <A HREF="#- getCval">- getCval</A></DD>
+		
+			<DD> <A HREF="#- updateSpecfactor">- updateSpecfactor</A></DD>
+		
+			<DD> <A HREF="#- setSpecfactor:">- setSpecfactor:</A></DD>
+		
+			<DD> <A HREF="#- getSpecfactor">- getSpecfactor</A></DD>
+		
+			<DD> <A HREF="#- setVariance:">- setVariance:</A></DD>
+		
+			<DD> <A HREF="#- getVariance">- getVariance</A></DD>
+		
+			<DD> <A HREF="#- setCondwords:">- setCondwords:</A></DD>
+		
+			<DD> <A HREF="#- setCondbits:">- setCondbits:</A></DD>
+		
+			<DD> <A HREF="#- setForecast:">- setForecast:</A></DD>
+		
+			<DD> <A HREF="#- getForecast">- getForecast</A></DD>
+		
+			<DD> <A HREF="#- updateForecastPrice:Dividend:">- updateForecastPrice:Dividend:</A></DD>
+		
+			<DD> <A HREF="#- setLforecast:">- setLforecast:</A></DD>
+		
+			<DD> <A HREF="#- getLforecast">- getLforecast</A></DD>
+		
+			<DD> <A HREF="#- setLastactive:">- setLastactive:</A></DD>
+		
+			<DD> <A HREF="#- getLastactive">- getLastactive</A></DD>
+		
+			<DD> <A HREF="#- setCnt:">- setCnt:</A></DD>
+		
+			<DD> <A HREF="#- getCnt">- getCnt</A></DD>
+		
+			<DD> <A HREF="#- incrCount">- incrCount</A></DD>
+		
+			<DD> <A HREF="#- setStrength:">- setStrength:</A></DD>
+		
+			<DD> <A HREF="#- getStrength">- getStrength</A></DD>
+		
+			<DD> <A HREF="#- copyEverythingFrom:">- copyEverythingFrom:</A></DD>
+		
+			<DD> <A HREF="#- print">- print</A></DD>
+		
+			<DD> <A HREF="#- printcond:">- printcond:</A></DD>
+		
+			<DD> <A HREF="#- drop">- drop</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- copyEverythingFrom:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/copyEverythingFrom:">copyEverythingFrom:</A></H3><P>
+		<CODE>- <B>copyEverythingFrom:</B>(BFCast *)<EM>from</EM>
+			
+		</CODE><P>
+		Given an input forecast object, systematically ask it for 
+all its IVARs and replace current settings with them.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- createEnd"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/createEnd">createEnd</A></H3><P>
+		<CODE>- <B>createEnd</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- decrSpecificity"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/decrSpecificity">decrSpecificity</A></H3><P>
+		<CODE>- (void)<B>decrSpecificity</B>
+		</CODE><P>
+		Reduce the specificity value of this forecast by one unit
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- drop"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/drop">drop</A></H3><P>
+		<CODE>- (void)<B>drop</B>
+		</CODE><P>
+		Free dynamically allocated memory
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getAval"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getAval">getAval</A></H3><P>
+		<CODE>- (double)<B>getAval</B>
+		</CODE><P>
+		Return a coefficient from demand equation
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getBval"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getBval">getBval</A></H3><P>
+		<CODE>- (double)<B>getBval</B>
+		</CODE><P>
+		Return b coefficient from demand equation
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getCnt"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getCnt">getCnt</A></H3><P>
+		<CODE>- (int)<B>getCnt</B>
+		</CODE><P>
+		Return the value of count
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getConditions"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getConditions">getConditions</A></H3><P>
+		<CODE>- (int *)<B>getConditions</B>
+		</CODE><P>
+		Returns a pointer to an array, the integer representation of the 
+conditions
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getConditionsObject"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getConditionsObject">getConditionsObject</A></H3><P>
+		<CODE>- (BitVector *)<B>getConditionsObject</B>
+		</CODE><P>
+		Returns an object of type BitVector, the represnetation of 
+conditions that is actually used inside this class or 
+calculations
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getConditionsWord:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getConditionsWord:">getConditionsWord:</A></H3><P>
+		<CODE>- (int)<B>getConditionsWord:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Returns the integer representation of the <I>x</I>'th word in the 
+conditions
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getConditionsbit:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getConditionsbit:">getConditionsbit:</A></H3><P>
+		<CODE>- (int)<B>getConditionsbit:</B>(int)<EM>bit</EM>
+			
+		</CODE><P>
+		Returns 0,1,or 2, for a given <I>bit</I> in the conditions records
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getCval"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getCval">getCval</A></H3><P>
+		<CODE>- (double)<B>getCval</B>
+		</CODE><P>
+		Return c coefficient from demand equation
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getForecast"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getForecast">getForecast</A></H3><P>
+		<CODE>- (double)<B>getForecast</B>
+		</CODE><P>
+		Return forecast from this object
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getLastactive"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getLastactive">getLastactive</A></H3><P>
+		<CODE>- (int)<B>getLastactive</B>
+		</CODE><P>
+		Return the time on which this forecast was last active
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getLforecast"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getLforecast">getLforecast</A></H3><P>
+		<CODE>- (double)<B>getLforecast</B>
+		</CODE><P>
+		Get forecast from the previous time period
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getSpecfactor"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getSpecfactor">getSpecfactor</A></H3><P>
+		<CODE>- (double)<B>getSpecfactor</B>
+		</CODE><P>
+		Return the specfactor value of this forecast
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getSpecificity"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getSpecificity">getSpecificity</A></H3><P>
+		<CODE>- (int)<B>getSpecificity</B>
+		</CODE><P>
+		Return the specificity of this forecast
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getStrength"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getStrength">getStrength</A></H3><P>
+		<CODE>- (double)<B>getStrength</B>
+		</CODE><P>
+		Return strength of this forecast
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getVariance"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/getVariance">getVariance</A></H3><P>
+		<CODE>- (double)<B>getVariance</B>
+		</CODE><P>
+		Return the variance of this forecast
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- incrCount"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/incrCount">incrCount</A></H3><P>
+		<CODE>- (int)<B>incrCount</B>
+		</CODE><P>
+		Increment this forecast's count variable
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- incrSpecificity"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/incrSpecificity">incrSpecificity</A></H3><P>
+		<CODE>- (void)<B>incrSpecificity</B>
+		</CODE><P>
+		Raise the specificity value of this forecast by one unit
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- maskConditionsbit:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/maskConditionsbit:">maskConditionsbit:</A></H3><P>
+		<CODE>- (void)<B>maskConditionsbit:</B>(int)<EM>bit</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- print"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/print">print</A></H3><P>
+		<CODE>- <B>print</B>
+		</CODE><P>
+		Return some disgnostic information about the status of 
+variables inside this forecast to the terminal
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- printcond:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/printcond:">printcond:</A></H3><P>
+		<CODE>- <B>printcond:</B>(int)<EM>conditions</EM>
+			
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setAval:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setAval:">setAval:</A></H3><P>
+		<CODE>- (void)<B>setAval:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set a coefficient from demand equation
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setBitcost:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setBitcost:">setBitcost:</A></H3><P>
+		<CODE>- (void)<B>setBitcost:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set the variable bitcost at <I>x</I>
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setBval:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setBval:">setBval:</A></H3><P>
+		<CODE>- (void)<B>setBval:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set b coefficient from demand equation
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setCnt:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setCnt:">setCnt:</A></H3><P>
+		<CODE>- (void)<B>setCnt:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Set the count variable to an inputted value
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setCondbits:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setCondbits:">setCondbits:</A></H3><P>
+		<CODE>- (void)<B>setCondbits:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Sets the number of bits. This is the number of aspect of the world that are monitored
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditions:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setConditions:">setConditions:</A></H3><P>
+		<CODE>- (void)<B>setConditions:</B>(int *)<EM>x</EM>
+			
+		</CODE><P>
+		Rather than individually set bits one by one, we might want to set 
+all of them at once. That means we pass in a pointer to an array of 
+words that is the &quot;right size&quot; for all the bits.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditionsWord:To:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setConditionsWord:To:">setConditionsWord:To:</A></H3><P>
+		<CODE>- (void)<B>setConditionsWord:</B>(int)<EM>i</EM> <B>To:</B>(int)<EM>value</EM>
+			
+		</CODE><P>
+		For low level access to a full word's-worth of the condition
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditionsbit:FromZeroTo:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setConditionsbit:FromZeroTo:">setConditionsbit:FromZeroTo:</A></H3><P>
+		<CODE>- (void)<B>setConditionsbit:</B>(int)<EM>bit</EM> <B>FromZeroTo:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		If a <I>bit</I> is currently set to 0 (&quot;don't care&quot;), then change it to 
+something else (1 or 2)
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setConditionsbit:To:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setConditionsbit:To:">setConditionsbit:To:</A></H3><P>
+		<CODE>- (void)<B>setConditionsbit:</B>(int)<EM>bit</EM> <B>To:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Sets the value of a <I>bit</I> in the conditions
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setCondwords:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setCondwords:">setCondwords:</A></H3><P>
+		<CODE>- (void)<B>setCondwords:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Sets the number of words-worth's of conditions that are going to be used
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setCval:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setCval:">setCval:</A></H3><P>
+		<CODE>- (void)<B>setCval:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set c coefficient from demand equation
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setForecast:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setForecast:">setForecast:</A></H3><P>
+		<CODE>- (void)<B>setForecast:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set the forecast of this object to an inputted value
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setLastactive:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setLastactive:">setLastactive:</A></H3><P>
+		<CODE>- (void)<B>setLastactive:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Set the time on which this forecast was last active to an input value
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setLforecast:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setLforecast:">setLforecast:</A></H3><P>
+		<CODE>- (void)<B>setLforecast:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set the previous forecast of this object to an inputted value
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setNNulls:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setNNulls:">setNNulls:</A></H3><P>
+		<CODE>- (void)<B>setNNulls:</B>(int)<EM>x</EM>
+			
+		</CODE><P>
+		Null bits may be needed if the bit vector that is allocated is larger than the number of conditions being monitored. Since a bitvector allocates space in sizes of words, this might be important. Luckily, in the current design of ASM-2.0 (and after), there are no null bits.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setSpecfactor:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setSpecfactor:">setSpecfactor:</A></H3><P>
+		<CODE>- (void)<B>setSpecfactor:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set the specfactor value of this forecast
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setSpecificity:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setSpecificity:">setSpecificity:</A></H3><P>
+		<CODE>- (void)<B>setSpecificity:</B>(int)<EM>specificity</EM>
+			
+		</CODE><P>
+		Set the <I>specificity</I> of this forecast
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setStrength:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setStrength:">setStrength:</A></H3><P>
+		<CODE>- (void)<B>setStrength:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set the strength value to an inputted value
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setVariance:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/setVariance:">setVariance:</A></H3><P>
+		<CODE>- (void)<B>setVariance:</B>(double)<EM>x</EM>
+			
+		</CODE><P>
+		Set the variance of this forecast
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- switchConditionsbit:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/switchConditionsbit:">switchConditionsbit:</A></H3><P>
+		<CODE>- (void)<B>switchConditionsbit:</B>(int)<EM>bit</EM>
+			
+		</CODE><P>
+		Change a YES to a NO, and vice versa
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- updateForecastPrice:Dividend:"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/updateForecastPrice:Dividend:">updateForecastPrice:Dividend:</A></H3><P>
+		<CODE>- (double)<B>updateForecastPrice:</B>(double)<EM>price</EM> <B>Dividend:</B>(double)<EM>dividend</EM>
+			
+		</CODE><P>
+		Calculate new forecast on basis of <I>price</I> and <I>dividend</I> information
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- updateSpecfactor"></A><H3><A NAME="//apple_ref/occ/instm/BFCast/updateSpecfactor">updateSpecfactor</A></H3><P>
+		<CODE>- (void)<B>updateSpecfactor</B>
+		</CODE><P>
+		Update the spec factor of this forecast. That means calculate: 
+specfactor= (condbits - nnulls - specificity)* bitcost
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

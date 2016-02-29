@@ -1,0 +1,309 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/Agent">Agent</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>Agent.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+This is the abstract superclass of all agent classes; all agent classes 
+must be direct or indirect descendants of this one.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>double <B>demand</B>;</CODE><BR>
+		<CODE>double <B>profit</B>;</CODE><BR>
+		<CODE>double <B>wealth</B>;</CODE><BR>
+		<CODE>double <B>position</B>;</CODE><BR>
+		<CODE>double <B>cash</B>;</CODE><BR>
+		<CODE>double <B>initialcash</B>;</CODE><BR>
+		<CODE>double <B>minholding</B>;</CODE><BR>
+		<CODE>double <B>mincash</B>;</CODE><BR>
+		<CODE>double <B>intrate</B>;</CODE><BR>
+		<CODE>double <B>intratep1</B>;</CODE><BR>
+		<CODE>double <B>price</B>;</CODE><BR>
+		<CODE>double <B>dividend</B>;</CODE><BR>
+		<CODE>int <B>myID</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>demand</TD><TD>bid or -offer</TD></TR>
+	
+		<TR><TD>profit</TD><TD>exp-weighted moving average</TD></TR>
+	
+		<TR><TD>wealth</TD><TD>total agent wealth</TD></TR>
+	
+		<TR><TD>position</TD><TD>total shares of stock</TD></TR>
+	
+		<TR><TD>cash</TD><TD>total agent cash position</TD></TR>
+	
+		<TR><TD>initialcash</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>minholding</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>mincash</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>intrate</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>intratep1</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>price</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>dividend</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>myID</TD><TD>No description.</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#+ setWorld:">+ setWorld:</A></DD>
+		
+			<DD> <A HREF="#- setID:">- setID:</A></DD>
+		
+			<DD> <A HREF="#- setPosition:">- setPosition:</A></DD>
+		
+			<DD> <A HREF="#- setintrate:">- setintrate:</A></DD>
+		
+			<DD> <A HREF="#- setminHolding:minCash:">- setminHolding:minCash:</A></DD>
+		
+			<DD> <A HREF="#- setInitialCash:">- setInitialCash:</A></DD>
+		
+			<DD> <A HREF="#- setInitialHoldings">- setInitialHoldings</A></DD>
+		
+			<DD> <A HREF="#- getPriceFromWorld">- getPriceFromWorld</A></DD>
+		
+			<DD> <A HREF="#- getDividendFromWorld">- getDividendFromWorld</A></DD>
+		
+			<DD> <A HREF="#- creditEarningsAndPayTaxes">- creditEarningsAndPayTaxes</A></DD>
+		
+			<DD> <A HREF="#- constrainDemand::">- constrainDemand::</A></DD>
+		
+			<DD> <A HREF="#- getAgentPosition">- getAgentPosition</A></DD>
+		
+			<DD> <A HREF="#- getWealth">- getWealth</A></DD>
+		
+			<DD> <A HREF="#- getCash">- getCash</A></DD>
+		
+			<DD> <A HREF="#- prepareForTrading">- prepareForTrading</A></DD>
+		
+			<DD> <A HREF="#- getDemandAndSlope:forPrice:">- getDemandAndSlope:forPrice:</A></DD>
+		
+			<DD> <A HREF="#- updatePerformance">- updatePerformance</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Class Methods</H2>
+ 
+	
+		
+		<A NAME="+ setWorld:"></A><H3><A NAME="//apple_ref/occ/clm/Agent/setWorld:">setWorld:</A></H3>
+		<CODE>+ <B>setWorld:</B>(World *)<EM>aWorld</EM>
+			
+		</CODE><P>
+		Sets a world for an agent. It is a class method as it is used in 
+both class and instance methods in BFagent.
+	
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- constrainDemand::"></A><H3><A NAME="//apple_ref/occ/instm/Agent/constrainDemand::">constrainDemand::</A></H3><P>
+		<CODE>- (double)<B>constrainDemand:</B>(double *)<EM>slope</EM> <B>:</B>(double)<EM>trialprice</EM>
+			
+		</CODE><P>
+		Method used by agents to constrain their demand according to the 
+mincash and minholding constraints.<P>
+
+It checks &quot;demand&quot; against the 
+mincash and minholding constraints and clips it if necessary, then 
+also setting *<I>slope</I>. For use within subclass implementations of 
+getDemandAndSlope: forPrice:. Used only by agents that work with 
+the Slope Specialist.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- creditEarningsAndPayTaxes"></A><H3><A NAME="//apple_ref/occ/instm/Agent/creditEarningsAndPayTaxes">creditEarningsAndPayTaxes</A></H3><P>
+		<CODE>- <B>creditEarningsAndPayTaxes</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getAgentPosition"></A><H3><A NAME="//apple_ref/occ/instm/Agent/getAgentPosition">getAgentPosition</A></H3><P>
+		<CODE>- (double)<B>getAgentPosition</B>
+		</CODE><P>
+		Return the agent's current position
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getCash"></A><H3><A NAME="//apple_ref/occ/instm/Agent/getCash">getCash</A></H3><P>
+		<CODE>- (double)<B>getCash</B>
+		</CODE><P>
+		Return the agent's current cash level
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getDemandAndSlope:forPrice:"></A><H3><A NAME="//apple_ref/occ/instm/Agent/getDemandAndSlope:forPrice:">getDemandAndSlope:forPrice:</A></H3><P>
+		<CODE>- (double)<B>getDemandAndSlope:</B>(double *)<EM>slope</EM> <B>forPrice:</B>(double)<EM>trialprce</EM>
+			
+		</CODE><P>
+		This message is sent to each agent during bidding to ask for its bid 
+(demand &gt; 0) or offer (demand &lt; 0) at price p. The agent may 
+also return a value for d(demand)/d(price) through &quot;<I>slope</I>&quot;, 
+but this is not required; *<I>slope</I> may be left unchanged. This 
+method may be called one or more times in each period, 
+depending on the specialist method. The last such call is at 
+the final trading price. The -prepareForTrading message is 
+sent to each agent before the first such call in each period. 
+Note that agents without demand functions return zero <I>slope</I>, 
+but the Slope specialist is never used with these agents.<P>
+
+There is no default for this method in the Agent class; the 
+agent subclasses MUST provide it.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getDividendFromWorld"></A><H3><A NAME="//apple_ref/occ/instm/Agent/getDividendFromWorld">getDividendFromWorld</A></H3><P>
+		<CODE>- <B>getDividendFromWorld</B>
+		</CODE><P>
+		Sets an instance variable of agent, dividend, to the current dividend. That information is retrieved from the object known as &quot;world&quot;.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getPriceFromWorld"></A><H3><A NAME="//apple_ref/occ/instm/Agent/getPriceFromWorld">getPriceFromWorld</A></H3><P>
+		<CODE>- <B>getPriceFromWorld</B>
+		</CODE><P>
+		Sets an instance variable of agent, price, to the current price 
+which is controlled by the object known as &quot;world&quot;. Please note this 
+assumes world is already set.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getWealth"></A><H3><A NAME="//apple_ref/occ/instm/Agent/getWealth">getWealth</A></H3><P>
+		<CODE>- (double)<B>getWealth</B>
+		</CODE><P>
+		Return the agent's current wealth
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- prepareForTrading"></A><H3><A NAME="//apple_ref/occ/instm/Agent/prepareForTrading">prepareForTrading</A></H3><P>
+		<CODE>- <B>prepareForTrading</B>
+		</CODE><P>
+		Sent to each enabled agent at the start of each trading period, 
+before the first -getDemandAndSlope:forPrice: message for that 
+agent. The class method +prepareForTrading: is sent to each type 
+before any of these messages. This probably should have some 
+subclassMustImplement code here, because the default code does 
+nothing. It must be overridden
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setID:"></A><H3><A NAME="//apple_ref/occ/instm/Agent/setID:">setID:</A></H3><P>
+		<CODE>- <B>setID:</B>(int)<EM>iD</EM>
+			
+		</CODE><P>
+		Gives an integer name to an agent during creation. Sometimes it 
+helps with debugging to have a unique <B>id</B> for each agent
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setInitialCash:"></A><H3><A NAME="//apple_ref/occ/instm/Agent/setInitialCash:">setInitialCash:</A></H3><P>
+		<CODE>- <B>setInitialCash:</B>(double)<EM>initcash</EM>
+			
+		</CODE><P>
+		Sets the initial cash holdings of each agent.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setInitialHoldings"></A><H3><A NAME="//apple_ref/occ/instm/Agent/setInitialHoldings">setInitialHoldings</A></H3><P>
+		<CODE>- <B>setInitialHoldings</B>
+		</CODE><P>
+		Sets the initial stock holdings of each agent. It is the 
+designated initializer. Most agent classes will have additional 
+initialization, but should do [<B>super</B> setInitialHoldings] to run 
+this first. It will initialize instance variables common to all 
+agents, setting profit,wealth, and position equal to 0, and it sets 
+the variable cash equal to initialcash
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setPosition:"></A><H3><A NAME="//apple_ref/occ/instm/Agent/setPosition:">setPosition:</A></H3><P>
+		<CODE>- <B>setPosition:</B>(double)<EM>aDouble</EM>
+			
+		</CODE><P>
+		Sets the agent's position (holding) to &quot;<I>aDouble</I>&quot;.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setintrate:"></A><H3><A NAME="//apple_ref/occ/instm/Agent/setintrate:">setintrate:</A></H3><P>
+		<CODE>- <B>setintrate:</B>(double)<EM>rate</EM>
+			
+		</CODE><P>
+		Sets the IVAR intrate and uses that to calculate intratep1 (intrate + 1).
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- setminHolding:minCash:"></A><H3><A NAME="//apple_ref/occ/instm/Agent/setminHolding:minCash:">setminHolding:minCash:</A></H3><P>
+		<CODE>- <B>setminHolding:</B>(double)<EM>holding</EM> <B>minCash:</B>(double)<EM>minimumcash</EM>
+			
+		</CODE><P>
+		Sets the borrowing and short selling constraints, i.e., the 
+values can be negative. It sets values of the IVARS minholding and mincash
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- updatePerformance"></A><H3><A NAME="//apple_ref/occ/instm/Agent/updatePerformance">updatePerformance</A></H3><P>
+		<CODE>- <B>updatePerformance</B>
+		</CODE><P>
+		Sent to each enabled agent at the end of each period to tell it to 
+update its performance meaures, forecasts, etc. The default code 
+does nothing, this method must be specified by each agent type. 
+Probably needs a subclass responsibility statement
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>

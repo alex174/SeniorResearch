@@ -1,0 +1,343 @@
+<HTML><HEAD><TITLE></TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+<BR><BR><FONT COLOR="#000066"><H1><A NAME="//apple_ref/occ/cl/BFParams">BFParams</A></H1></FONT><BR>
+
+
+
+	<blockquote><DL><DT><B>Inherits From:</B></DT>  
+	<DD>SwarmObject</DD>
+</DL></blockquote>
+
+
+
+
+
+	<blockquote><DL><DT><B>Declared In:</B></DT>
+	<DD>BFParams.h</DD>
+	</DL></blockquote>
+
+<BR><BR>
+
+
+<H2>Class Description</H2>
+BFParams is a class that holds parameter values that might be 
+needed by several classes, principally, BFagent, BFCast, or BitVector. 
+This class is currently designed so that, if one wants the values of 
+the variables here to be individualized, then each agent can be 
+created with its own instance of BFParams. A lot of the really 
+complicated stuff that used to be in BFagent is now divided between 
+this class and BitVector.<P>
+
+This particular version of BFParams has the forecast monitoring up to 
+16 bits of information. In the init method, the names of which 16 
+bits might be monitored are listed explicitly by name. Then the World 
+object is asked for the bit number of each name, one-by-one. That 
+sequential process fills up the array bitlist. As a result, it is a 
+bit difficult to maintain this code and I wish there were an easy way 
+out of this. But I didn't find it yet (2001-11-01)<P>
+
+It got to be tedious and boring to maintain getX methods, one for each 
+instance variable, so if other classes want values out of this class, 
+they can use either of 2 routes. Both are used in BFagent.m, just to 
+keep up the variety. One way is the standard Objective-C method to 
+obtain instance variable values, the -&gt; operator. Look for usages like 
+&quot;privateParams-&gt;lambda&quot;. The other is a more Swarm oriented probe 
+mechanism. Notice the functions at the top of the file BFParams.m, 
+like getInt() and getDouble(). To get the lambda parameter, one can say 
+getDouble(privateParams,&quot;lambda&quot;). Either of these works, and it 
+frees us from the need to constantly add and edit get methods when we 
+add or change instance variables in here.
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Symbolic Constants</H2>
+	<blockquote>
+	
+		
+		<H4>Synopsis:</H4>
+		
+			<CODE><B><A NAME="//apple_ref/c/econst/MAXCONDBITS">MAXCONDBITS</A></B>&nbsp;&nbsp;80</CODE><BR>
+		
+		
+	
+	</blockquote>
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Macro Definitions</H2>
+	<blockquote>
+	
+		
+		<H4>Synopsis:</H4>
+		
+			<CODE><B><A NAME="//apple_ref/c/func/WORD">WORD</A></B>(bit)</CODE><BR>
+		
+		
+	
+	</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Variables</H2>
+	<blockquote>
+	
+		<CODE>int <B>numfcasts</B>;</CODE><BR>
+		<CODE>int <B>condwords</B>;</CODE><BR>
+		<CODE>int <B>condbits</B>;</CODE><BR>
+		<CODE>int <B>mincount</B>;</CODE><BR>
+		<CODE>int <B>gafrequency</B>;</CODE><BR>
+		<CODE>int <B>firstgatime</B>;</CODE><BR>
+		<CODE>int <B>longtime</B>;</CODE><BR>
+		<CODE>int <B>individual</B>;</CODE><BR>
+		<CODE>double <B>tauv</B>;</CODE><BR>
+		<CODE>double <B>lambda</B>;</CODE><BR>
+		<CODE>double <B>maxbid</B>;</CODE><BR>
+		<CODE>double <B>bitprob</B>;</CODE><BR>
+		<CODE>double <B>subrange</B>;</CODE><BR>
+		<CODE>double a_min,<B>a_max</B>;</CODE><BR>
+		<CODE>double b_min,<B>b_max</B>;</CODE><BR>
+		<CODE>double c_min,<B>c_max</B>;</CODE><BR>
+		<CODE>double a_range,b_range,<B>c_range</B>;</CODE><BR>
+		<CODE>double <B>newfcastvar</B>;</CODE><BR>
+		<CODE>double <B>initvar</B>;</CODE><BR>
+		<CODE>double <B>bitcost</B>;</CODE><BR>
+		<CODE>double <B>maxdev</B>;</CODE><BR>
+		<CODE>double <B>poolfrac</B>;</CODE><BR>
+		<CODE>double <B>newfrac</B>;</CODE><BR>
+		<CODE>double <B>pcrossover</B>;</CODE><BR>
+		<CODE>double <B>plinear</B>;</CODE><BR>
+		<CODE>double <B>prandom</B>;</CODE><BR>
+		<CODE>double <B>pmutation</B>;</CODE><BR>
+		<CODE>double <B>plong</B>;</CODE><BR>
+		<CODE>double <B>pshort</B>;</CODE><BR>
+		<CODE>double <B>nhood</B>;</CODE><BR>
+		<CODE>double <B>genfrac</B>;</CODE><BR>
+		<CODE>double <B>gaprob</B>;</CODE><BR>
+		<CODE>int <B>npool</B>;</CODE><BR>
+		<CODE>int <B>nnew</B>;</CODE><BR>
+		<CODE>int <B>nnulls</B>;</CODE><BR>
+		<CODE>int *<B>bitlist</B>;</CODE><BR>
+		<CODE>double *<B>problist</B>;</CODE><BR>
+		<CODE>int <B>npoolmax</B>;</CODE><BR>
+		<CODE>int <B>nnewmax</B>;</CODE><BR>
+		<CODE>int <B>ncondmax</B>;</CODE><BR>
+	<P><TABLE>
+	
+		<TR><TD>numfcasts</TD><TD>number of forecasts maintained by this agent</TD></TR>
+	
+		<TR><TD>condwords</TD><TD>number of words of memory required to hold bits</TD></TR>
+	
+		<TR><TD>condbits</TD><TD>number of conditions bits are monitored</TD></TR>
+	
+		<TR><TD>mincount</TD><TD>minimum number of times forecast must be used to become active</TD></TR>
+	
+		<TR><TD>gafrequency</TD><TD>how often is genetic algorithm done?</TD></TR>
+	
+		<TR><TD>firstgatime</TD><TD>after how many time steps is the genetic algorithm done</TD></TR>
+	
+		<TR><TD>longtime</TD><TD>unused time before Generalize() in genetic algorithm</TD></TR>
+	
+		<TR><TD>individual</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>tauv</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>lambda</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>maxbid</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>bitprob</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>subrange</TD><TD>fraction of min-max range for initial random values</TD></TR>
+	
+		<TR><TD>a_max</TD><TD>min and max for p+d coef</TD></TR>
+	
+		<TR><TD>b_max</TD><TD>min and max for div coef</TD></TR>
+	
+		<TR><TD>c_max</TD><TD>min and max for constant term</TD></TR>
+	
+		<TR><TD>c_range</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>newfcastvar</TD><TD>variance assigned to a new forecaster</TD></TR>
+	
+		<TR><TD>initvar</TD><TD>variance of overall forecast for t&lt;200</TD></TR>
+	
+		<TR><TD>bitcost</TD><TD>penalty parameter for specificity</TD></TR>
+	
+		<TR><TD>maxdev</TD><TD>max deviation of a forecast in variance estimation</TD></TR>
+	
+		<TR><TD>poolfrac</TD><TD>fraction of rules in replacement pool</TD></TR>
+	
+		<TR><TD>newfrac</TD><TD>fraction of rules replaced</TD></TR>
+	
+		<TR><TD>pcrossover</TD><TD>probability of running Crossover().</TD></TR>
+	
+		<TR><TD>plinear</TD><TD>linear combination &quot;crossover&quot; prob.</TD></TR>
+	
+		<TR><TD>prandom</TD><TD>random from each parent crossover prob.</TD></TR>
+	
+		<TR><TD>pmutation</TD><TD>per bit mutation prob.</TD></TR>
+	
+		<TR><TD>plong</TD><TD>long jump prob.</TD></TR>
+	
+		<TR><TD>pshort</TD><TD>short (neighborhood) jump prob.</TD></TR>
+	
+		<TR><TD>nhood</TD><TD>size of neighborhood.</TD></TR>
+	
+		<TR><TD>genfrac</TD><TD>fraction of 0/1 bits to generalize</TD></TR>
+	
+		<TR><TD>gaprob</TD><TD>derived: 1/gafrequency</TD></TR>
+	
+		<TR><TD>npool</TD><TD>derived: replacement pool size</TD></TR>
+	
+		<TR><TD>nnew</TD><TD>derived: number of new rules</TD></TR>
+	
+		<TR><TD>nnulls</TD><TD>unnused bits</TD></TR>
+	
+		<TR><TD>bitlist</TD><TD>dynamic array, length condbits</TD></TR>
+	
+		<TR><TD>problist</TD><TD>dynamic array, length condbits</TD></TR>
+	
+		<TR><TD>npoolmax</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>nnewmax</TD><TD>No description.</TD></TR>
+	
+		<TR><TD>ncondmax</TD><TD>No description.</TD></TR>
+	
+	</TABLE>
+	</blockquote>
+
+
+
+
+	<P><HR WIDTH=50% ALIGN=LEFT>
+	<H2>Method Types</H2>
+	<blockquote>
+	
+		
+		<DL><DT></DT>
+		
+			<DD> <A HREF="#- init">- init</A></DD>
+		
+			<DD> <A HREF="#- getBitListPtr">- getBitListPtr</A></DD>
+		
+			<DD> <A HREF="#- copyBitList:Length:">- copyBitList:Length:</A></DD>
+		
+			<DD> <A HREF="#- getProbListPtr">- getProbListPtr</A></DD>
+		
+			<DD> <A HREF="#- copyProbList:Length:">- copyProbList:Length:</A></DD>
+		
+			<DD> <A HREF="#- copy:">- copy:</A></DD>
+		
+		</DL>
+	
+	</blockquote>
+
+
+
+
+ 
+
+	<HR WIDTH=50% ALIGN=LEFT>
+	<H2>Instance Methods</H2>
+ 
+	
+		
+		<A NAME="- copy:"></A><H3><A NAME="//apple_ref/occ/instm/BFParams/copy:">copy:</A></H3><P>
+		<CODE>- (BFParams *)<B>copy:</B>(id &lt;Zone&gt;)<EM>aZone</EM>
+			
+		</CODE><P>
+		Create a copy of this BFParams instance. Note this copies EVERY 
+instance variable, one by one
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- copyBitList:Length:"></A><H3><A NAME="//apple_ref/occ/instm/BFParams/copyBitList:Length:">copyBitList:Length:</A></H3><P>
+		<CODE>- (void)<B>copyBitList:</B>(int *)<EM>p</EM> <B>Length:</B>(int)<EM>size</EM>
+			
+		</CODE><P>
+		if passed a pointer to an array of integers of length <I>size</I>, this 
+frees the old bitlist and puts the new one in its place
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- copyProbList:Length:"></A><H3><A NAME="//apple_ref/occ/instm/BFParams/copyProbList:Length:">copyProbList:Length:</A></H3><P>
+		<CODE>- (void)<B>copyProbList:</B>(double *)<EM>p</EM> <B>Length:</B>(int)<EM>size</EM>
+			
+		</CODE><P>
+		if passed a pointer to a double with a given <I>size</I>, this frees the 
+old bitlist and puts the new one in its place
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getBitListPtr"></A><H3><A NAME="//apple_ref/occ/instm/BFParams/getBitListPtr">getBitListPtr</A></H3><P>
+		<CODE>- (int*)<B>getBitListPtr</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- getProbListPtr"></A><H3><A NAME="//apple_ref/occ/instm/BFParams/getProbListPtr">getProbListPtr</A></H3><P>
+		<CODE>- (double *)<B>getProbListPtr</B>
+		</CODE><P>
+		No method description.
+	
+		<P><HR WIDTH=25% ALIGN=LEFT>
+		<A NAME="- init"></A><H3><A NAME="//apple_ref/occ/instm/BFParams/init">init</A></H3><P>
+		<CODE>- <B>init</B>
+		</CODE><P>
+		Init does an awful lot of work for the BFParam object. It takes 
+note of the number of condition bits that can be used and allocates 
+space. It also uses a special function ReadBitname to access the 
+World object to find out which bit in the World represents which 
+piece of information.<P>
+
+Following ASM-2.0, this version of BFParams has condbits set equal 
+to 16 bits. In the World, all possible bits are maintained, and one 
+can ask for an attribute of the market history by a descriptive name 
+like 'pr/d&gt;1/4' and get back the integer value indicating which bit 
+in the world keeps that information. The integer keys for the 
+moitored bits then get translated into the forecast's instance 
+variable bitlist, an an array of integers. Whenever the BFagent 
+needs to make sure than a forecast is up to date, it takes that 
+bitlist and checks the conditions against the state of the world for 
+the monitored bits.<P>
+
+Again following ASM-2.0, we have here forecasts that only use a 
+relatively small part of the world, 16 bits. These particular BFCasts 
+monitor 10 bits which measure the size of price*interest/dividend, 
+4 more indicators of the change in moving averages of prices for 
+various widths of the moving average, and two &quot;dummy&quot; bits fill out 
+the array.<P>
+
+It is possible to revise this method to allow monitoring of more 
+bits. To add more bits, it is necessary to change the condbits 
+instance variable and then write out the names of some variables to 
+be monitored inside this init method. As long as the number 
+condbits is correct, then the init method should recalculate the 
+amount of storage required. In future revisions of ASM, a cleanup 
+and revision of this design should be a top priority.<P>
+
+Another issue to consider is the assumption that all forecasts used 
+by an agent will use a subset of a given set of bits from the world. 
+Probably it would be better to put a bitlist into each forecast, and 
+completely de-couple the forecasts.
+	
+
+
+
+
+<P><HR>
+Version 1.1 Copyright &copy;2001.  All Rights Reserved.  
+<P>
+</BODY></HTML>
