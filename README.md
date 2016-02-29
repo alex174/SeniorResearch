@@ -1,3 +1,11 @@
+# Source
+All code and material is drawn from http://artstkmkt.sourceforge.net 
+
+# Purpose
+sfi-asm is, to me, an captivating, enigmatic thing, part fascinating research, part intruiging model, part important academic history and part computing history artifact. My interest is first the preservtion of the artifact, second the understanding of them model, and third the understanding of the academic-socio-historical context of the model's creataion.  To that end, this repository tracks the source code through all of the releases I can find, and will try to modify the code and codifiy its environemnt sufficently s.t. it can be built on a well specified VM.
+
+# Original Readme (ASM-2.4):
+```
 Swarm ASM notes.  If you are looking for highlights, this
 is the right spot.
 
@@ -378,3 +386,4 @@ the params to be written.
 This is cursory at best, but you are all probably better people than
 me, so you can figure the rest out with the help of some strategically
 placed questions to either Palmer or Weber.  Enjoy.
+```

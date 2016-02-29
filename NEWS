@@ -1,0 +1,34 @@
+June 6, 2003
+
+Coding on ASM-2.4 is finished and a snapshot package will be uploaded soon. You can get it from CVS now.
+A new module in CVS, "sfsm", is being created. This is a working version of the code that was actually used to generate the model runs reported by LeBaron, et al. Thanks to Blake LeBaron for providing this code. The previous package ASM-objc, which was released along with the Swarm version, ASM-2.0, is no longer considered to be a completely faithful representation of the model. On the other hand, "sfsm" is the exact same code, except for a few minor changes that were needed to compile/run with current GNU compilers.
+
+February 17, 2003. Java Swarm version available
+
+Two graduate students, José Manuel Galán (University of Valladolid, Spain) and Luis R. Izquierdo (Macaulay Institute, Aberdeen, Scotland) have built a Java-Swarm version of the ASM. I am not maintaining that package, but I am offering the files for your use. You can find them in this directory: http://artstkmkt.sourceforge.net/updates/JAVASwarm-ASM and I compiled a little readme: http://artstkmkt.sourceforge.net/updates/JAVASwarm-ASM/README
+October 2, 2002. ASM-2.2.1 release
+
+Some windows users mailed me and said they had trouble running in batch mode because the .scm file did not have D0 after all the double valued numbers. So I added that.
+Thomas Badegruber emailed me about a bug in World.m caused by my failure to put quotes around the macro GETMA. So that's fixed as well.
+
+December 4, 2001. ASM-2.2 release
+
+This release includes the documentation, which is already comiled if you download the package. If you get the files from cvs, there is a doc directory and you can use the program Autodoc to compile your own. The Docs are displayed off the main page of this project.
+ASM-2.2 is my last effort to spruce up the original model while remaining consisten with most of its original design and intention. I have word from a few other people that they are working on beautifications and I think that's great.
+
+For my part, the intention has been to clean up the code, and make is readable to the ordinary human who happens across it. I think I've got that mostly done.
+
+I have written an essay about the experience of working on the ASM and it is forthcoming in the Social Science Computer Review Until that appears in print, you are welcome to look it over in my home page, http://lark.cc.ukans.edu/~pauljohn/ResearchPapers/ASM01 . That directory has copies of the paper in html and pdf.
+
+October 11, 2001. Third patch and update release
+
+The README file explains this part. It is a major retooling of the way parameters are organized in this giant project. It also shows how data can be saved from Swarm projects, either in text, hdf5 format datasets, or LISP.
+You need a relatively recent version of Swarm for the hdf5 data output from EZGraph to work, if you still have the old 2.1.1 you can just comment out that part in Outcome.m
+
+June 02, 2000. Second patch and update release.
+
+I have invested a ton of time in this during the last week. Creating a couple of new classes and reorganizing the BFagent class so it is more object-oriented. The usage of so many pointers and hand-made linked-lists made the code almost impossible to proofread or extend. Now it is not yet perfect, but I have made enough of a start to prove it can work.
+
+May 5, 2000. First patch and update release.
+
+This one mainly just eliminates old C random number routines and replaces them with Swarm generators.
