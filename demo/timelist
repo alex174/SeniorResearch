@@ -1,0 +1,47 @@
+# Event schedule for the Santa Fe Stockmarket.
+#
+# This file specifies when various events happen.  The possible events
+# include everything that the front end can do that affects the outcome
+# of the simulation, so that runs (even with user intervention) can be
+# reproduced exactly.  The front end writes out new events to the logfile
+# as they occur.  The logfile itself can be used as a startup file to
+# reproduce the run.
+#
+# For output events, appropriate output files must also be specified (in the
+# main control file), or these requests will be ignored.
+#
+# Each line is of one of the forms:
+#    t action [params]		Event at time t
+#    t1 t2 action [params]	Event at time t1, t1+1, t1+2, ... t2
+#    t1 t2 dt action [params]	Event at time t1, t1+dt, t1+2*dt, ... t2
+# where "action" specifies a type of event and "params" is a parameter
+# string that specifies further details for some types of actions.
+#
+# The actions and parameters are:
+#    a			write agent information to agent file
+#    d			display on screen [ignored in batch version]
+#    dividend ...	reset a dividend parameter (see Dividend.m)
+#    D n		disable agent n
+#    debug		check various things if debugging flags are set
+#    e			evolve agent population
+#    enable ...		same as E ...
+#    E n  		enable agent n
+#    E all		enable all agents
+#    level		reinitialize agents' cash, wealth, and position.
+#    r			reset dividend shock
+#    s			create a dividend shock
+#    specialist ...	reset a specialist parameter (see Specialist.m)
+#    w			write an output line to the first output stream
+#    w name		write an output line to output stream "name"
+
+# 0 300000 10 d
+0 200000 10000 a
+# 10000 190000 10000 e
+# 5000 level
+0 200000 10000 w prices
+200000 210000 1 w pricesday
+
+# 0 100000 10 d
+# -2000 5000 100 w prices
+# 0 10000 500 debug
+

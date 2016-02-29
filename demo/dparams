@@ -1,0 +1,23 @@
+# Dividend parameters for the Santa Fe Stockmarket
+# parameters are recognized solely by position within file -- watch out
+
+# Type of dividend process.  Allowed values are:
+# ar1 -- AR(1) process (colored noise)
+# markov -- Markovian two-state process
+# white -- Gaussian white noise
+# iid -- Bernouilli coin-flip 
+# square -- periodic square wave
+# ramp -- periodic trinagular wave (up/down ramps)
+# sine -- periodic sinusoidal wave
+
+ar1	# divtype -- type of dividend process
+
+# Parameters.  All must be specified whether or not needed for divtype
+10	# baseline -- baseline dividend (sets the scale; DON'T CHANGE)
+0.00005	# mindividend -- minimum dividend
+100	# maxdividend -- upper clipping point
+0.14178	# amplitude -- amplitude of deviations from baseline
+100	# period -- mean period or autocorrelation time
+0.0	# asymmetry -- range -1 to 1; 0 means symmetrical
+0.5	# shocksize -- size of dividend shocks
+200	# shocktime -- decay timescale (1/e) of shocks

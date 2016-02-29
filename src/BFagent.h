@@ -1,89 +1,127 @@
 // Interface for BFagent -- Classifier predictors
 
-#import "Agent.h"
-#import "BFParams.h"
-#import "BFCast.h"
-#import <collections.h>
-#import "World.h"
+#include "Agent.h"
+
+
+// Structure for list of individual forecasts
+struct BF_fcast {
+    double forecast;	// this forecast of return
+    double lforecast;	// previous forecast
+    double variance;	// variance of this forecast
+    double actvar;
+    double error;
+    double strength;
+    double a;		// (price + dividend) coefficient
+    double b;		// dividend coefficient
+    double c;		// constant term
+    double specfactor;	// specificity factor; strength=specfactor/variance
+    struct BF_fcast *next;	// linked list of ACTIVE forecasts
+    struct BF_fcast *lnext;
+    unsigned int *conditions;
+    int lastactive;     // last match on rule
+    int lastused;       // last time rule used
+    int birth;          // date of birth
+    int specificity;
+    int count;
+    int errct;
+    int active;
+};
+
+// Parameters/variables common to all agents in a BF type
+struct BFparams {
+    int class;
+    int type;
+    int numfcasts;
+    int condwords;
+    int condbits;
+    int mincount;
+    int gafrequency;
+    int firstgatime;
+    int longtime;	// unused time before Generalize()
+    int individual;
+    double tauv;
+    double lambda;
+    double maxbid;
+    double bitprob;
+    double subrange;	// fraction of min-max range for initial random values
+    double a_min,a_max;	// min and max for p+d coef
+    double b_min,b_max;	// min and max for div coef
+    double c_min,c_max;	// min and max for constant term
+    double a_range,b_range,c_range;	// derived: max - min
+    double newfcastvar;	// variance assigned to a new forecaster
+    double initvar;	// variance of overall forecast for t<200
+    double bitcost;	// penalty parameter for specificity
+    double maxdev;	// max deviation of a forecast in variance estimation
+    double poolfrac;	// fraction of rules in replacement pool
+    double newfrac;	// fraction of rules replaced
+    double pcrossover;	// probability of running Crossover() at all.
+    double plinear;	// linear combination "crossover" prob.
+    double prandom;	// random from each parent crossover prob.
+    double pmutation;	// per bit mutation prob.
+    double plong;	// long jump prob.
+    double pshort;	// short (neighborhood) jump prob.
+    double nhood;	// size of neighborhood.
+    double genfrac;	// fraction of 0/1 bits to generalize
+    double gaprob;	// derived: 1/gafrequency
+    int npool;		// derived: replacement pool size
+    int nnew;		// derived: number of new rules
+    int nnulls;
+    int lastgatime;
+    int *bitlist;		// dynamic array, length condbits
+    double *problist;		// dynamic array, length condbits
+    unsigned int *myworld;	// dynamic array, length condwords
+} ;
 
 
 @interface BFagent:Agent
 {
-  int currentTime; /*"The agent regularly checks with Swarm to see what time it is"*/
-  double forecast;       /*"prediction of stock price: (trialprice+dividend)*pdcoeff + offset."*/
-  double lforecast; /*"lagged forecast: forecast value from previous period"*/
-  double global_mean; /*"price+dividend"*/
-  double realDeviation;  /*" ftarget-lforecast: how far off was the agent's forecast?"*/
-  double variance;   /*"an Exp.Weighted MA of the agent's historical variance: Combine the old variance with deviation^squared, as in:  bv*variance + av*deviation*deviation"*/
-  double medianstrength;
-
-  double pdcoeff;   /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
-  double offset;    /*" coefficient used in predicting stock price, recalculated each period in prepareForTrading"*/  
-  double divisor;   /*" a coefficient used to calculate demand for stock. It is a proportion (lambda) of forecastvar (basically, accuracy of forecasts)"*/
-  int gacount;     /*" how many times has the Genetic Algorithm been used?"*/
-       
-  BFParams * privateParams;     /*"BFParams object holds parameters of this object"*/
-
-  id <Array> fcastList;        /*"A Swarm Array, holding the forecasts that the agent might use"*/
-
-  id <List> activeList;       /*"A Swarm list containing a subset of all forecasts"*/
-  id <List> oldActiveList;    /*"A copy of the activeList from the previous time step"*/
-  BFCast * strongestBFCast;  /*"A pointer to the strongest rule of the agent"*/
+@public
+    double avspecificity;
+    double forecast;
+    double lforecast;
+    double global_mean;
+    double variance;
+    double pdcoeff;
+    double offset;
+    double divisor;
+    struct BF_fcast *fcast;		// array of size numfcasts
+    struct BF_fcast *activelist;
+    struct BF_fcast *lactivelist; 	// last active list
+    struct BFparams *p;
+    double medstrength,avstrength,minstrength;
+    int gacount;
+    int nactive;
 }
 
-+ (void)setBFParameterObject: x;
-+ (void)init;
+// CLASS METHODS OVERRIDDEN FROM Agent CLASS
++ initClass:(int)mytype;
++ (void *)createType:(int)mytype :(const char *)filename;
++ writeParams:(void *)theParams ToFile:(FILE *)fp;
++ didInitialize;
++ prepareForTrading:(void *)theParams;
++ (int)lastgatime:(void *)params;
 
-- (BFCast *)getStrongestBFCast;
-- createEnd;
-- initForecasts;
-- (int)getNfcasts;
-
-- (BFCast *)createNewForecast;  //all conditions=0
-
-- setConditionsRandomly: (BFCast *)fcastObject; //apply to forecast
+// INSTANCE METHODS OVERRIDDEN FROM Agent CLASS
+- initAgent:(int)mytag;
+- check;
 - prepareForTrading;
-- (BitVector *) collectWorldData: aZone;
-- updateActiveList: (BitVector *)worldvalues;
-
-- (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprice;
-- (double)getRealForecast;
-- (double)getMedianstrength;
+- (double)getDemandAndSlope:(double *)slope forPrice:(double)trialprce;
 - updatePerformance;
-- (double)getDeviation;
+- enabledStatus:(BOOL)flag;
 - (int)nbits;
 - (int)nrules;
-
-- performGA;
-
-- (BFCast *)  CopyRule:(BFCast *) to From: (BFCast *) from;
-- (void) MakePool: (id <List>)rejects From: (id <Array>) list;
-- (BOOL) Mutate: (BFCast *) new Status: (BOOL) changed Strength: (double)medstrength;
-- (BFCast *) Crossover:(BFCast *) newForecast Parent1: (BFCast *) parent1 Parent2: (BFCast *) parent2 Strength: (double)medstrength;
-- (void) TransferFcastsFrom: newList To:  forecastList Replace: rejects; 
-- (BFCast *)  GetMort: (BFCast *) new Rejects: (id <List>) rejects;
-- (void) Generalize: (id) list Strength: (double) strength;
-- (BFCast *) Tournament: (id <Array>) list;
-- (double) CalculateAndUseMadv;
-- (double) CalculateMedian;
-- (BFCast *) FcastSetParams: (BFCast *)aNewForecast Strength: (double)medstrength Madv: (double)madv;
-- (BOOL) PickParents: (BFCast *) aNewForecast Strength: (double)medstrength;
-
-- printcond: (int)word;
-
-- copyList: list To: outputList;
-
+- (int)lastgatime;
 - (int)bitDistribution:(int *(*)[4])countptr cumulative:(BOOL)cum;
-- (int)fMoments: (double *)moment cumulative: (BOOL)cum;
+- (int)fMoments:(double *)moment cumulative:(BOOL)cum;
 - (const char *)descriptionOfBit:(int)bit;
+- pAgentStatus:(FILE *) fp;
 
-- (void)lispOutDeep: stream;
-- (void)bareLispOutDeep: stream;
+// INSTANCE METHODS OVERRIDDEN FROM Object CLASS
+- free;
+#ifdef NEXTSTEP
+- copyFromZone:(NXZone *)zone;
+#else
+- copy;
+#endif
 
 @end
-
-
-
-
-
-

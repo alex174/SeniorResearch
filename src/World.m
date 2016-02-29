@@ -1,44 +1,135 @@
 // The Santa Fe Stockmarket -- Implementation of class World
 
-// SOME VARIABLES EXPLAINED
+// One instance of this object is created to manage the "world" variables
+// -- the globally-visible variables that reflect the market itself,
+// including the moving averages and the world bits.  Everything is based
+// on just two basic variables, price and dividend, which are set only
+// by the -setPrice: and -setDividend: messages.
 //
-// int malength[]
+// The World also manages the list of bits, translating between bit names
+// and bit numbers, and providing descriptions of the bits' functions.
+// These are done by class methods because they are needed before the
+// instnce is instantiated.
+
+// PUBLIC METHODS
+//
+// + (const char *)descriptionOfBit:(int)n
+//	Supplies a description of the specified bit, taken from the
+//	bitnamelist[] table below.  Also works for NULLBIT.
+//
+// + (const char *)nameOfBit:(int)n
+//	Supplies the name of the specified bit, taken from the
+//	bitnamelist[] table below.  Also works for NULLBIT.
+//
+// + (int)bitNumberOf:(const char *)name
+//	Supplies the number of a bit given its name.  Unknown names
+//	return NULLBIT.  Relatively slow (linear search).
+//
+// + writeNamesToFile:(FILE *)fp
+//	Writes the name and description of all the bits to file "fp".
+//
+// - (int)initWithBaseline:(double)baseline
+//	Initializes the World instance, using initial values based on
+//	a price scale of "baseline" for the dividend.  Returns maxhistory,
+//	the look-back length of the internal price and dividend records.
+//
+// - setPrice:(double)p
+//	Sets the market price to "p".  All price changes (besides trial
+//	prices) should use this method.  Also computes profitperunit and
+//	returnratio.
+//
+// - setDividend:(double)d
+//	Sets the dividend to "d".  All dividend changes should use
+//	this method.
+//
+// - updateWorld
+//	Updates all the other World variables (moving averages and bits)
+//	on the basis of the most recent -setPrice: and -setDividend: messages.
+//	Called once per period.  [This could be done automatically as
+//	part of -setDividend:].
+//
+// - (int)pricetrend:(int)nperiods
+//	Returns 1 or -1 respectively if the price has risen or fallen
+//	monotonically at the last "nperiods".  Otherwise returns 0.  Causes
+//	an error if nperiods is too large (see UPDOWNLOOKBACK).
+//
+// - check
+//	Checks that the moving averages and some internal history variables
+//	are self-consistent.  For debugging.
+//
+// GLOBAL VARIABLES NEEDED
+//
+// double intrate
+//	Interest rate.
+//
+// BOOL exponentialMAs
+//	Whether to use exponenetially weighted moving averages, or (if NO)
+//	simple averages of the last N periods.
+//
+// GLOBAL VARIABLES SUPPLIED
+//
+// double price, oldprice
+//	The current and previous price
+//
+// double dividend, olddividend
+//	The current and previous dividend
+//
+// double profitperunit
+//	The profit gained per unit of previous stockholding, equal to
+//	price + dividend - oldprice.
+//
+// double returnratio
+//	The return on investment, profitperunit/oldprice.
+//
+// int nmas
+//	Number of moving averages available.  This is the dimension of
+//	the following moving average arrays.
+//
+// int matime[]
 //	List of moving average periods.
 //
+// double pmav[]
+//	The current moving averages of price.  E.g. for period = 5, this
+//	is the average of the price 1, 2, 3, 4 and 5 periods ago.
+//
+// double oldpmav[]
+//	The previous moving averages of price; e.g. for period = 5, this
+//	is the average of the price 6, 7, 8, 9, and 10 periods ago.
+//
+// double dmav[]
+//	The current moving averages of dividend.  E.g. for period = 5, this
+//	is the average of the dividend 0, 1, 2, 3, and 4 periods ago.
+//
+// double olddmav[]
+//	The previous moving averages of dividend; e.g. for period = 5, this
+//	is the average of the dividend 5, 6, 7, 8, and 9 periods ago.
+//
+// int nworldbits
+//	Number of world bits.
+//
+// int realworld[]
+//	The world bits, with value 2 for off and 1 for on.
 
-
+// IMPORTS
+#import "global.h"
 #import "World.h"
-#import "MovingAverage.h"
+#import <math.h>
+#import <string.h>
+#import "random.h"
+#import "error.h"
+#import "util.h"
 
-#import <random.h>
-
-#include <math.h>
-#include <misc.h>
-
-
-//pj:
-/*" drand(), urand() and irand(x)  are convenience macros to replace stuff from ASM random with Swarm random stuff "*/
-
-#define drand()    [uniformDblRand getDoubleSample]
-#define urand()  [uniformDblRand getDoubleWithMin: -1 withMax: 1]
-#define irand(x)  [uniformIntRand getIntegerWithMin: 0 withMax: x-1] 
-
-/*" GETMA(x,j) is a macro that checks to see if we want an exponential MA or regular when we retrieve values from MA objects "*/
-#define GETMA(x,j) exponentialMAs ? [[x atOffset: j] getEWMA]:[[x atOffset: j] getMA]
-
-/*" bitname struct holds the substantive information about various world indicators
- It is a list of bit names and descriptions
+// List of bit names and descriptions
 // NB: If you change the order or meaning of bits, also check or change:
 // 1. Their computation in -makebitvector in this file.
 // 2. The PUPDOWBITNUM value.
 // 3. The NAMES documentation file -- do "market -n > NAMES".
- "*/
-static struct bitnamestruct 
-{
-  const char *name;
-  const char *description;
+
+static struct bitnamestruct {
+    const char *name;
+    const char *description;
 } bitnamelist[] = {
-  
+
 {"on", "dummy bit -- always on"},			// 0
 {"off", "dummy bit -- always off"},
 {"random", "random on or off"},
@@ -111,455 +202,481 @@ static struct bitnamestruct
 {"p20>p500", "price: 20-period MA > 500-period MA"},
 {"p100>p500", "price: 100-period MA > 500-period MA"}
 };
-
-
-//#define NWORLDBITS	(sizeof(bitnamelist)/sizeof(struct bitnamestruct))
-#define NULLBIT         -1
+#define NWORLDBITS	(sizeof(bitnamelist)/sizeof(struct bitnamestruct))
 
 // The index of the "pup" bit
 #define PUPDOWNBITNUM	42
+
+// Number of moving averages
+#define NMAS	4
+
+// Number of up/down movements to store for price and dividend, including
+// the current values.  Used for pup, pup1, ... pup[UPDOWNLOOKBACK-1], and
+// similarly for dup[n], and for -pricetrend:.  The argument to -pricetrend:
+// must be UPDOWNLOOKBACK or less.
+#define	UPDOWNLOOKBACK	5
 
 // Breakpoints for price*interest/dividend and dividend/mean-dividend ratios.
 static double ratios[] =
 	{0.25, 0.5, 0.75, 0.875, 1.0, 1.125, 1.25, 1.5, 2.0, 4.0};
 #define NRATIOS		(sizeof(ratios)/sizeof(double))
-#define EQ  0
 
+// ------ Global variables defined in this file -------
+// These may be read anywhere, but should only be changed by World.
+// They could be made into instance variables with accessor methods, but
+// are made global for efficiency.
+double price;
+double oldprice;
+double dividend;
+double olddividend;
+double profitperunit;
+double returnratio;
+int nmas = NMAS;
+int matime[NMAS] = {5, 20, 100, 500};	// Moving average periods
+double pmav[NMAS];
+double oldpmav[NMAS];
+double dmav[NMAS];
+double olddmav[NMAS];
+int nworldbits;
+int realworld[NWORLDBITS];
 
 // ------ Private methods ------
 @interface World(Private)
-
 - makebitvector;
-
 @end
 
 
 @implementation World
 
-/*" The World is a class that is mainly used to serve the information
-  needs of BFagents.  The World takes price data and converts it into
-  a number of trends, averages, and so forth.
 
-One instance of this object is created to manage the "world" variables
--- the globally-visible variables that reflect the market itself,
-including the moving averages and the world bits.  Everything is based
-on just two basic variables, price and dividend, which are set only by
-the -setPrice: and -setDividend: messages.
-
-The World also manages the list of bits, translating between bit names
-and bit numbers, and providing descriptions of the bits' functions.
-These are done by class methods because they are needed before the
-instnce is instantiated."*/
-
-/*"	Supplies a description of the specified bit, taken from the
- *	bitnamelist[] table below.  Also works for NULLBIT.
-"*/
-+ (const char *)descriptionOfBit: (int)n
+/*------------------------------------------------------*/
+/*	+descriptionOfBit:				*/
+/*------------------------------------------------------*/
++ (const char *)descriptionOfBit:(unsigned int)n
 {
-  if (n == NULLBIT)
-    return "(Unused bit for spacing)";
-  else if (n < 0 || n >= (int)NWORLDBITS)
-    return "(Invalid world bit)";
-  return bitnamelist[n].description;
+    if ((int)n == NULLBIT)
+	return "(Unused bit for spacing)";
+    else if (n < 0 || n >= NWORLDBITS)
+	return "(Invalid world bit)";
+    return bitnamelist[n].description;
 }
 
 
-
-/*" Supplies the name of the specified bit, taken from the
-//	bitnamelist[] table below.  Also works for NULLBIT. Basically,
-//	it converts a bit number to a bit name.
-"*/
-+ (const char *)nameOfBit: (int)n
+/*------------------------------------------------------*/
+/*	+nameOfBit:					*/
+/*------------------------------------------------------*/
++ (const char *)nameOfBit:(unsigned int)n
+/*
+ * Converts a bit number to a bit name.
+ */
 {
-  if (n == NULLBIT)
-    return "null";
-  else if (n < 0 || n >= (int)NWORLDBITS)
-    return "";
-  return bitnamelist[n].name;
+    if ((int)n ==  NULLBIT)
+	return "null";
+    else if (n < 0 || n >= NWORLDBITS)
+	return "";
+    return bitnamelist[n].name;
 }
 
 
-+ (int)bitNumberOf: (const char *)name
-/*" Converts a bit name to a bit number. Supplies the number of a bit
- * given its name.  Unknown names return NULLBIT.  Relatively slow
- * (linear search). Could be made faster with a hash table etc, but
- * that's not worth it for the intended usage.  "*/
+/*------------------------------------------------------*/
+/*	+bitNumberOf:					*/
+/*------------------------------------------------------*/
++ (int)bitNumberOf:(const char *)name
+/*
+ * Converts a bit name to a bit number.  Could be made faster with
+ * a hash table etc, but that's not worth it for the intended usage.
+ */
 {
-  unsigned n;
-  
-  for (n = 0; n < NWORLDBITS; n++)
-    if (strcmp(name,bitnamelist[n].name) == EQ)
-      break;
-  if (n >= NWORLDBITS) n = NULLBIT;
+    unsigned int n;
 
-  return n;
+    for (n = 0; n < NWORLDBITS; n++)
+	if (strcmp(name,bitnamelist[n].name) == EQ)
+	    break;
+    if (n >= NWORLDBITS) n = NULLBIT;
+
+    return n;
 }
 
 
-- setintrate: (double)rate
-  /*" Interest rate set in ASMModelSwarm."*/
+/*------------------------------------------------------*/
+/*	+writeNamesToFile:				*/
+/*------------------------------------------------------*/
++ writeNamesToFile:(FILE *)fp
 {
-  intrate = rate;
-  return self;
+    unsigned int i;
+
+    fputs("\n# ---------- Bits ----------\n", fp);
+    for (i=0; i<NWORLDBITS; i++)
+	showstrng(fp, bitnamelist[i].description, bitnamelist[i].name);
+    return self;
 }
 
 
-- setExponentialMAs: (BOOL)aBool
-  /*" Turns on the use of exponential MAs in calculations.  Can be
-    turned on in GUI or ASMModelSwarm.m. If not, simple averages of
-    the last N periods."*/
+/*------------------------------------------------------*/
+/*	-initWithBaseline:				*/
+/*------------------------------------------------------*/
+- (int)initWithBaseline:(double)baseline
+/*
+ * Initializes arrays etc.  Returns maxhistory.
+ */
 {
-  exponentialMAs = aBool;
-  return self;
-}
-
-
-- (int)getNumWorldBits
-  /*" Returns numworldbits; used by the BFagent."*/
-{
-  return nworldbits;
-}
-
-
-- initWithBaseline: (double)baseline
-/*"
-Initializes moving averages, using initial values based on
-a price scale of "baseline" for the dividend.  The baseline is 
-set in ASMModelSwarm. " */
-{
-  int i;
-  double initprice, initdividend;
-  
-
-  priceMA = [Array create: [self getZone] setCount: NMAS];
-  oldpriceMA = [Array create: [self getZone] setCount: NMAS];
-  divMA = [Array create: [self getZone] setCount: NMAS];
-  olddivMA = [Array create: [self getZone] setCount: NMAS];
-
+    int i;
+    double initprice, initdividend;
 
 // Check pup index
-  if (strcmp([World nameOfBit:PUPDOWNBITNUM], "pup") != EQ)
-    printf("PUPDOWNBITNUM is incorrect");
+    if (strcmp([World nameOfBit:PUPDOWNBITNUM], "pup") != EQ)
+	[self error:"PUPDOWNBITNUM is incorrect"];
 
 // Set price and dividend etc from baseline
-  dividendscale = baseline;
-  initprice = baseline/intrate;
-  initdividend = baseline;
-  saveddividend = dividend = initdividend;
-  [self setDividend:initdividend];
-  savedprice = price = initprice;
-  [self setPrice:initprice];
+    dividendscale = baseline;
+    initprice = baseline/intrate;
+    initdividend = baseline;
+    saveddividend = dividend = initdividend;
+    [self setDividend:initdividend];
+    savedprice = price = initprice;
+    [self setPrice:initprice];
 
 // Initialize profit measures
-  returnratio = intrate;
-  profitperunit = 0.0;
+    returnratio = intrate;
+    profitperunit = 0.0;
 
 // Initialize miscellaneous variables
-  nworldbits = NWORLDBITS;
- 
-  malength[0] = 5;
-  malength[1] = 20;
-  malength[2] = 100;
-  malength[3] = MAXHISTORY;
-  
-  history_top = 0;
-  updown_top = 0;
-  
-  //divhistory = [[self getZone] alloc: MAXHISTORY*sizeof(double)]; 
-  //pricehistory = [[self getZone] alloc: MAXHISTORY*sizeof(double)]; 
+    nworldbits = NWORLDBITS;
+    nmas = NMAS;
+    history_top = 0;
+    updown_top = 0;
+    if (exponentialMAs)
+	maxhistory = matime[NMAS-1];
+    else
+	maxhistory = 2*matime[NMAS-1];
 
-  //  realworld = calloc(NWORLDBITS, sizeof(int)); 
-  if(!realworld)
-    printf("Error allocating memory for realworld.");
+// Allocate arrays
+    pupdown = (int *) getmem(sizeof(int)*UPDOWNLOOKBACK);
+    dupdown = (int *) getmem(sizeof(int)*UPDOWNLOOKBACK);
+    pricehistory = (double *) getmem(sizeof(double)*maxhistory);
+    divhistory = (double *) getmem(sizeof(double)*maxhistory);
+    if (exponentialMAs) {
+	aweight = (double *)getmem(sizeof(double)*NMAS);
+	bweight = (double *)getmem(sizeof(double)*NMAS);
+    }
 
 // Initialize arrays
-  for (i = 0; i < UPDOWNLOOKBACK; i++) 
-    {
-      pupdown[i] = 0;
-      dupdown[i] = 0;
+    for (i = 0; i < UPDOWNLOOKBACK; i++) {
+	pupdown[i] = 0;
+	dupdown[i] = 0;
     }
 
-  for (i = 0; i < MAXHISTORY; i++) 
-    {
-      pricehistory[i] = initprice;
-      divhistory[i] = initdividend;
+    for (i = 0; i < maxhistory; i++) {
+	pricehistory[i] = initprice;
+	divhistory[i] = initdividend;
     }
 
-  for (i = 0; i < NMAS; i++) 
-    {
-      {
-	MovingAverage * prMA = [MovingAverage create: [self getZone]];
-	[prMA initWidth: malength[i] Value: initprice];
-	[priceMA atOffset: i put: prMA];
-      }
-      {
-	MovingAverage * dMA = [MovingAverage create: [self getZone]];
-	[dMA initWidth: malength[i] Value: initdividend];
-	[divMA atOffset: i put: dMA];
-      }
-      {
-	MovingAverage * oldpMA = [MovingAverage create: [self getZone]];
-	[oldpMA initWidth: malength[i] Value: initprice];
-	[oldpriceMA atOffset: i put: oldpMA];
-      }
-      {
-	MovingAverage * olddMA = [MovingAverage create: [self getZone]];
-	[olddMA initWidth: malength[i] Value: initdividend];
-	[olddivMA atOffset: i put: olddMA];
-      }
+    for (i = 0; i < NMAS; i++) {
+	pmav[i] = initprice;
+	oldpmav[i] = initprice;
+	dmav[i] = initdividend;
+	olddmav[i] = initdividend;
+    }
+
+    if (exponentialMAs) {
+	for (i = 0; i < NMAS; i++) {
+	    bweight[i] = -expm1(-1.0/matime[i]);
+	    aweight[i] = 1.0 - bweight[i];
+	}
     }
 
 // Initialize bits
-  [self makebitvector];
+    [self makebitvector];
 
-  return self;
+    return maxhistory;
 }
 
-/*" Sets the market price to "p".  All price changes (besides trial
-prices) should use this method.  Also computes profitperunit and
-returnratio.  Checks internally for illegal changes of "price", giving us the
-effective benefit of encapsulation with the simplicity of use of
-a global variable. "*/
-- setPrice: (double)p
+
+/*------------------------------------------------------*/
+/*	-setPrice:					*/
+/*------------------------------------------------------*/
+- setPrice:(double)p
+/*
+ * Sets the current price to p.  Also computes profitperunit and
+ * returnration.
+ * Checks internally for illegal changes of "price", giving us the
+ * effective benefit of encapsulation with the simplicity of use of
+ * a global variable.
+ */
 {
-  if (price != savedprice)
-    printf("Price was changed illegally");
+    if (price != savedprice)
+	Message("*** price was changed illegally");
 
-  oldprice = price;
-  price = p;
+    oldprice = price;
+    price = p;
 
-  profitperunit = price - oldprice + dividend;
-  if (oldprice <= 0.0)
-    returnratio = profitperunit*1000.0;	/* Arbitrarily large */
-  else
-    returnratio = profitperunit/oldprice;
+    profitperunit = price - oldprice + dividend;
+    if (oldprice <= 0.0)
+	returnratio = profitperunit*1000.0;	/* Arbitrarily large */
+    else
+	returnratio = profitperunit/oldprice;
 
-  savedprice = price;
-
-  return self;
+    savedprice = price;
+    return self;
 }
 
-/*"Returns the price, used by many classes."*/
-- (double)getPrice
+
+/*------------------------------------------------------*/
+/*	-setDividend:					*/
+/*------------------------------------------------------*/
+- setDividend:(double)d
+/*
+ * Sets the global value of "dividend".  Checks for illegal changes, like
+ * -setPrice:.
+ */
 {
-  return price;
-}
+    if (dividend != saveddividend)
+	Message("*** dividend was changed illegally");
 
-/*"Returns profitperunit, used by Specialist."*/
-- (double)getProfitPerUnit
-{
-  return profitperunit;
-}
+    olddividend = dividend;
+    dividend = d;
 
-
-/*"Sets the global value of "dividend".  All dividend changes should
-	use this method.  It checks for illegal changes, as does
-	-setPrice:."*/
-- setDividend: (double)d
-{
-  if (dividend != saveddividend)
-    printf("Dividend was changed illegally.");
-  
-  olddividend = dividend;
-  dividend = d;
-
-  saveddividend = dividend;
-  riskNeutral = dividend/intrate;
-    
-  return self;
-}
-
-/*"Returns the most recent dividend, used by many."*/
-- (double)getDividend
-{
-  return dividend;
-}
-
-/*"Returns the risk neutral price.  It is just dividend/intrate."*/
-- (double)getRiskNeutral
-{
-  return riskNeutral;
+    saveddividend = dividend;
+    return self;
 }
 
 
-
-/*" Updates the history records, moving averages, and world bits to
+/*------------------------------------------------------*/
+/*	-updateWorld					*/
+/*------------------------------------------------------*/
+- updateWorld
+/*
+ * Updates the history records, moving averages, and world bits to
  * reflect the current price and dividend.  Note that this is called
  * in each period after a new dividend has been declared but before
- * the bidding and price adjustment.  The bits seen by the agents thus
- * do NOT reflect the trial price.  The "price" here becomes the
- * "oldprice" by the end of the period. It is called once per period.
- * (This could be done automatically as part of -setDividend:).
+ * the bidding and price adjustment.  The bits seen by the agents
+ * thus do NOT reflect the trial price.  The "price" here becomes
+ * the "oldprice" by the end of the period.
  *
  * The dividend used here is at present the latest value, though it
  * could be argued that it should be the one before, to match price.
  * For the p*r/d bits we do use the old one.
- "*/
-- updateWorld
+ */
 {
-  register int i;
+    register int i;
+    int r, rago;
+    double m;
+    int rrago;
 
 /* Update the binary up/down indicators for price and dividend */
-  updown_top = (updown_top + 1) % UPDOWNLOOKBACK;
-  pupdown[updown_top] = price > oldprice;
-  dupdown[updown_top] = dividend > olddividend;
+    updown_top = (updown_top + 1) % UPDOWNLOOKBACK;
+    pupdown[updown_top] = price > oldprice;
+    dupdown[updown_top] = dividend > olddividend;
 
 /* Update the price and dividend moving averages */
-  history_top = history_top + 1 + MAXHISTORY;
-  
-  //update moving averages of price and dividend
-
-  for (i = 0; i < NMAS; i++) 
-    {
-      int rago = (history_top-malength[i])%MAXHISTORY;
-
-      [[priceMA atOffset: i] addValue: price];
-      [[divMA atOffset: i] addValue: dividend];
-
-      [[oldpriceMA atOffset:i] addValue: pricehistory[rago]];
-      [[olddivMA atOffset: i] addValue: divhistory[rago]];
+    history_top = history_top + 1 + maxhistory;
+    if (exponentialMAs) {
+	for (i = 0; i < NMAS; i++) {
+	    r = matime[i];
+	    rago = (history_top-r)%maxhistory;
+	    pmav[i] = aweight[i]*pmav[i] + bweight[i]*price;
+	    oldpmav[i] = aweight[i]*oldpmav[i] + bweight[i]*pricehistory[rago];
+	    dmav[i] = aweight[i]*dmav[i] + bweight[i]*dividend;
+	    olddmav[i] = aweight[i]*olddmav[i] + bweight[i]*divhistory[rago];
+	}
+    }
+    else {
+	for (i = 0; i < NMAS; i++) {
+	    r = matime[i];
+	    m = 1.0 / (double)r;
+	    rago = (history_top-r)%maxhistory;
+	    rrago = (history_top-r-r)%maxhistory;
+	    pmav[i] += (price - pricehistory[rago]) * m;
+	    oldpmav[i] += (pricehistory[rago] - pricehistory[rrago]) * m;
+	    dmav[i] += (dividend - divhistory[rago]) * m;
+	    olddmav[i] += (divhistory[rago] - divhistory[rrago]) * m;
+	}
     }
 
-
 /* Update the price and dividend histories */
-  history_top %= MAXHISTORY;
-  pricehistory[history_top] = price;
-  divhistory[history_top] = dividend;
-    
-/* Construct the bit vector for the current state of the world */
-  [self makebitvector];
+    history_top %= maxhistory;
+    pricehistory[history_top] = price;
+    divhistory[history_top] = dividend;
 
-  return self;
+/* Construct the bit vector for the current state of the world */
+    [self makebitvector];
+
+    return self;
 }
 
 
+/*------------------------------------------------------*/
+/*	-makebitvector					*/
+/*------------------------------------------------------*/
 - makebitvector
-/*" Set all the world bits, based on the current dividend, price, and
-their moving averages and histories.  This moves through the realworld
-array, bit by bit, setting the values to 0, 1 or 2, according to the
-data that has been observed.  Note the pointer math, such as
-realworld[i++], that steps the integer i through the array.  Note that
-"i" increases monotonically throughout this routine, always being the
-next bit to assign.  It is crucial that the order here is the same as
-in bitnamelist[]. "*/
+/*
+ * Set all the world bits, based on the current dividend, price, and
+ * their moving averages and histories.
+ */
 {
-  register int i, j, k, temp;
-  double multiple;
+    register int k, temp;
+    unsigned int i,j;
+    double multiple;
 
+// Note that "i" increases monotonically throughout this routine, always
+// being the next bit to assign.  It is crucial that the order here is the
+// same as in bitnamelist[].
+    i = 0;
 
-  i = 0;
-    
-  realworld[i++] = 1;
-  realworld[i++] = 0;
-  realworld[i++] = irand(2);
+    realworld[i++] = 1;
+    realworld[i++] = 0;
+    realworld[i++] = irand(2);
 
-  /* Dividend went up or down, now and for last few periods */
-  temp = updown_top + UPDOWNLOOKBACK;
-  for (j = 0; j < UPDOWNLOOKBACK; j++, temp--)
-    realworld[i++] = dupdown[temp%UPDOWNLOOKBACK];
+    /* Dividend went up or down, now and for last few periods */
+    temp = updown_top + UPDOWNLOOKBACK;
+    for (j = 0; j < UPDOWNLOOKBACK; j++, temp--)
+	realworld[i++] = dupdown[temp%UPDOWNLOOKBACK];
 
-  /* Dividend moving averages went up or down */
-  for (j = 0; j < NMAS; j++)
-    realworld[i++] = (GETMA(divMA,j)) > (GETMA(olddivMA,j));
-  
+    /* Dividend moving averages went up or down */
+    for (j = 0; j < NMAS; j++)
+	realworld[i++] = dmav[j] > olddmav[j];
 
-  /* Dividend > MA[j] */
-  for (j = 0; j < NMAS; j++)
-    realworld[i++] = dividend > ( GETMA(divMA,j));
+    /* Dividend > MA[j] */
+    for (j = 0; j < NMAS; j++)
+	realworld[i++] = dividend > dmav[j];
 
-  /* Dividend MA[j] > dividend MA[k] */
-  for (j = 0; j < NMAS-1; j++)
-    for (k = j+1; k < NMAS; k++)
-      realworld[i++] = (GETMA(divMA,j)) > (GETMA(divMA,k));
+    /* Dividend MA[j] > dividend MA[k] */
+    for (j = 0; j < NMAS-1; j++)
+	for (k = j+1; k < NMAS; k++)
+	    realworld[i++] = dmav[j] > dmav[k];
 
-  /* Dividend as multiple of meandividend */
-  multiple = dividend/dividendscale;
-  for (j = 0; j < (int)NRATIOS; j++)
-    realworld[i++] = multiple > ratios[j];
+    /* Dividend as multiple of meandividend */
+    multiple = dividend/dividendscale;
+    for (j = 0; j < NRATIOS; j++)
+	realworld[i++] = multiple > ratios[j];
 
-  /* Price as multiple of dividend/intrate.  Here we use olddividend to
-   * make a more reasonable comparison with the [old] price. */
-  multiple = price*intrate/olddividend;
-  for (j = 0; j < (int)NRATIOS; j++)
-    realworld[i++] = multiple > ratios[j];
+    /* Price as multiple of dividend/intrate.  Here we use olddividend to
+     * make a more reasonable comparison with the [old] price. */
+    multiple = price*intrate/olddividend;
+    for (j = 0; j < NRATIOS; j++)
+	realworld[i++] = multiple > ratios[j];
 
-  /* Price went up or down, now and for last few periods */
-  temp = updown_top + UPDOWNLOOKBACK;
-  for (j = 0; j < UPDOWNLOOKBACK; j++, temp--)
-    realworld[i++] = pupdown[temp%UPDOWNLOOKBACK];
+    /* Price went up or down, now and for last few periods */
+    temp = updown_top + UPDOWNLOOKBACK;
+    for (j = 0; j < UPDOWNLOOKBACK; j++, temp--)
+	realworld[i++] = pupdown[temp%UPDOWNLOOKBACK];
 
-  /* Price moving averages went up or down */
-  for (j = 0; j < NMAS; j++)
-    realworld[i++] = (GETMA(priceMA,j)) > (GETMA(oldpriceMA,j));
-    //realworld[i++] =pmav[j] > oldpmav[j];
+    /* Price moving averages went up or down */
+    for (j = 0; j < NMAS; j++)
+	realworld[i++] = pmav[j] > oldpmav[j];
 
-  /* Price > MA[j] */
-  for (j = 0; j < NMAS; j++)
-     realworld[i++] = price > (GETMA(priceMA,j));
+    /* Price > MA[j] */
+    for (j = 0; j < NMAS; j++)
+	realworld[i++] = price > pmav[j];
 
-  /* Price MA[j] > price MA[k] */
-  for (j = 0; j < NMAS-1; j++)
-    for (k = j+1; k < NMAS; k++)
-      realworld[i++] = (GETMA(priceMA,j)) > (GETMA(priceMA,k));
-  
-  // Check
-  if (i != NWORLDBITS)
-    printf("Bits calculated != bits defined."); 
+    /* Price MA[j] > price MA[k] */
+    for (j = 0; j < NMAS-1; j++)
+	for (k = j+1; k < NMAS; k++)
+	    realworld[i++] = pmav[j] > pmav[k];
+
+// Check
+    if (i != NWORLDBITS)
+	[self error:"Bits calculated != bits defined"];
 
 /* Now convert these bits using the code:
  *  yes -> 1    (01)
  *  no  -> 2    (10)
  * Then we're able to check rule satisfaction with simple ANDs.
  */
-  for (i = 0; i < (int)NWORLDBITS; i++)
-    realworld[i] = 2 - realworld[i];
+    for (i = 0; i < NWORLDBITS; i++)
+	realworld[i] = 2 - realworld[i];
 
-  return self;
-}
-
-/*" Returns the real world array of bits.  Used by BFagent to compare
-  their worlds to the real world."*/
-- getRealWorld: (int *)anArray
-{
-  memcpy(anArray, realworld, NWORLDBITS*sizeof(int)); 
-  return self;
+    return self;
 }
 
 
-- (int)pricetrend: (int)n;
-/*"
+/*------------------------------------------------------*/
+/*	-pricetrend:					*/
+/*------------------------------------------------------*/
+- (int)pricetrend:(int)n;
+/*
  * Returns +1, -1, or 0 according to whether the price has risen
  * monotonically, fallen monotonically, or neither, at the last
- * n updates. Causes
- *	an error if nperiods is too large (see UPDOWNLOOKBACK)."
- "*/
+ * n updates.
+ */
 {
-  int trend, i;
+    int trend, i;
 
-  if (n > UPDOWNLOOKBACK)
-    printf("argument %d to -pricetrend: exceeds %d", n, UPDOWNLOOKBACK);
-  for (i=0, trend=0; i<n; i++)
-    trend |= realworld[i+PUPDOWNBITNUM];
-  
-  if (trend == 1)
-    return 1;
-  else if (trend == 2)
-    return -1;
-  else
-    return 0;
+    if (n > UPDOWNLOOKBACK)
+	[self error:"argument %d to -pricetrend: exceeds %d", n,
+							UPDOWNLOOKBACK];
+    for (i=0, trend=0; i<n; i++)
+	trend |= realworld[i+PUPDOWNBITNUM];
+
+    if (trend == 1)
+	return 1;
+    else if (trend == 2)
+	return -1;
+    else
+	return 0;
 }
 
 
+/*------------------------------------------------------*/
+/*	-check						*/
+/*------------------------------------------------------*/
+- check
+/*
+ * Checks that moving averages and up/down records are correct.  This is
+ * meant to be run between periods, so the records do NOT reflect the
+ * latest "price".  Thus we compare with "oldprice".
+ */
+{
+    register int i, j;
+    int t1, t2;
+    int m, k;
+    double psum, dsum, oldpsum, olddsum;
+
+    if (pricehistory[history_top] != oldprice)
+	Message("*w: price %f != %f", pricehistory[history_top], oldprice);
+    if (divhistory[history_top] != dividend)
+	Message("*w: dividend %f != %f", divhistory[history_top], dividend);
+
+    for (i=0; i<UPDOWNLOOKBACK; i++) {
+	j = (updown_top-i+UPDOWNLOOKBACK)%UPDOWNLOOKBACK;
+	t1 = (history_top-i+maxhistory)%maxhistory;
+	t2 = (history_top-i+maxhistory-1)%maxhistory;
+	if (pupdown[j] != (pricehistory[t1] > pricehistory[t2]))
+	    Message("*w: pupdown[%d]=%d, t1/2=%d/%d, price1/2=%f/%f",
+		j, pupdown[j], t1, t2, pricehistory[t1], pricehistory[t2]);
+	if (dupdown[j] != (divhistory[t1] > divhistory[t2]))
+	    Message("*w: dupdown[%d]=%d, t1/2=%d/%d, dividend1/2=%f/%f",
+		j, dupdown[j], t1, t2, divhistory[t1], divhistory[t2]);
+    }
+
+    if (! exponentialMAs) {
+	for (i=0; i<NMAS; i++) {
+	    m = matime[i];
+	    psum = 0.0;
+	    dsum = 0.0;
+	    oldpsum = 0.0;
+	    olddsum = 0.0;
+	    for (j=0; j<m; j++) {
+		k = (history_top-j+maxhistory)%maxhistory;
+		psum += pricehistory[k];
+		dsum += divhistory[k];
+		k = (history_top-j-m+maxhistory)%maxhistory;
+		oldpsum += pricehistory[k];
+		olddsum += divhistory[k];
+	    }
+	    if (fabs(psum/m-pmav[i]) > 0.0001*fabs(pmav[i]))
+		Message("*w: pmav[%d] %g %g", i,psum/m,pmav[i]);
+	    if (fabs(dsum/m-dmav[i]) > 0.0001*fabs(dmav[i]))
+		Message("*w: dmav[%d] %g %g", i,dsum/m,dmav[i]);
+	    if (fabs(oldpsum/m-oldpmav[i]) > 0.0001*fabs(oldpmav[i]))
+		Message("*w: oldpmav[%d] %g %g", i,oldpsum/m,oldpmav[i]);
+	    if (fabs(olddsum/m-olddmav[i]) > 0.0001*fabs(olddmav[i]))
+		Message("*w: olddmav[%d] %g %g", i,olddsum/m,olddmav[i]);
+	}
+    }
+    Message("#w: p=%.4f d=%.4f", price, dividend);
+
+    return self;
+}
+
 @end
-
-
-
-
-
-
-
-
-
-
-
-

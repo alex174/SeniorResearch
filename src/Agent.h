@@ -1,63 +1,50 @@
-#import <objectbase.h>               //Agent is a SwarmObject
-#import <objectbase/SwarmObject.h>
-#import <collections.h>
-#import "World.h"
+// The Santa Fe Stockmarket -- Interface for Agent class
 
+#import <objc/Object.h>
 
-@interface Agent:SwarmObject          
+@interface Agent:Object
 {
-  @public
-  double demand;	/*" bid or -offer"*/ 
-  double profit;	/*" exp-weighted moving average "*/
-  double wealth;	/*" total agent wealth "*/
-  double position;	/*" total shares of stock "*/
-  double cash;	        /*" total agent cash position "*/ 
-  double initialcash;
-  double minholding;
-  double mincash;
-  double intrate;
-  double intratep1;
-  double price;         // price is maintained by World
-  double dividend;      // dividend is maintained by World
-  int myID;
-  @protected
-    id <List> agentList;
+@public
+    double demand;	/* bid or -offer */
+    double profit;	/* exp-weighted moving average */
+    double wealth;	/* total agent wealth */
+    double position;	/* total shares of stock */
+    double cash;	/* total agent cash position */
+    int tag;		/* agent number (index into AgentManager's alist[]) */
+    int lastgatime;	/* last time a GA was run, or MININT if none */
 }
 
+// CLASS METHODS
++ initClass:(int)myclass;
++ (void *)createType:(int)mytype :(const char *)filename;
++ writeParams:(void *)theParams ToFile:(FILE *)fp;
++ didInitialize;
++ prepareForTrading:(void *)theParams;
++ (int)lastgatime:(void *)params;
 
-+ setWorld: (World *)aWorld;
-
-- setID: (int)iD;
-- (int)getID;
-- setPosition: (double)aDouble;
-- setintrate: (double)rate;
-- setminHolding: (double)holding   minCash: (double)minimumcash;
-- setInitialCash: (double)initcash;
-- setInitialHoldings;
-- (void)setAgentList: aList;
-
-- getPriceFromWorld;
-- getDividendFromWorld;
-
+// PUBLIC INSTANCE METHODS, NOT USUALLY OVERRIDDEN
+- init;		// dummy, to catch misuse (use initAgent:type:)
+- setTag:(int)mytag;
+- (const char *)shortname;
+- (const char *)fullname;
+- setPosition:(double)aDouble;
 - creditEarningsAndPayTaxes;
-- (double)constrainDemand: (double *)slope : (double)trialprice;
-- (double)getAgentPosition;
-- (double)getWealth;
-- (double)getCash;
+- (double)constrainDemand:(double *)slope :(double)trialprice;
+- (int *(*)[4])bitDistribution;
 
-//Methods specified by each agent type
-- prepareForTrading;   
-- (double)getDemandAndSlope: (double *)slope forPrice: (double)trialprce;
+// PUBLIC INSTANCE METHODS, OFTEN OVERRIDDEN BY SUBCLASSES
+- initAgent:(int)mytag;
+- check;
+- prepareForTrading;
+- (double)getDemandAndSlope:(double *)slope forPrice:(double)trialprce;
 - updatePerformance;
+- enabledStatus:(BOOL)flag;
+- (int)nbits;
+- (const char *)descriptionOfBit:(int)bit;
+- (int)nrules;
+- (int)lastgatime;
+- (int)bitDistribution:(int *(*)[4])countptr cumulative:(BOOL)cum;
+- (int)fMoments:(double *)moment cumulative:(BOOL)cum;
+- pAgentStatus:(FILE *) fp;
 
-- (void)bareLispOutDeep: stream;
-
-- (void)lispSaveStream: stream Double: (const char*) aName Value: (double)val;
-
-- (void)lispSaveStream: stream Integer: (const char*) aName Value: (int)val;
 @end
-
-
-
-
-

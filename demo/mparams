@@ -1,0 +1,43 @@
+# Market parameters for the Santa Fe Stockmarket.
+# Parameters are recognized solely by position within file -- watch out
+
+# General market parameters
+# -------------------------
+0.1		# intrate -- interest rate for fixed-asset
+20000		# initialcash - initial cash for each agent
+99999		# maxprice -- maximum price
+0.001		# minprice -- minimum price
+50.0		# taup -- moving average healing time for profit
+-5		# minholding -- minimum holding per agent (<= 0)
+-2000		# mincash - minumum cash per agent, <= 0 (borrowing constraint)
+
+# matype governs how the price and dividend moving averages are calculated.
+# The N-period moving averages (MA's) can be weighted in one of two ways:
+#   uniform	   the average of the last N values
+#   exponential	   ma' = a*ma + b*value, with a = exp(-1/N), b = 1-a
+exponential	# matype -- moving average type
+
+# Specialist parameters
+# ---------------------
+# "sptype" sets the type of specialist.  Some of the other parameters only
+# apply to certain types of specialists, but all must be supplied in any case.
+#
+# sptype allowed values are:
+#   fixed -- fixed eta
+#   adaptive -- adaptive eta
+#   re -- rational expectations for special trial case
+#   vcvar -- based on variance-covariance (elasticity)
+#   slope -- iterative, based on agent-supplied slope
+
+slope		# sptype -- specialist type
+20		# maxiterations -- max number of price adjustment iterations
+0.01		# minexcess -- target for |bids - offers| for iterative cases
+0.0005		# eta -- amount by which price changes per bid or offer
+1e-7		# etaincrement -- amount by which eta changes per step
+0.05		# etamax -- maximum value of eta when adaptive
+0.00001		# etamin -- minimum value of eta when adaptive
+9.0		# rea -- dividend multiplier for RE price
+2.0		# reb -- constant offset for RE price
+10.0		# taulpv -- healing time for variance/covariance MAs
+0.1		# ldelpmax -- max |log(price/oldprice)| in elasticity calcn
+

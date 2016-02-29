@@ -1,59 +1,57 @@
-//#import <objectbase.h>    //Specialist is a SwarmObject
-#import "World.h"
+// The Santa Fe Stockmarket -- Interface for Specialist class
+
+#import <objc/Object.h>
 
 @class Agent;
 
-typedef enum 
-{
-  SP_RE = 0,
-  SP_SLOPE = 1,
-  SP_ETA = 2
+// These numbers must match the tags of the Specialist popup list.
+// Order (here or in IB) doesn't matter; it's all in the tags, which are
+// set in the IB inspector panel.
+typedef enum {
+	SP_ETA=0,
+	SP_ADAPTIVEETA=1,
+	SP_RE=2,
+	SP_VCVAR=3,
+	SP_SLOPE=4
 } SpecialistType;
 
-
-@interface Specialist: SwarmObject
+@interface Specialist: Object
 {
-  double maxprice; /*"Ceiling on stock price"*/
-  double minprice; /*"Floor under stock price"*/
-  double eta;  /*"Used in adjusting price to balance supply/demand"*/
-  // double etainitial; /not used in ASM-2.0
-  double minexcess; /*"excess demand must be smaller than this if the price adjustment process is to stop"*/
-  double rea; /*"rational expectations benchmark"*/ 
-  double reb; /*" trialprice = rea*dividend + reb "*/
-  double bidfrac; /*"used in completing trades: volume/bidtotal"*/
-  double offerfrac; /*"used in completing trades: volume/offertotal"*/
-  int maxiterations; /*" maximum passes while adjusting trade conditions"*/
-  //  id agentList; /*" set of traders whose demands must be reconciled"*/
-  double volume; /*" volume of trades conducted"*/
-  double taupdecay; /*"The agent's profit is calculated as an exponentially weighted moving average.  This coefficient weights old inputs in the EWMA"*/ 
-  double taupnew; /*"Used in calculating exponentially weighted moving average;  taupnew = -expm1(-1.0/aTaup); taupdecay =  1.0 - taupnew; "*/ 
-  @private
-    //   World * worldForSpec; /*" reference to World object that keeps data"*/
-  SpecialistType sptype; /*" an enumerated type indicating the sort of Specialist is being used, valued 0, 1, or 2"*/
+    double maxprice;
+    double minprice;
+    double eta;
+    double etaincrement;
+    double etainitial;
+    double etamax;
+    double etamin;
+    double ldelpmax;
+    double minexcess;
+    double rea;
+    double reb;
+    double cvar;
+    double var;
+    double bidfrac;
+    double offerfrac;
+    Agent **idlist;
+    int nenabled;
+    int maxiterations;
+    int varcount;
+    SpecialistType sptype;
 }
 
-// Methods to set parameters
-- setMaxPrice: (double)maximumPrice;
-- setMinPrice: (double)minimumPrice;
-- setTaup: (double)aTaup;
-- setSPtype: (int)i;
-- setMaxIterations: (int)someIterations;
-- setMinExcess: (double)minimumExcess;
-- setETA: (double)ETA;
-
-- setREA: (double)REA;
-- setREB: (double)REB;
-
-
-- (double)performTrading: (id)agentList Market: (id)worldForSpec;
-- (double)getVolume;
-- completeTrades: agentList Market: worldForSpec;
+- initFromFile:(const char *)paramfile;
+- writeParamsToFile:(FILE *)fp;
+- (double)performTrading;
+- completeTrades;
+- setParamFromString:(const char *)string;
+- setEta:(double)eta;
+- setEtaIncrement:(double)etaIncrement;
+- (double)eta;
+- (double)etaIncrement;
+- setSpecialistType:(SpecialistType)stype;
+- (SpecialistType)specialistType;
+- (const char *)specialistTypeNameFor:(SpecialistType)type;
 
 
 @end
-
-
-
-
-
 

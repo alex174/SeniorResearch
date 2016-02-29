@@ -1,0 +1,40 @@
+# List of agents for the Santa Fe Stockmarket.
+#
+# This file specifies which agents are participating in the market.
+# Each line should have four fields, separated by spaces or tabs:
+#
+#   Agent_class      Number     Initial_holding	   Parameter_filename
+
+# The possible Agent_class values are listed in the following table.
+# Either the long name (e.g. "Bitstring") or the two-letter code (e.g. "BS")
+# may be used in this file.  Some Parameter_filename values are also given
+# in parentheses (e.g. bsparams); these template files contain explanations
+# of the parameters for each agent.
+#
+# Bitstring	BS	Buy-sell classifiers with a genetic algorithm.  More
+#			or less as in the Physica paper, except that the
+#			condition bits may be selected initially.  (bsparams)
+#
+# Bitforecast	BF	Multiple linear forecasters per agent with condition
+#			bits; statistically weighted; genetic algorithm;
+#			risk aversion as basis for bids.  (bfparams)
+#
+# Linear	LI	Simple fixed linear forecasters (5 per agent); risk
+#			aversion.  (fparams)
+#
+# Dumb		DU	Dumb agent; buys or sells based on one bit.  (duparams)
+
+# You can have multiple "types" of agents in the same class, by specifying
+# several lines with the same Agent-class but different Parameter-filenames.
+
+# The Initial_holding values should normally be 1.0.
+
+# Example entries:
+#BF		10	1.0	bfparams
+#BF		10	1.0	bfparams2
+#Bitstring	20	1.0	bsparams
+#DU		10	1.0	duparams
+#LI		10	1.0	fparams
+
+# Actual entries
+BF		50	1.0	bfparams

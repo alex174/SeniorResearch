@@ -1,0 +1,12 @@
+# Forecaster agent parameters for Santa Fe Stockmarket.
+# Parameters are recognized solely by position within file -- watch out
+
+# This file is only used by those forecasting agents that don't have
+# a more specialized parameter file of their own.  Presently LI.
+
+# Rule-related parameters
+1	# numfcasts -- number of forecasts per agent
+500.0	# tauv -- moving average healing time for variances
+5.0	# lambda -- risk aversion parameter
+1.0	# maxbid -- maximum bid or offer
+0.001	# beta -- strength scaling Boltzmann parameter

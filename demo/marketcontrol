@@ -1,0 +1,176 @@
+# General control parameters for the Santa Fe Stockmarket
+# Parameters are recognized solely by position within file -- watch out!
+
+# This control file itself is looked for (in order):
+# (1) in the current working directory (which is the user's home directory
+#     if the app launched by Workspace Manager);
+# (2) in the directory where Market.app resides;
+# (3) inside the Market.app file package.
+# The first one of these found sets the path for other files, except that the
+# color file(s) are also looked for inside the Market.app file package if
+# not found in the expected place..
+
+# Debugging flags
+# ---------------
+# These can be specified here, or on the command line with a -dxxx option,
+# where xxx is a string of desired flags.  The union (OR) of the two
+# specifications is used.  Use "0" here if no flags are specified.
+# The flags are:
+#   a	Debug agents (depends on individual agent classes)
+#   b	Debug agent browser; report fixable inconsistencies
+#   c	Show CPU time at certain times
+#   d	Debug dividend process -- show some internal parameters
+#   e	Show each event returned (except display events)
+#   f	Show filenames and path computations (-df *option* shows more)
+#   h	Debug holding; check conservation of the total
+#   m	Show items related to memory usage
+#   n	Debug NameTree, show number of nodes in use
+#   t	Debug types and classes -- checks lists, reports summary
+#   w	Debug world; check moving averages and record-keeping
+#   A	Turn on ALL of the the above flags
+#   0	No effect; use if no other flags are specified
+0	# debugflags
+
+# Random number seed
+# ------------------
+# Use a positive integer for reproducible results, or 0 to choose randomly.
+# The log file always shows the value to use to reproduce the run.
+0	# rseed
+
+# Filenames
+# ---------
+# Unless these start with / or ~/ they are taken to be in the directory
+# in which this control file was found.  Surround the whole filename in
+# double quotes if it includes spaces or #'s.
+#
+# "-" may be used to specify stdin or stdout (except for the colors files). 
+#
+# "=" may be used in most cases to mean the same file as before.  This is
+# allowed for all input files, allowing concatenation of all the input
+# files into a single file.  The files are read in the order listed here.
+# The log file from one run may be used as a single concatenated input
+# file to reproduce that run.  "=" may also be used for the output files
+# (except the first) used for the main output streams, to merge their
+# output lines.
+#
+# All specified filenames must be given, even if not needed (e.g. colors
+# files in batch version).  You can use "<none>" in such cases.  "<none>"
+# can also be used to turn off output files.
+#
+# Other input files may be needed for specific agents.  These are
+# specified in the agentlist file, and follow the same naming
+# conventions as those here.  They are read after the agentlist file
+# and before the timelist file.
+#
+# Output filenamess may contain one or more #'s, which are replaced by digits
+# of the run number, from right to left.  In this case the filename MUST
+# be enclosed in double quotes.  Output filenames may also be prefixed
+# by a "+" to imply append-mode (append to an existing file) and/or by
+# a "*" to suppress the normal headings at the start of the output.
+
+# Input files
+dparams		# dparamfilename -- parameters for dividend process
+mparams		# mparamfilename -- parameters for market & specialist
+agentlist	# agentlistfilename -- list of agents in market
+timelist	# timefilename -- list of times to produce output or display
+colors		# colorfilename -- colors for color display
+grays		# graysfilename -- colors for mono display
+
+# Output files
+"log###"	# logfilename -- log of parameters
+"agents###"	# agentstatfilename -- agent statistics
+# Note: the output files for the main output streams appear below.
+
+# Output stream specifications
+# ----------------------------
+# Any number of output streams may be specified (subject to system
+# limitations).  Each one is specified with the following parameters:
+#
+#    streamname
+#    filename         (= may be used after the first)
+#    headinginterval
+#    variable1
+#    variable2
+#    variable3
+#    ...
+#    end
+#
+# The "streamname" is arbitrary, as long as different streams have different
+# names.  It is used for reference in the timelist file.  The "filename" is
+# the output filename; see the general discussion of filenames above.  The
+# "headinginterval" is an integer specifying the frequency of adding a
+# heading (naming the variables) to the output.  E.g., headinginterval = 50
+# would give a heading every 50 lines.  0 gives an initial heading only, -1
+# gives none at all.  The variable1, variable2, variable3, ... parameters are
+# specifications of the variables to be output, in order, as described below.
+# A literal "end" terminates these.  Another literal "end" must appear after
+# the last output stream specification.
+#
+# Variable specifications
+# -----------------------
+# Each variable specification is the name of a variable or a bit, possibly
+# with an optional prefix and/or suffix.  The possible names are in the
+# NAMES file, or can be listed by running the program with the -n option.
+# Prefix characters are:
+#    
+#   |	Don't leave a space before the variable (default is one space)
+#   @   Average the variable's value since the last time it was printed
+#	in this output stream (or since time 0).
+#   +   Like @, but just sum the values -- don't divide by the number of
+#	samples.  Useful, e.g., for getting the total trading volume.
+#
+# If | is used it must come first.  It may also stand alone as a separate
+# item (followed by white space).  No space may appear between @ or + and
+# the variable name.
+#
+# The only allowed suffix is a format specification, as for printf,
+# enclosed in parentheses.  A default format is used if this is not given.
+# The format specification should be appropriate for a "double" or "int"
+# as appropriate (see the NAMES file), except that all accumulation
+# variables (i.e. with @ or + prefix) are treated as double.
+#
+# Examples of variable specifications:
+#    p		price
+#    d20>d100	bit "Dividend: 20-period MA > 100-period MA" (int, 0 or 1)
+#    |d20>d100	same, but without preceding space
+#    @d20>d100	average value of the bit (double)
+#    +v		total volume since last time printed
+#    d/r(%.6f)	dividend/intrate with format %.6f
+#    "t(time = %d)"	time with format string (note the double quotes)
+	
+# "prices" stream
+prices          # streamname
+prices          # filename
+0               # headinginterval
+                # -- variables in stream 'prices' --
+t               # time
+p               # price
+d/r             # dividend/interest_rate
++v              # SUM OF volume
+random          # Random on or off
+pr/d>7/8        # Price*interest/dividend > 7/8
+p>p5            # Price > 5-period MA
+p>p20           # Price > 20-period MA
+p>p100          # Price > 100-period MA
+p>p500          # Price > 500-period MA
+end             # (end of variable list)
+
+# Other output stream specifications could appear here
+# "pricesday" stream
+pricesday          # streamname
+pricesday          # filename
+-1               # headinginterval
+                # -- variables in stream 'prices' --
+t               # time
+p               # price
+d/r             # dividend/interest_rate
++v              # SUM OF volume
+random          # Random on or off
+pr/d>7/8        # Price*interest/dividend > 7/8
+p>p5            # Price > 5-period MA
+p>p20           # Price > 20-period MA
+p>p100          # Price > 100-period MA
+p>p500		# price > 500-period MA
+end
+
+end             # (end of output stream specifications)

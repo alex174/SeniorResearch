@@ -1,0 +1,49 @@
+# Bitstring-forecaster (BF) agent parameters for Santa Fe Stockmarket
+# Parameters are recognized solely by position within file -- watch out
+
+60		# numfcasts -- number of fcasts per agent
+50.0		# tauv -- moving average healing time for variances
+0.5		# lambda -- risk aversion parameter
+10.0		# maxbid -- maximum bid or offer
+10 		# mincount -- min observations before a fcast is used
+0.00		# subrange -- for initialization of a, b, c (centered)
+0.3	1.68	# min and max values of "a" param (p+d coeff)
+0	0	# min and max values of "b" param (d coeff)
+-100  101.799979	# min and max values of "c" param (const term)
+4.000212	# newfcastvar -- variance assigned to a new forecaster
+4.000212	# initvar -- variance of overall forecast for t<200
+0.00001		# bitcost -- penalty parameter for specificity
+100		# maxdev -- max deviation of a forecast in variance estimation
+yes		# individual -- use individual forecast variances (yes/no)
+0.1		# bitprob -- probability per bit of 0/1 bit initially
+
+# List of bits to be used in condition strings.  Either use "all", or give
+# a list of bit names terminated by "end".  The available bit names are
+# listed in the BITNAMES file.  "null" may be used within the list of
+# bits to separate them into groups visually.  You can use "p x" to
+# change the bitprob for subsequent bits to "x".
+
+# Examples:
+# all
+# pup pup1 pup2 pup3 pup4 null p 0.5 dup dup1 dup2 dup3 dup4 end
+
+pr/d>1/4 pr/d>1/2 pr/d>3/4 pr/d>7/8 pr/d>1 pr/d>9/8
+pr/d>5/4 pr/d>3/2 pr/d>2 pr/d>4
+p>p5 p>p20 p>p100 p>p500 
+on off 
+end
+
+# GA parameters
+100	# gafrequency -- average time between GA runs (poisson process)
+100	# firstgatime -- time at which GA is enabled
+0.10	# poolfrac -- fraction of rules chosen for possible replacement
+0.05	# newfrac -- fraction of rules actually replaced
+0.3	# pcrossover -- probability of crossover
+0.333	# plinear -- linear combination "crossover" prob
+0.333	# prandom -- random from each parent crossover prob.
+0.01	# pmutation -- per bit mutation prob.
+0.25	# plong -- long jump prob.
+0.2	# pshort -- short (neighborhood) jump prob.
+0.05	# nhood -- size of neighborhood.
+2000	# longtime -- generalize if rule unused for this length of time
+0.10	# genfrac -- fraction of 0/1 bits to make don't-care when generalising
