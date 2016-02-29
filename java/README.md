@@ -1,5 +1,5 @@
 # Java Version
-Others (Jose Manueal Galán and Luis R. Izquierdo) ported SFI-ASM to java. Their code, in the latest version available from sourceforce, is avaiable here.
+Others (Jose Manueal Galán and Luis R. Izquierdo) ported SFI-ASM to java. Their code, in the latest version available from sourceforce, is available here.
 
 # Original README
 

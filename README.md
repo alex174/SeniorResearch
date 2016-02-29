@@ -3,11 +3,11 @@ All code and material is drawn from http://artstkmkt.sourceforge.net
 This repo is a conversion of the CVS repository available at that address. 
 
 # Purpose
-SFI-ASM is, to me, an captivating, enigmatic thing, part fascinating research, part intruiging model, part important academic history and part computing history artifact. My interest is first the preservtion of the artifact, second the understanding of them model, and third the understanding of the academic-socio-historical context of the model's creataion.  
-To that end, this repository tracks the source code through all of the releases I can find, and will try to modify the code and codifiy its environemnt sufficently s.t. it can be built on a well specified VM.
+SFI-ASM is, to me, an captivating, enigmatic thing, part fascinating research, part  intriguing model, part important academic history and part computing history artifact. My interest is first the  preservation of the artifact, second the understanding of them model, and third the understanding of the academic-historical context of the model's creation.  
+To that end, this repository tracks the source code through all of the releases I can find, and will try to modify the code and codify its environment sufficiently s.t. it can be built on a well specified VM.
 
 # SFI-ASM
-The Sante Fe Institute Artifical Stock Market is a description of a agent-based model of a stock market.  It has been realized in a few different implementations, which this repository aims to collect and enhance. 
+The Sante Fe Institute Artificial Stock Market is a description of a agent-based model of a stock market.  It has been realized in a few different implementations, which this repository aims to collect and enhance. 
 
 The model itself was first described by Palmer et al. (1994)
 
