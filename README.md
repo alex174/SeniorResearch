@@ -1,8 +1,40 @@
 # Source
 All code and material is drawn from http://artstkmkt.sourceforge.net 
+This repo is a conversion of the CVS repository available at that address. 
 
 # Purpose
-sfi-asm is, to me, an captivating, enigmatic thing, part fascinating research, part intruiging model, part important academic history and part computing history artifact. My interest is first the preservtion of the artifact, second the understanding of them model, and third the understanding of the academic-socio-historical context of the model's creataion.  To that end, this repository tracks the source code through all of the releases I can find, and will try to modify the code and codifiy its environemnt sufficently s.t. it can be built on a well specified VM.
+SFI-ASM is, to me, an captivating, enigmatic thing, part fascinating research, part intruiging model, part important academic history and part computing history artifact. My interest is first the preservtion of the artifact, second the understanding of them model, and third the understanding of the academic-socio-historical context of the model's creataion.  
+To that end, this repository tracks the source code through all of the releases I can find, and will try to modify the code and codifiy its environemnt sufficently s.t. it can be built on a well specified VM.
+
+# SFI-ASM
+The Sante Fe Institute Artifical Stock Market is a description of a agent-based model of a stock market.  It has been realized in a few different implementations, which this repository aims to collect and enhance. 
+
+The model itself was first described by Palmer et al. (1994)
+
+## Artstkmkr
+
+```
+Group/Project Resource Page lists all resources available for this project.
+Several articles* have been published using the Artificial Stock Market model. The model simulates prices & trade levels in a market made up of "artificial adaptive agents." This is a prototype example of a "complex system" and is thought to illustrate the benefits of simulation modeling.
+
+This page is dedicated to the revision/updating/enhancement of the Swarm version of the ASM. The first objective was to bring the ASM code--as released in April, 2000, with the version label 2.0--up to date and into conformance with Swarm programming style and recommendations for Swarm 2.1. That was achieved with ASM-2.2, which represents a substantially reworked and enhanced version of the model. Actually, ASM-2.2 went a bit further than that, because it (optionally) uses some hdf5 data storage features that were supported only in Swarm after 2.1.1 (prerelease snapshots of Swarm-2.2). The next step, ASM-2.4, includes the addition of a number of new features, including serialization (ability to stop and restart a model). ASM-2.4 now performs, as far as Thomas Badegruber and I can tell, in a way that replicates the original Santa Fe Stock Market. See the Swarm community links page for release info.
+
+In case you wonder what a Swarm program looks like while it runs, I have a directory of screenshots!, such as screenshots/asm-20000530.gif . The newest version, ASM-2.4, looks like this: screenshots/asm-20030606.png on my RedHat Linux system.
+```
+
+# References 
+Arthur, W. Brian, John H. Holland, Blake LeBaron, Richard G. Palmer, and Paul Tayler. "Asset pricing under endogenous expectations in an artificial stock market." Available at SSRN 2252 (1996).
+
+Ehrentreich, Norman. "A corrected version of the santa fe institute artificial stock market model." Complexity (2003).
+
+Ehrentreich, Norman. Agent-based modeling: The Santa Fe Institute artificial stock market model revisited. Vol. 602. Springer Science & Business Media, 2007.
+
+LeBaron, Blake, W. Brian Arthur, and Richard Palmer. "Time series properties of an artificial stock market." Journal of Economic Dynamics and control 23, no. 9 (1999): 1487-1516.
+
+LeBaron, Blake. "Building the Santa Fe artificial stock market." Physica A (2002).
+
+Palmer, Richard G., W. Brian Arthur, John H. Holland, Blake LeBaron, and Paul Tayler. "Artificial economic life: a simple model of a stockmarket." Physica D: Nonlinear Phenomena 75, no. 1 (1994): 264-274.
+
 
 # Original Readme (ASM-2.4):
 ```
