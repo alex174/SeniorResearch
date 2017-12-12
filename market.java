@@ -47,7 +47,7 @@ public class market{
 		
 		//this array will contain the information regarding how the buy and sell orders are paid out
 		double[] resultsArray;
-		resultsArray = new double[5];
+		resultsArray = new double[6];
 
 	    
 		buyOrders=bOrders;
@@ -82,7 +82,7 @@ public class market{
 		resultsArray[4]=stockPrice;
 		
 		//calculate the new dividend for the stock
-		
+		resultsArray[5]=dividend;
 		
 		return(resultsArray); 
 	      
