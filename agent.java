@@ -8,7 +8,7 @@ public class agent{
 	public double balance;
 	
 	//how many shares the agent owns
-	public int shares;
+	public double shares;
 	
 	//how much of an impact the emotional parameters have on agent behavior
 	public double sentimentality;
