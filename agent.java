@@ -162,5 +162,9 @@ public class agent{
 		reactionism=n;
 	}
 	
+	public double[] returnstats() {
+		return([sentimentality],[riskTolerance],[optimism],[reactionism]);
+	}
+	
 	
 }
