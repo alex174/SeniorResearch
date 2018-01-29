@@ -118,7 +118,7 @@ public class agent{
 		}
 		else if(percentChangeInPrice<0) {
 			publicConfidence=-1;
-			reactionaryBuy=publicConfidence*reactionism*shares;
+			reactionaryBuy=-1*publicConfidence*reactionism*shares;
 		}
 		
 		
