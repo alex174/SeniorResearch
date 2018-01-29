@@ -111,13 +111,16 @@ public class agent{
 		//calculate how much the stock the agent would buy/sell based on reactionism (external irrationality)
 		//publicConfidence simply indicates whether the public's sentiment toward the stock is positive or negative
 		int publicConfidence=0;
+		double reactionaryBuy=0
 		if(percentChangeInPrice>0) {
 			publicConfidence=1;
+			double reactionaryBuy=publicConfidence*reactionism*couldBuy;
 		}
 		else if(percentChangeInPrice<0) {
 			publicConfidence=-1;
+			double reactionaryBuy=publicConfidence*reactionism*shares;
 		}
-		double reactionaryBuy=publicConfidence*reactionism;
+		
 		
 		//calculate the behavior of an enirely rational agent
 	    emotionalTransact=optimismBuy+reactionaryBuy;
