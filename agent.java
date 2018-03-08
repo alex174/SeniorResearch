@@ -1,4 +1,4 @@
-
+package asm;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -7,8 +7,12 @@ public class agent{
 	//how much $$ the agent has
 	public double balance;
 	
+	public double networth=0;
+	
 	//how many shares the agent owns
 	public double shares;
+	int id=0;
+	public double order=0;
 	
 	//how much of an impact the emotional parameters have on agent behavior
 	public double sentimentality;
@@ -26,15 +30,21 @@ public class agent{
 	//trading history of the agent (a table filled with the amount of $$ the agent either won or lost on each day
 	ArrayList<Double> tradingHistory = new ArrayList<Double>(0);
 	
+	Double[] nwHistory = new Double[2];
+	
 	//Initialize a new agent with the given parameter values
-	public agent(double bal, double sen, double ris, double opt, double ada, double rea) {
+	public agent(double bal, double sen, double ris, double opt, double ada, double rea, int idd, double shrs, double sp) {
 		balance=bal;
 		sentimentality=sen;
 		riskTolerance=ris;
 		optimism=opt;
 		adaptability=ada;
 		reactionism=rea;
-		shares=0;
+		shares=shrs;
+		id=idd;
+		networth=shares*sp+bal;
+		nwHistory[0]=networth;
+		nwHistory[1]=networth;
 	}
 	
 	public double getAvg(ArrayList<Double> list) {
@@ -59,41 +69,86 @@ public class agent{
 		This method uses the current price/earning ratio of the S&P 500 (25.8) to determine the "fundamental value"
 		of the stock, given its dividend, and compares that to the stock's current price.
 		This method will be improved in the future*/
-		
 		double fundamentalValue=dividend*sp500PE;
 		double currentPERatio=stockPrice/dividend;
 		double analyticalTransact=0;
 		double totalBuy=0;
 		
+		//calculate net worth
+		networth=stockPrice*shares+balance;
+		nwHistory[1]=networth;
+		
+		//calculate change in networth
+		double nwDif=nwHistory[1]-nwHistory[0];
+		double nwDifPer=nwDif/nwHistory[0];
+		
+		//calculate change in agent parameters
+		this.updateOpt(optimism+nwDifPer*optimism*adaptability);
+		this.updateRT(riskTolerance+nwDifPer*riskTolerance*adaptability);
+		
+		if(sentimentality>=0.5){
+			this.updatesen(sentimentality+nwDifPer*sentimentality*adaptability);
+		}
+		else{
+			this.updatesen(sentimentality-nwDifPer*sentimentality*adaptability);
+		}
+		
+		//this.updatesen(riskTolerance=riskTolerance+nwDifPer*riskTolerance*adaptability);
+		//since risk tolerance and optimism are finite parameters, they max out at 1
+		if(optimism>1) {
+			optimism=1;
+		}
+		if(riskTolerance>1) {
+			riskTolerance=1;
+		}
+		if(sentimentality>1) {
+			sentimentality=1;
+		}
+		if(sentimentality<0) {
+			sentimentality=0;
+		}
+		if(optimism<0) {
+			optimism=0;
+		}
+		if(riskTolerance<0) {
+			riskTolerance=0;
+		}
+		
+		//update networth history
+		nwHistory[0]=nwHistory[1];
+		
 		//calculate the total amount of stock that COULD be bought if all $$ was spent
 		double couldBuy=Math.floor(balance/stockPrice);
+		if(couldBuy<0){
+			couldBuy=0;
+		}
+		//normalization
+		
+		
+		//calculate dif in fundamental value
+		double fvDif=stockPrice-fundamentalValue;
+		double fvDifPer=fvDif/fundamentalValue;
 				
 		//check if stock is "undervalued"
-		if(fundamentalValue<=currentPERatio) {
-			//the stock is undervalued or "perfectly" valued, buy it up
+		if(stockPrice<fundamentalValue) {
+			//the stock is undervalued, buy it up
 			analyticalTransact=couldBuy;
 		}
-		else {
+		else if(stockPrice>fundamentalValue){
 			//the stock is overvalued, sell it
 			analyticalTransact=-1*shares;
+		}
+		else{
+			analyticalTransact=0;
 		}
 		
 		/*Now, compute what the agent would do if it were entirely irrational (dependent on sentimentality)
 		 * this segment is based on neuroeconomics, and will also be improved in the future
 		 */
 		double emotionalTransact=0;
-		double trackRecord=getAvg(tradingHistory);
-		//the agent's track record (average $$ won or loss) affects the agent's optimism and risk taking
-		//how it precisely affects these parameters will be fine tuned in the future
-		double situationalOptimism=optimism+trackRecord;
-		double situationalRiskTolerance=riskTolerance+trackRecord;
-		//since risk tolerance and optimism are finite parameters, they max out at 1
-		if(situationalOptimism>1) {
-			situationalOptimism=1;
-		}
-		if(situationalRiskTolerance>1) {
-			situationalRiskTolerance=1;
-		}
+		
+		
+		
 		/*calculate how much stock the agent would buy/sell based on optimism and risk tolerance (internal irrationality)
 		this is done with the assumption that with an optimism of 1 (maxmimum optimism) the agent would buy as much
 		stock as possible; alternatively, with an optimism of 0 (lowest optimism), the agent would sell as much stock
@@ -101,36 +156,46 @@ public class agent{
 		*/
 		double optimismBuy=0;
 		
-		if(situationalOptimism>0.5) {
-			optimismBuy=Math.floor((situationalOptimism-0.5)*2*couldBuy);
+		if(optimism>0.5) {
+			optimismBuy=Math.floor((optimism-0.5)*2*couldBuy);
 		}
-		else if(situationalOptimism<0.5) {
-			optimismBuy=(situationalOptimism-0.5)*2*shares;
+		else if(optimism<0.5) {
+			optimismBuy=(optimism-0.5)*2*shares;
 		}
 		
 		//calculate how much the stock the agent would buy/sell based on reactionism (external irrationality)
 		//publicConfidence simply indicates whether the public's sentiment toward the stock is positive or negative
-		int publicConfidence=0;
-		double reactionaryBuy=0
+		
+		double reactionaryBuy=0;
 		if(percentChangeInPrice>0) {
-			publicConfidence=1;
-			reactionaryBuy=publicConfidence*reactionism*couldBuy;
+			reactionaryBuy=couldBuy*reactionism*percentChangeInPrice/100;
 		}
 		else if(percentChangeInPrice<0) {
-			publicConfidence=-1;
-			reactionaryBuy=-1*publicConfidence*reactionism*shares;
+			reactionaryBuy=shares*reactionism*percentChangeInPrice/100;
 		}
+	
 		
-		
-		//calculate the behavior of an enirely rational agent
-	    emotionalTransact=optimismBuy+reactionaryBuy;
+		//calculate the behavior of an entirely rational agent
+	    emotionalTransact=(optimismBuy+reactionaryBuy);
+	    analyticalTransact=analyticalTransact;
+	    
+	    double behavior=Math.random();
+	    if(behavior<=sentimentality){
+	    	totalBuy=emotionalTransact;
+	    }
+	    else{
+	    	totalBuy=analyticalTransact;
+	    }
+	    
 	    
 	    //calculate the total behavior of the agent, giving weight to sentimentality
-	    emotionalTransact=sentimentality*emotionalTransact;
-	    analyticalTransact=(1-sentimentality)*analyticalTransact;
+	    //emotionalTransact=sentimentality*emotionalTransact;
+	    //analyticalTransact=(1-sentimentality)*analyticalTransact;
 	    
-	    totalBuy=emotionalTransact+analyticalTransact;
-		return totalBuy;
+	    //totalBuy=(emotionalTransact+analyticalTransact)/2;
+	    
+	    
+	    return totalBuy;
 		
 		
 		
@@ -140,6 +205,10 @@ public class agent{
 		
 		
 		
+	}
+	
+	public double returnorder(){
+		return order;
 	}
 	
 	public void updateTradingHistory(double gain) {
@@ -149,6 +218,19 @@ public class agent{
 	public double returnTHA() {
 		return getAvg(tradingHistory);
 	}
+	
+	public double returnopt() {
+		return optimism;
+	}
+	
+	public double returnsen() {
+		return sentimentality;
+	}
+	
+	public void updatesen(double n) {
+		sentimentality=n;
+	}
+	
 	
 	public void updateRT(double n) {
 		riskTolerance=n;
@@ -162,9 +244,27 @@ public class agent{
 		reactionism=n;
 	}
 	
-	public double[] returnstats() {
-		return([sentimentality],[riskTolerance],[optimism],[reactionism]);
+	public void depositcash(double amt){
+		balance=balance+amt;
 	}
 	
+	public void depositshares(double amt){
+		shares=shares+amt;
+	}
 	
+	public void withdrawcash(double amt){
+		balance=balance-amt;
+	}
+	
+	public void withdrawshares(double amt){
+		shares=shares-amt;
+	}
+	
+	public void setorder(double ord){
+		order=ord;
+	}
+
+	public String getparameters() {
+		return "ID: " + id + " Balance: " + balance + " Shares: " + shares + " Sentimentality: " + sentimentality + " Risk Tolerance: " + riskTolerance + " Optimism: " + optimism + " Adaptability: " + adaptability + " Reactionism: " + reactionism;
+	}
 }
