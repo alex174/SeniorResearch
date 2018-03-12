@@ -86,14 +86,22 @@ public class agent{
 		this.updateOpt(optimism+nwDifPer*optimism*adaptability);
 		this.updateRT(riskTolerance+nwDifPer*riskTolerance*adaptability);
 		
-		if(sentimentality>=0.5){
-			this.updatesen(sentimentality+nwDifPer*sentimentality*adaptability);
-		}
-		else{
-			this.updatesen(sentimentality-nwDifPer*sentimentality*adaptability);
-		}
+		//if(sentimentality>=0.5){
+		//	this.updatesen(sentimentality+nwDifPer*sentimentality*adaptability);
+		//}
+		//else{
+		//	this.updatesen(sentimentality-nwDifPer*sentimentality*adaptability);
+		//}
 		
-		//this.updatesen(riskTolerance=riskTolerance+nwDifPer*riskTolerance*adaptability);
+		if(reactionism>=0.5){
+					this.updateRea(reactionism+nwDifPer*reactionism*adaptability);
+				}
+				else{
+					this.updateRea(reactionism-nwDifPer*reactionism*adaptability);
+				}
+		
+		this.updatesen(riskTolerance=riskTolerance+nwDifPer*riskTolerance*adaptability);
+		
 		//since risk tolerance and optimism are finite parameters, they max out at 1
 		if(optimism>1) {
 			optimism=1;
@@ -122,21 +130,20 @@ public class agent{
 		if(couldBuy<0){
 			couldBuy=0;
 		}
-		//normalization
 		
 		
 		//calculate dif in fundamental value
-		double fvDif=stockPrice-fundamentalValue;
+		double fvDif=Math.abs(stockPrice-fundamentalValue);
 		double fvDifPer=fvDif/fundamentalValue;
 				
 		//check if stock is "undervalued"
 		if(stockPrice<fundamentalValue) {
 			//the stock is undervalued, buy it up
-			analyticalTransact=couldBuy;
+			analyticalTransact=couldBuy*fvDifPer;
 		}
 		else if(stockPrice>fundamentalValue){
 			//the stock is overvalued, sell it
-			analyticalTransact=-1*shares;
+			analyticalTransact=-1*shares*fvDifPer;
 		}
 		else{
 			analyticalTransact=0;
@@ -168,32 +175,27 @@ public class agent{
 		
 		double reactionaryBuy=0;
 		if(percentChangeInPrice>0) {
-			reactionaryBuy=couldBuy*reactionism*percentChangeInPrice/100;
+			reactionaryBuy=shares*reactionism;
 		}
 		else if(percentChangeInPrice<0) {
-			reactionaryBuy=shares*reactionism*percentChangeInPrice/100;
+			reactionaryBuy=couldBuy*reactionism;
 		}
 	
 		
-		//calculate the behavior of an entirely rational agent
+		
 	    emotionalTransact=(optimismBuy+reactionaryBuy);
-	    analyticalTransact=analyticalTransact;
-	    
-	    double behavior=Math.random();
-	    if(behavior<=sentimentality){
-	    	totalBuy=emotionalTransact;
+	    if(emotionalTransact>couldBuy){
+	    	emotionalTransact=couldBuy;
 	    }
-	    else{
-	    	totalBuy=analyticalTransact;
-	    }
-	    
-	    
 	    //calculate the total behavior of the agent, giving weight to sentimentality
-	    //emotionalTransact=sentimentality*emotionalTransact;
-	    //analyticalTransact=(1-sentimentality)*analyticalTransact;
+	    emotionalTransact=sentimentality*emotionalTransact;
+	    analyticalTransact=(1-sentimentality)*analyticalTransact;
 	    
-	    //totalBuy=(emotionalTransact+analyticalTransact)/2;
+	    System.out.println(id + " em: " + emotionalTransact+"");
+	    System.out.println(id + " an: " + analyticalTransact+"");
 	    
+	    totalBuy=(emotionalTransact+analyticalTransact)/2;
+	    System.out.println(id + " tot: " + totalBuy+"");
 	    
 	    return totalBuy;
 		
