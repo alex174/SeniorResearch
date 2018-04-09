@@ -103,7 +103,7 @@ public class agent{
 		
 		
 		
-		this.updatesen(riskTolerance=riskTolerance+nwDifPer*riskTolerance*adaptability);
+		//this.updatesen(riskTolerance=riskTolerance+nwDifPer*riskTolerance*adaptability);
 		
 		//since risk tolerance and optimism are finite parameters, they max out at 1
 		if(optimism>1) {
