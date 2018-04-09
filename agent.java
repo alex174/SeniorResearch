@@ -86,6 +86,14 @@ public class agent{
 		this.updateOpt(optimism+nwDifPer*optimism*adaptability);
 		this.updateRT(riskTolerance+nwDifPer*riskTolerance*adaptability);
 		
+		if(reactionism>=0.5)
+		{
+			this.updateRea(reactionism+nwDifPer*reactionism*adaptability);
+		}
+		else{
+			this.updateRea(reactionism-nwDifPer*reactionism*adaptability);
+		}
+		
 		//if(sentimentality>=0.5){
 		//	this.updatesen(sentimentality+nwDifPer*sentimentality*adaptability);
 		//}
@@ -93,12 +101,7 @@ public class agent{
 		//	this.updatesen(sentimentality-nwDifPer*sentimentality*adaptability);
 		//}
 		
-		if(reactionism>=0.5){
-					this.updateRea(reactionism+nwDifPer*reactionism*adaptability);
-				}
-				else{
-					this.updateRea(reactionism-nwDifPer*reactionism*adaptability);
-				}
+		
 		
 		this.updatesen(riskTolerance=riskTolerance+nwDifPer*riskTolerance*adaptability);
 		
