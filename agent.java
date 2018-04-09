@@ -112,11 +112,11 @@ public class agent{
 		if(riskTolerance>1) {
 			riskTolerance=1;
 		}
-		if(sentimentality>1) {
-			sentimentality=1;
+		if(reactionism>1) {
+			reactionism=1;
 		}
-		if(sentimentality<0) {
-			sentimentality=0;
+		if(reactionism<0) {
+			reactionism=0;
 		}
 		if(optimism<0) {
 			optimism=0;
