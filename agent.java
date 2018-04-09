@@ -174,9 +174,16 @@ public class agent{
 		}
 		
 		//calculate how much the stock the agent would buy/sell based on reactionism (external irrationality)
-		//publicConfidence simply indicates whether the public's sentiment toward the stock is positive or negative
 		
 		double reactionaryBuy=0;
+		
+		//if(percentChangeInPrice>0) {
+		//	reactionaryBuy=shares*reactionism*percentChangeInPrice;
+		//}
+		//else if(percentChangeInPrice<0) {
+		//	reactionaryBuy=couldBuy*reactionism*percentChangeInPrice;
+		//}
+		
 		if(percentChangeInPrice>0) {
 			reactionaryBuy=shares*reactionism;
 		}
